@@ -12,8 +12,8 @@
 #include <utility> /* std::pair, std::make_pair */
 
 
-
-    
+   
+namespace chunky{
 
 struct SimpleProperty{
     typedef unsigned ID;
@@ -252,4 +252,5 @@ class BGL {
 
 };
 
+} /* chunky */
 

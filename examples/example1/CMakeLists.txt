@@ -21,9 +21,9 @@ PROJECT("example1")
 SET(CHUNKY_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../" CACHE STRING  "The location of the chunky library")
 LIST(APPEND CMAKE_PREFIX_PATH "${CHUNKY_ROOT}")
 
-#FIND_PACKAGE("chunky")
-#ADD_DEFINITIONS(${chunky_DEFINITIONS})
-#INCLUDE_DIRECTORIES(${chunky_INCLUDE_DIRS})
+FIND_PACKAGE("chunky")
+ADD_DEFINITIONS(${chunky_DEFINITIONS})
+INCLUDE_DIRECTORIES(${chunky_INCLUDE_DIRS})
 
 
 #-------------------------------------------------------------------------------

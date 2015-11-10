@@ -132,42 +132,6 @@ append_recursive_files_add_to_src_group("${_CHUNKY_SUFFIXED_INCLUDE_DIR}" "${_CH
 append_recursive_files_add_to_src_group("${_CHUNKY_SUFFIXED_INCLUDE_DIR}" "${_CHUNKY_SUFFIXED_INCLUDE_DIR}" "cpp" "_CHUNKY_FILES_SOURCE")
 
 #-------------------------------------------------------------------------------
-# Target.
-#-------------------------------------------------------------------------------
-if(NOT TARGET "chunky")
-    ADD_LIBRARY("chunky" ${_CHUNKY_FILES_HEADER} ${_CHUNKY_FILES_SOURCE} ${_CHUNKY_FILES_OTHER})
-
-    # Compile options.
-    if(${CHUNKY_DEBUG} GREATER 1)
-        MESSAGE(STATUS "_CHUNKY_COMPILE_OPTIONS_PUBLIC: ${_CHUNKY_COMPILE_OPTIONS_PUBLIC}")
-    endif()
-    LIST(LENGTH _CHUNKY_COMPILE_OPTIONS_PUBLIC _CHUNKY_COMPILE_OPTIONS_PUBLIC_LENGTH)
-    if(${_CHUNKY_COMPILE_OPTIONS_PUBLIC_LENGTH} GREATER 0)
-        TARGET_COMPILE_OPTIONS("chunky" PUBLIC ${_CHUNKY_COMPILE_OPTIONS_PUBLIC})
-    endif()
-
-    # Include directories.
-    if(${CHUNKY_DEBUG} GREATER 1)
-        MESSAGE(STATUS "_CHUNKY_INCLUDE_DIRECTORIES_PUBLIC: ${_CHUNKY_INCLUDE_DIRECTORIES_PUBLIC}")
-    endif()
-    LIST(LENGTH _CHUNKY_INCLUDE_DIRECTORIES_PUBLIC _CHUNKY_INCLUDE_DIRECTORIES_PUBLIC_LENGTH)
-    if(${_CHUNKY_INCLUDE_DIRECTORIES_PUBLIC_LENGTH} GREATER 0)
-        TARGET_INCLUDE_DIRECTORIES("chunky" PUBLIC ${_CHUNKY_INCLUDE_DIRECTORIES_PUBLIC})
-    endif()
-
-    # Link libraries.
-    # There are no PUBLIC_LINK_FLAGS in CMAKE:
-    # http://stackoverflow.com/questions/26850889/cmake-keeping-link-flags-of-internal-libs
-    if(${CHUNKY_DEBUG} GREATER 1)
-        MESSAGE(STATUS "_CHUNKY_LINK_LIBRARIES_PUBLIC: ${_CHUNKY_LINK_LIBRARIES_PUBLIC}")
-    endif()
-    LIST(LENGTH _CHUNKY_LINK_LIBRARIES_PUBLIC _CHUNKY_LINK_LIBRARIES_PUBLIC_LENGTH)
-    if(${_CHUNKY_LINK_LIBRARIES_PUBLIC_LENGTH} GREATER 0)
-        TARGET_LINK_LIBRARIES("chunky" PUBLIC ${_CHUNKY_LINK_LIBRARIES_PUBLIC} ${_CHUNKY_LINK_FLAGS_PUBLICI})
-    endif()
-endif()
-
-#-------------------------------------------------------------------------------
 # Set return values.
 #-------------------------------------------------------------------------------
 set(chunky_COMPILE_OPTIONS ${_CHUNKY_COMPILE_OPTIONS_PUBLIC})
