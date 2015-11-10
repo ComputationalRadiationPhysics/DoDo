@@ -17,10 +17,3 @@
  * along with chunky.
  * If not, see <http://www.gnu.org/licenses/>.
  */
-
-/**
- * This is an auto-generated file
- */
-
-#pragma once
-

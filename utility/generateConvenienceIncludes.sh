@@ -3,7 +3,18 @@
 # make non-matching patterns to an empty list
 shopt -s nullglob
 
-LICENSEPATH=/tmp/license.txt
+# DIR will be the directory where this script is stored
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE"  ]; do # resolve $SOURCE until the file is no longer a symlink
+    DIR="$( cd -P "$( dirname "$SOURCE"  )" && pwd  )"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /*  ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+DIR="$( cd -P "$( dirname "$SOURCE"  )" && pwd  )"
+
+
+
+LICENSEPATH=$DIR/autoHeaderLicense.txt
 
 function createIncludesFile(){
     # we are inside current
@@ -11,6 +22,22 @@ function createIncludesFile(){
     includefile="../$(basename $current).hpp"
 
     rm -f $includefile
+    OLDIFS=$IFS
+
+    if [ -f $LICENSEPATH ] ; then
+        while IFS= read LINE
+        do
+            echo "$LINE" >> $includefile
+        done < $LICENSEPATH
+    fi
+
+    IFS=$OLDIFS
+
+    echo -e "
+/**
+ * This is an auto-generated file
+ */\n" >> $includefile
+
 
     echo "#pragma once" >> $includefile
     echo "" >> $includefile
@@ -33,13 +60,6 @@ function recurseDirs(){
     fi
 }
 
-SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE"  ]; do # resolve $SOURCE until the file is no longer a symlink
-    DIR="$( cd -P "$( dirname "$SOURCE"  )" && pwd  )"
-    SOURCE="$(readlink "$SOURCE")"
-    [[ $SOURCE != /*  ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-done
-DIR="$( cd -P "$( dirname "$SOURCE"  )" && pwd  )"
 
 cd "$DIR/../include"
 recurseDirs ""
