@@ -24,8 +24,5 @@
 
 #pragma once
 
-#include <chunky/graph.hpp>
-#include <chunky/logic.hpp>
-#include <chunky/physical.hpp>
-#include <chunky/utility.hpp>
-#include <chunky/version.hpp>
+#include <chunky/graph/AttributeMapStore.hpp>
+#include <chunky/graph/BGL.hpp>

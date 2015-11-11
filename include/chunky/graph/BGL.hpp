@@ -14,6 +14,7 @@
 
    
 namespace chunky{
+namespace graph{
 
 struct SimpleProperty{
     typedef unsigned ID;
@@ -252,5 +253,6 @@ class BGL {
 
 };
 
+} /* graph */
 } /* chunky */
 
