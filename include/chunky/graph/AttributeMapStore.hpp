@@ -1,16 +1,3 @@
-#include <iostream>
-#include <vector>
-#include <utility>
-#include <memory>
-#include <tuple>
-
-#include <boost/graph/adjacency_list.hpp>
-
-#include <chunky/utility.hpp>
-#include <chunky/graph/BGL.hpp>
-#include <chunky/physical/attributes.hpp>
-
-
 namespace chunky{
 
 template<typename... MapTypes>
@@ -23,24 +10,27 @@ class PropertyMapStore
     std::vector<std::stack<size_t>> unusedEntryIDs;
     std::shared_ptr<StoreType> selfPtr;
 
-    
+
 public:
     class PropertyHandle;
 
 private:
     PropertyMapStore(){
         const size_t n = std::tuple_size<MapTypesTuple>::value;
-                
+
         for(size_t i = 0 ; i<n ; ++i){
             maps.emplace_back(std::vector<boost::any>());
+
 
         }
         for(size_t i = 0 ; i<n ; ++i){
             unusedEntryIDs.emplace_back(std::stack<size_t>());
+
         }
 
         maps.resize(n);
         unusedEntryIDs.resize(n);
+
     };
 
 
@@ -50,6 +40,7 @@ public:
         auto p = std::shared_ptr<StoreType>(raw_ptr);
         p->selfPtr=p;
         return p;
+
     }
 
 
@@ -57,11 +48,13 @@ public:
     {
         unusedEntryIDs[mapID].push(entryID);
         return true;
+
     }
 
     boost::any getEntry(size_t mapID, size_t entryID)
     {
         return maps[mapID][entryID];
+
     }
 
     //experimental
@@ -78,7 +71,7 @@ public:
         {
             maps[mapID].emplace_back(entry); 
             return maps[mapID].size()-1;
-        }else{
+        } else{
             size_t position = unusedEntryIDs[mapID].top();
             unusedEntryIDs[mapID].pop();
             maps[mapID][position] = entry;
@@ -119,9 +112,9 @@ public:
     template<typename T>
     std::shared_ptr<typename StoreType::PropertyHandle> addEntry(T t)
     {
-         size_t mapID = static_cast<size_t>(utility::tuple_index<MapTypesTuple, T>::value);
-         size_t entryID = placeCopy(mapID, boost::any(t));
-         return std::make_shared<typename StoreType::PropertyHandle>(mapID, entryID, selfPtr);
+        size_t mapID = static_cast<size_t>(utility::tuple_index<MapTypesTuple, T>::value);
+        size_t entryID = placeCopy(mapID, boost::any(t));
+        return std::make_shared<typename StoreType::PropertyHandle>(mapID, entryID, selfPtr);
     }
 
 
@@ -136,7 +129,7 @@ public:
         template<typename Attributes...>
         ComputeVertexProperty(std::shared_ptr<StoreType> p, Attributes... attributes)
         : propertyMapStore(p){
-            
+
         }
 
 
@@ -165,58 +158,37 @@ public:
             //std::shared_ptr<PropertyHandle> p = propertyMapStore->addEntry(t);                       
             handles.push_back(propertyMapStore->addEntry(t));
         }
-    
+
     };
 
-/*     class ComputeVertexPropertyGenerator{ */
-        
-/*         template<typename T> */
-/*         void generateProperty(ComputeVertexProperty& cvp, T t){ */
-/*             cvp.addEntry(t); */
-/*         } */
+    /*     class ComputeVertexPropertyGenerator{ */
 
-/*         template<typename T, typename... Properties> */
-/*         void generateProperty(ComputeVertexProperty& cvp, T t, Properties... properties){ */
-/*             cvp.addEntry(t); */
-/*             generateProperty(cvp, properties...); */
+    /*         template<typename T> */
+    /*         void generateProperty(ComputeVertexProperty& cvp, T t){ */
+    /*             cvp.addEntry(t); */
+    /*         } */
 
-/*         } */
-/*         std::shared_ptr<StoreType> propertyMapStore; */
+    /*         template<typename T, typename... Properties> */
+    /*         void generateProperty(ComputeVertexProperty& cvp, T t, Properties... properties){ */
+    /*             cvp.addEntry(t); */
+    /*             generateProperty(cvp, properties...); */
 
-/*     public: */
+    /*         } */
+    /*         std::shared_ptr<StoreType> propertyMapStore; */
 
-/*         ComputeVertexPropertyGenerator(std::shared_ptr<StoreType> pms) : propertyMapStore(pms) {}; */
+    /*     public: */
 
-/*         template<typename... Properties> */
-/*         ComputeVertexProperty generate(Properties... properties){ */
-/*             ComputeVertexProperty cvp(propertyMapStore); */
-/*             generateProperty(cvp, properties...); */
-/*             return cvp; */
-/*         } */
-        
-/*     }; */
+    /*         ComputeVertexPropertyGenerator(std::shared_ptr<StoreType> pms) : propertyMapStore(pms) {}; */
+
+    /*         template<typename... Properties> */
+    /*         ComputeVertexProperty generate(Properties... properties){ */
+    /*             ComputeVertexProperty cvp(propertyMapStore); */
+    /*             generateProperty(cvp, properties...); */
+    /*             return cvp; */
+    /*         } */
+
+    /*     }; */
 
 };
-
 }
 
-int main()
-{
-    using namespace chunky;
-
-
-    using PMS = PropertyMapStore<physical::attributes::EnergyLevel>;
-    using ComputeVertexProperty = typename PMS::ComputeVertexProperty;
-    using ComputeGraph = BGL<ComputeVertexProperty>;
-    ComputeGraph graph;
-    std::shared_ptr<PMS> pms = PMS::createInstance();
-
-    ComputeVertexProperty node(pms);
-    node.addEntry(physical::attributes::EnergyLevel{3});
-
-    graph.addVertex(node.clone());
-
-
-    return EXIT_SUCCESS;
-
-}
