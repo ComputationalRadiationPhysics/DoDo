@@ -1,13 +1,14 @@
 #pragma once
 
 #include <memory>
-#include <utility>
+#include <cstddef> /* size_t */
 #include <tuple>
+#include <vector>
+#include <stack>
+
+#include <boost/any.hpp>
 
 #include <chunky/utility/tuple_index.hpp>
-#include <chunky/graph/BGL.hpp>
-
-
 
 namespace chunky{
 namespace graph{
@@ -16,12 +17,12 @@ template<typename... AttributeTypes>
 class AttributeMapStore
 {
     using AttributeTypesTuple = std::tuple<AttributeTypes...>;
-    using AttributeMapStore_T = AttributeMapStore<AttributeTypes...>;
-    using type = AttributeMapStore_T;
-
+    using This_T              = AttributeMapStore<AttributeTypes...>;
     class AttributeHandle;
 
 public:
+    using Handle  = std::shared_ptr<AttributeHandle>;
+    using type    = This_T;
     using MapID   = size_t;
     using EntryID = size_t;
 
@@ -29,55 +30,69 @@ private:
     std::vector<std::vector<boost::any>> maps;
     using EntryIDContainer = std::stack<EntryID>;
     std::vector<EntryIDContainer> unusedEntryIDs;
-    std::shared_ptr<AttributeMapStore_T> selfPtr;
+    std::shared_ptr<type> selfPtr;
 
     AttributeMapStore();
+    void       removeEntry(MapID mapID, EntryID entryID);
+    EntryID    placeCopy(MapID mapID, boost::any entry);
 
 public:
-    class ChunkyGraphProperty;
+    static std::shared_ptr<This_T> createInstance();
 
-    static std::shared_ptr<AttributeMapStore_T> createInstance();
-    bool removeEntry(MapID mapID, EntryID entryID);
+    template<typename T>
+    Handle     addEntry(T t);
+
+    template<typename T>
+    MapID      getMapID();
+
+    template<typename T>
+    T          getEntry(EntryID entryID);
     boost::any getEntry(MapID mapID, EntryID entryID);
-    EntryID placeCopy(MapID mapID, boost::any entry);
+    boost::any getEntry(Handle handle);
 
-    // Experimental
-    template<typename T>
-    T getEntry(EntryID entryID);
-
-    template<typename T>
-    std::shared_ptr<AttributeHandle> addEntry(T t);
-
-    template<typename T>
-    MapID getMapID()
-    {
-        auto tupleIndex = utility::tuple_index<AttributeTypesTuple, T>::value;
-        assert(tupleIndex >= 0 && tupleIndex < std::tuple_size<AttributeTypesTuple>::value);
-        return static_cast<MapID>(tupleIndex);
-    }
 };
+
+
+template <typename... AttributeTypes>
+template <typename T>
+auto AttributeMapStore<AttributeTypes...>::getMapID()
+-> AttributeMapStore<AttributeTypes...>::MapID
+{
+    auto tupleIndex = utility::tuple_index<AttributeTypesTuple, T>::value;
+    assert(tupleIndex >= 0 && static_cast<size_t>(tupleIndex) < std::tuple_size<AttributeTypesTuple>::value);
+    return static_cast<MapID>(tupleIndex);
+}
+
+
+template<typename... AttributeTypes>
+auto AttributeMapStore<AttributeTypes...>::removeEntry(MapID mapID, EntryID entryID)
+-> void
+{
+    unusedEntryIDs[mapID].push(entryID);
+}
 
 
 template<typename... AttributeTypes>
 auto AttributeMapStore<AttributeTypes...>::createInstance()
--> std::shared_ptr<typename AttributeMapStore<AttributeTypes...>::AttributeMapStore_T>
+-> std::shared_ptr<AttributeMapStore<AttributeTypes...>>
 {
-    auto* raw_ptr = new AttributeMapStore_T;
-    auto p = std::shared_ptr<AttributeMapStore_T>(raw_ptr);
-    p->selfPtr=p;
+    auto* raw_ptr = new This_T;
+    auto p = std::shared_ptr<This_T>(raw_ptr);
+    p->selfPtr = p;
     return p;
 }
+
 
 template<typename... AttributeTypes>
 template<typename T>
 auto AttributeMapStore<AttributeTypes...>::addEntry(T t)
 -> std::shared_ptr<typename AttributeMapStore<AttributeTypes...>::AttributeHandle>
 {
-    MapID mapID = getMapID<T>();
-    EntryID entryID = placeCopy(mapID, boost::any(t));
-    return std::make_shared<AttributeHandle>(mapID, entryID, selfPtr);
+    MapID mapID        = getMapID<T>();
+    EntryID entryID    = placeCopy(mapID, boost::any(t));
+    AttributeHandle* p = new AttributeHandle(mapID, entryID, selfPtr);
+    return Handle(p);
 }
-
 
 
 template<typename... AttributeTypes>
@@ -89,33 +104,38 @@ auto AttributeMapStore<AttributeTypes...>::placeCopy(MapID mapID, boost::any ent
         maps[mapID].emplace_back(entry); 
         return maps[mapID].size()-1;
     } else{
-        EntryID position = unusedEntryIDs[mapID].top();
+        EntryID newEntryID = unusedEntryIDs[mapID].top();
         unusedEntryIDs[mapID].pop();
-        maps[mapID][position] = entry;
-        return position;
+        maps[mapID][newEntryID] = entry;
+        return newEntryID;
     }
 }
 
+
 template<typename... AttributeTypes>
 template<typename T>
-T AttributeMapStore<AttributeTypes...>::getEntry(EntryID entryID)
+auto AttributeMapStore<AttributeTypes...>::getEntry(EntryID entryID)
+-> T
 {
     MapID mapID = getMapID<T>();
     return boost::any_cast<T>(maps[mapID][entryID]);
 }
 
-template<typename... AttributeTypes>
-bool AttributeMapStore<AttributeTypes...>::removeEntry(MapID mapID, EntryID entryID)
-{
-    unusedEntryIDs[mapID].push(entryID);
-    return true;
-}
 
 template<typename... AttributeTypes>
-boost::any AttributeMapStore<AttributeTypes...>::getEntry(MapID mapID, EntryID entryID)
+auto AttributeMapStore<AttributeTypes...>::getEntry(MapID mapID, EntryID entryID)
+-> boost::any
 {
     return maps[mapID][entryID];
 }
+
+template<typename... AttributeTypes>
+auto AttributeMapStore<AttributeTypes...>::getEntry(std::shared_ptr<AttributeHandle> handle)
+-> boost::any
+{
+    return maps[handle->mapID][handle->entryID];
+}
+
 
 template<typename... AttributeTypes>
 AttributeMapStore<AttributeTypes...>::AttributeMapStore()
@@ -136,50 +156,6 @@ AttributeMapStore<AttributeTypes...>::AttributeMapStore()
     unusedEntryIDs.resize(n);
 }
 
-template<typename... AttributeTypes>
-class AttributeMapStore<AttributeTypes...>::ChunkyGraphProperty
-{
-    std::shared_ptr<AttributeMapStore_T> attributeMapStore;
-    std::vector<std::shared_ptr<AttributeHandle> > handles;
-
-    public:
-    ChunkyGraphProperty(){}
-    ChunkyGraphProperty(std::shared_ptr<AttributeMapStore_T> p) : attributeMapStore(p) {}
-
-    template<typename... Attributes>
-    ChunkyGraphProperty(std::shared_ptr<AttributeMapStore_T> p, Attributes... attributes)
-    : attributeMapStore(p)
-    {
-        addEntry(attributes...);
-    }
-
-    ChunkyGraphProperty clone()
-    {
-        ChunkyGraphProperty cloned(attributeMapStore);
-
-        for(auto handle : handles)
-        {
-            auto mapID = handle->mapID;
-            auto entryID = handle->entryID;
-            auto entry = attributeMapStore->getEntry(mapID, entryID);
-            auto newEntryID = attributeMapStore->placeCopy(mapID, entry);
-            cloned.handles.push_back(
-                    std::make_shared<AttributeHandle>(mapID, newEntryID, attributeMapStore)
-                    );
-        }
-        return cloned;
-    }
-
-    template<typename H, typename... T>
-    auto addEntry(H head, T... tail)
-    {
-        handles.push_back(attributeMapStore->addEntry(head));
-        addEntry(tail...);
-    }
-    auto addEntry(){}
-
-};
-
 
 template<typename... AttributeTypes>
 class AttributeMapStore<AttributeTypes...>::AttributeHandle
@@ -189,17 +165,21 @@ public:
     EntryID entryID;
 
 private:
-    std::shared_ptr<AttributeMapStore_T> attributeMapStore;
+    using StoreType = AttributeMapStore<AttributeTypes...>;
+    std::shared_ptr<StoreType> attributeMapStore;
 
-public:
-    AttributeHandle(const AttributeHandle&) = delete;
-    AttributeHandle& operator=(const AttributeHandle&) = delete;
+    template<typename T>
+    friend std::shared_ptr<AttributeHandle> StoreType::addEntry(T t);
 
-    AttributeHandle(MapID pMapID, EntryID pEntryID, std::shared_ptr<AttributeMapStore_T> p)
+    AttributeHandle(MapID pMapID, EntryID pEntryID, std::shared_ptr<StoreType> p)
     :   mapID(pMapID),
         entryID(pEntryID),
         attributeMapStore(p)
     {}
+public:
+    AttributeHandle(const AttributeHandle&) = delete;
+    AttributeHandle& operator=(const AttributeHandle&) = delete;
+
 
     ~AttributeHandle()
     {
@@ -210,4 +190,3 @@ public:
 
 } /* graph */
 } /* chunky */
-

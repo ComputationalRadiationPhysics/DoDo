@@ -26,3 +26,4 @@
 
 #include <chunky/graph/AttributeMapStore.hpp>
 #include <chunky/graph/BGL.hpp>
+#include <chunky/graph/ChunkyGraphProperty.hpp>

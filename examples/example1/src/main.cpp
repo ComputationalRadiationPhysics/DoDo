@@ -14,7 +14,7 @@ int main()
 
     using EnergyLevel = chunky::physical::attributes::EnergyLevel;
     using AMS = chunky::graph::AttributeMapStore<EnergyLevel>;
-    using ChunkyGraphProperty = typename AMS::ChunkyGraphProperty;
+    using ChunkyGraphProperty = chunky::graph::ChunkyGraphProperty<AMS>;
     using ComputeGraph = chunky::graph::BGL<ChunkyGraphProperty>;
 
     ComputeGraph graph;
