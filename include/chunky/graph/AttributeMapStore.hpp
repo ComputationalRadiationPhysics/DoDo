@@ -21,6 +21,7 @@ class AttributeMapStore
     class AttributeHandle;
 
 public:
+    enum { AttributeCount = std::tuple_size<AttributeTypesTuple>::value };
     using Handle  = std::shared_ptr<AttributeHandle>;
     using type    = This_T;
     using MapID   = size_t;
@@ -43,23 +44,28 @@ public:
     Handle     addEntry(T t);
 
     template<typename T>
-    MapID      getMapID();
+    Handle     addEntry(MapID mapID, T t);
 
     template<typename T>
-    T          getEntry(EntryID entryID);
-    boost::any getEntry(MapID mapID, EntryID entryID);
-    boost::any getEntry(Handle handle);
+    constexpr MapID getMapID() const;
+
+    template<typename T>
+    T          getEntry(EntryID entryID) const;
+    boost::any getEntry(MapID mapID, EntryID entryID) const;
+    boost::any getEntry(Handle handle) const;
 
 };
 
 
 template <typename... AttributeTypes>
 template <typename T>
-auto AttributeMapStore<AttributeTypes...>::getMapID()
+constexpr auto AttributeMapStore<AttributeTypes...>::getMapID() const
 -> AttributeMapStore<AttributeTypes...>::MapID
 {
-    auto tupleIndex = utility::tuple_index<AttributeTypesTuple, T>::value;
-    assert(tupleIndex >= 0 && static_cast<size_t>(tupleIndex) < std::tuple_size<AttributeTypesTuple>::value);
+    constexpr auto tupleIndex = utility::tuple_index<AttributeTypesTuple, T>::value;
+    static_assert(tupleIndex >= 0 &&
+            static_cast<size_t>(tupleIndex) < std::tuple_size<AttributeTypesTuple>::value,
+            "No map exists for type");
     return static_cast<MapID>(tupleIndex);
 }
 
@@ -89,6 +95,15 @@ auto AttributeMapStore<AttributeTypes...>::addEntry(T t)
 -> std::shared_ptr<typename AttributeMapStore<AttributeTypes...>::AttributeHandle>
 {
     MapID mapID        = getMapID<T>();
+    return addEntry(mapID, t);
+}
+
+
+template<typename... AttributeTypes>
+template<typename T>
+auto AttributeMapStore<AttributeTypes...>::addEntry(MapID mapID, T t)
+-> std::shared_ptr<typename AttributeMapStore<AttributeTypes...>::AttributeHandle>
+{
     EntryID entryID    = placeCopy(mapID, boost::any(t));
     AttributeHandle* p = new AttributeHandle(mapID, entryID, selfPtr);
     return Handle(p);
@@ -114,23 +129,24 @@ auto AttributeMapStore<AttributeTypes...>::placeCopy(MapID mapID, boost::any ent
 
 template<typename... AttributeTypes>
 template<typename T>
-auto AttributeMapStore<AttributeTypes...>::getEntry(EntryID entryID)
+auto AttributeMapStore<AttributeTypes...>::getEntry(EntryID entryID) const
 -> T
 {
+    std::cout << "calling MapID from getEntry" << std::endl;
     MapID mapID = getMapID<T>();
     return boost::any_cast<T>(maps[mapID][entryID]);
 }
 
 
 template<typename... AttributeTypes>
-auto AttributeMapStore<AttributeTypes...>::getEntry(MapID mapID, EntryID entryID)
+auto AttributeMapStore<AttributeTypes...>::getEntry(MapID mapID, EntryID entryID) const
 -> boost::any
 {
     return maps[mapID][entryID];
 }
 
 template<typename... AttributeTypes>
-auto AttributeMapStore<AttributeTypes...>::getEntry(std::shared_ptr<AttributeHandle> handle)
+auto AttributeMapStore<AttributeTypes...>::getEntry(std::shared_ptr<AttributeHandle> handle) const
 -> boost::any
 {
     return maps[handle->mapID][handle->entryID];
@@ -169,7 +185,7 @@ private:
     std::shared_ptr<StoreType> attributeMapStore;
 
     template<typename T>
-    friend std::shared_ptr<AttributeHandle> StoreType::addEntry(T t);
+    friend std::shared_ptr<AttributeHandle> StoreType::addEntry(MapID mapID, T t);
 
     AttributeHandle(MapID pMapID, EntryID pEntryID, std::shared_ptr<StoreType> p)
     :   mapID(pMapID),

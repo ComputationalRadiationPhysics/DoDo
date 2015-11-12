@@ -118,9 +118,8 @@ class BGL {
 
     VertexID addVertex(VertexProperty vp){
         auto v = boost::add_vertex(*graph);
-        auto propPair = (*graph)[v];
-        propPair.second = vp;
-        (*graph)[v] = propPair;
+        (*graph)[v].first = v;
+        (*graph)[v].second = vp;
         return v;
     }
 
