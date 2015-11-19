@@ -13,7 +13,7 @@ PROJECT("chunky_examples")
 # Compiler Flags
 ################################################################################
 # GNU
-if(CMAKE_COMPILER_IS_GNUCXX)
+#if(CMAKE_COMPILER_IS_GNUCXX)
     set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wall")
     set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wextra")
     set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wpedantic")
@@ -45,7 +45,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     set(MY_COMMON_FLAGS "${MY_COMMON_FLAGS} -std=c++1z")
 
     unset(MY_WARN_FLAGS)
-endif(CMAKE_COMPILER_IS_GNUCXX)
+    #endif(CMAKE_COMPILER_IS_GNUCXX)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_COMMON_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")

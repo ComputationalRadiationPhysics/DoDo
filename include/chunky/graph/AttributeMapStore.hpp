@@ -6,7 +6,10 @@
 #include <vector>
 #include <stack>
 
+
 #include <boost/any.hpp>
+#include <boost/mpl/list.hpp>
+#include <boost/mpl/for_each.hpp>
 
 #include <chunky/utility/tuple_index.hpp>
 
@@ -16,18 +19,18 @@ namespace graph{
 template<typename... AttributeTypes>
 class AttributeMapStore
 {
-    using AttributeTypesTuple = std::tuple<AttributeTypes...>;
     using This_T              = AttributeMapStore<AttributeTypes...>;
     class AttributeHandle;
 
 public:
+    using AttributeTypesTuple = std::tuple<AttributeTypes...>;
     enum { AttributeCount = std::tuple_size<AttributeTypesTuple>::value };
     using Handle  = std::shared_ptr<AttributeHandle>;
     using type    = This_T;
     using MapID   = size_t;
     using EntryID = size_t;
 
-private:
+//private:
     std::vector<std::vector<boost::any>> maps;
     using EntryIDContainer = std::stack<EntryID>;
     std::vector<EntryIDContainer> unusedEntryIDs;
@@ -55,6 +58,61 @@ public:
     boost::any getEntry(Handle handle) const;
 
 };
+
+
+template<typename NewType, typename... OldTypes>
+std::shared_ptr<AttributeMapStore<NewType>> clone_and_strip_to(std::shared_ptr<AttributeMapStore<OldTypes...>> oldStore)
+{
+    using NewStore = AttributeMapStore<NewType>;
+    std::shared_ptr<NewStore> newStore(NewStore::createInstance());
+
+    auto oldTypeIndex = oldStore-> template getMapID<NewType>();
+    newStore->maps[0] = oldStore->maps[oldTypeIndex];
+    return newStore;
+}
+
+
+template<typename T, typename... V>
+std::shared_ptr<AttributeMapStore<T,V...>> clone_and_combine(std::shared_ptr<AttributeMapStore<T>> old1, std::shared_ptr<AttributeMapStore<V...>> oldStore)
+{
+    using NewStore = AttributeMapStore<T,V...>;
+    std::shared_ptr<NewStore> newStore(NewStore::createInstance());
+    newStore->maps[newStore->template getMapID<T>()] = old1.maps[0];
+
+    using AttributeTuple = boost::mpl::list<V...>;
+    boost::mpl::for_each<AttributeTuple>(
+            [&newStore, &oldStore](auto U)
+            {
+                using U_t = decltype(U);
+                newStore->maps[newStore->template getMapID<U_t>()] = oldStore->maps[oldStore-> template getMapID<U_t>()];
+            }
+            );
+}
+
+/* template<typename T..., typename... V> */
+/* std::shared_ptr<AttributeMapStore<T...,V...>> clone_and_combine(std::shared_ptr<AttributeMapStore<T...>> old1, std::shared_ptr<AttributeMapStore<V...>> oldStore) */
+/* { */
+/*     using NewStore = AttributeMapStore<T...,V...>; */
+/*     std::shared_ptr<NewStore> newStore(NewStore::createInstance()); */
+/*     //newStore->maps[newStore->template getMapID<T>()] = old1.maps[0]; */
+
+/*     using AttributeTuple = boost::mpl::list<T...,V...>; */
+/*     boost::mpl::for_each<AttributeTuple>( */
+/*             [&newStore, &oldStore](auto x) */
+/*             { */
+/*                 using U = decltype(x); */
+/*                 newStore->maps[newStore->template getMapID<U>()] = oldStore->maps[oldStore-> template getMapID<U_t>()]; */
+/*             } */
+/*             ); */
+/* } */
+
+template <typename T, typename... Attrs>
+constexpr bool hasType(const std::shared_ptr<AttributeMapStore<Attrs...>>)
+{
+    using AttributeTypesTuple = std::tuple<Attrs...>;
+    constexpr auto tupleIndex = utility::tuple_index<AttributeTypesTuple, T>::value;
+    return tupleIndex >= 0;
+}
 
 
 template <typename... AttributeTypes>
@@ -116,7 +174,7 @@ auto AttributeMapStore<AttributeTypes...>::placeCopy(MapID mapID, boost::any ent
 {
     if(unusedEntryIDs.at(mapID).empty())
     {
-        maps[mapID].emplace_back(entry); 
+        maps[mapID].emplace_back(entry);
         return maps[mapID].size()-1;
     } else{
         EntryID newEntryID = unusedEntryIDs[mapID].top();

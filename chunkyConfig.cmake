@@ -105,6 +105,9 @@ else()
     LIST(APPEND _CHUNKY_LINK_LIBRARIES_PUBLIC ${Boost_LIBRARIES})
 endif()
 
+if(Boost_VERSION LESS 1.61)
+    FIND_PACKAGE(Hana)
+endif()
 
 #-------------------------------------------------------------------------------
 # Compiler settings.
@@ -114,7 +117,7 @@ if(MSVC)
     LIST(APPEND _CHUNKY_COMPILE_OPTIONS_PUBLIC)
 else()
     # Select C++ standard version.
-    LIST(APPEND _CHUNKY_COMPILE_OPTIONS_PUBLIC "-std=c++1z")
+    LIST(APPEND _CHUNKY_COMPILE_OPTIONS_PUBLIC "-std=c++14")
 endif()
 
 
