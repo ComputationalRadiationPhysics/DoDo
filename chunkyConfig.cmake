@@ -109,6 +109,15 @@ if(Boost_VERSION LESS 1.61)
     FIND_PACKAGE(Hana)
 endif()
 
+FIND_PACKAGE(LEMON)
+if(LEMON_FOUND)
+    LIST(APPEND _CHUNKY_INCLUDE_DIRECTORIES_PUBLIC ${LEMON_INCLUDE_DIRS})
+    LIST(APPEND _CHUNKY_LINK_LIBRARIES_PUBLIC ${LEMON_LIBRARIES})
+else()
+    set(_CHUNKY_FOUND FALSE)
+endif()
+
+
 #-------------------------------------------------------------------------------
 # Compiler settings.
 #-------------------------------------------------------------------------------

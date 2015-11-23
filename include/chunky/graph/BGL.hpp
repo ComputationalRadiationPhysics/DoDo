@@ -25,7 +25,7 @@ struct SimpleProperty{
     ID id;
 };
 
-/************************************************************************//**
+/**************************************************************************
  * @class BGL
  *
  * @brief A class to describe directed graphs.
@@ -49,7 +49,7 @@ public:
 
 
     // BGL typdefs
-    typedef boost::adjacency_list<boost::vecS,
+    typedef boost::adjacency_list<boost::listS,
             boost::vecS,
             boost::bidirectionalS,
             boost::property<boost::vertex_index_t, size_t, VertexPropertyBundle >,
@@ -108,7 +108,7 @@ public:
 
     BGL() :
         id(0){
-            graph = std::make_shared<BGLGraph>(16);
+            graph = std::make_shared<BGLGraph>();
         }
 
     BGL(size_t nVertices) :
@@ -239,6 +239,7 @@ public:
     }
 
 
+
     // TODO: make polymorphic over input GraphType,
     //       then make sure that input GraphType's Attributes are a subset of
     //       this graph's attributes
@@ -295,6 +296,10 @@ public:
         return e;
     }
 
+    void removeEdge(EdgeID e){
+        boost::remove_edge(e, *graph);
+    }
+
     size_t numVertices() const {
         return num_vertices(*graph);
     }
@@ -309,7 +314,8 @@ public:
 
 
 template<typename Graph>
-void attachSubtree(Graph& g1
+void attachSubtree(
+        Graph& g1
         , typename Graph::VertexID anchor
         , const Graph& g2
         , typename Graph::VertexID rootOfSubgraph

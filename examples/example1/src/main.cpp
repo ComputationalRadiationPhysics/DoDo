@@ -40,8 +40,20 @@ int main()
         }
     }
 
+    auto iterators = graph.getVertices();
+    for(auto i=iterators.first ; i!=iterators.second ; ++i)
+    {
+        std::cout << *i << "  " << graph.getVertexProperty(*i).first << std::endl;
+    }
+
     using SGraph = chunky::graph::AttributeGraph<Speed>;
-    SGraph speedGraph = chunky::graph::transformInto<SGraph>(graph);
+    SGraph g2 = chunky::graph::transformInto<SGraph>(graph);
+
+    auto iterators2 = g2.getVertices();
+    for(auto i=iterators2.first ; i!=iterators2.second ; ++i)
+    {
+        std::cout << *i << "  " << g2.getVertexProperty(*i).first << std::endl;
+    }
 
     return 0;
 

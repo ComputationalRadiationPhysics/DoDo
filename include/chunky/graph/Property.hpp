@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include <boost/hana.hpp>
+//#include <boost/hana.hpp>
 
 #include <chunky/graph/AttributeMapStore.hpp>
 
@@ -20,17 +20,18 @@ class Property
 
 public:
     Property()
-    :   handles(StoreType::AttributeCount, nullptr)
+      : attributeMapStore(nullptr)
+      , handles(StoreType::AttributeCount, nullptr)
     {}
 
     Property(std::shared_ptr<StoreType> p)
-    :   attributeMapStore(p)
+      : attributeMapStore(p)
       , handles(StoreType::AttributeCount, nullptr)
     {}
 
     template<typename... Attributes>
     Property(std::shared_ptr<StoreType> p, Attributes... attributes)
-    :   attributeMapStore(p)
+      : attributeMapStore(p)
       , handles(StoreType::AttributeCount, nullptr)
     {
         setEntry(attributes...);
@@ -46,9 +47,17 @@ public:
     auto setEntry(){}
 
     template<typename T>
-    T getEntry(){
-        auto mapID = attributeMapStore-> template getMapID<T>();
+    T getEntry()
+    {
+        auto mapID = getMapID<T>(attributeMapStore);
         return boost::any_cast<T>(attributeMapStore->getEntry(handles[mapID]));
+    }
+
+    template<typename T>
+    bool hasEntry()
+    {
+        auto mapID = getMapID<T>(attributeMapStore);
+        return nullptr != (attributeMapStore->getEntry(handles[mapID]));
     }
 
     Property clone()
@@ -74,10 +83,12 @@ public:
         boost::mpl::for_each<T_tuple>(
                 [this, &destination](auto t){
                     using T = decltype(t);
-                    if(hasType<T>(attributeMapStore)){
-                        //auto mapIDsource = attributeMapStore-> template getMapID<T>();
-                        T entry = this->getEntry<T>();
-                        destination.setEntry(entry);
+                    if(attributeMapStore!=nullptr && hasType<T>(attributeMapStore)){
+                        if(handles[getMapID<T>(attributeMapStore)] != nullptr)
+                        {
+                            T entry = this->getEntry<T>();
+                            destination.setEntry(entry);
+                        }
                     }
                 }
                 );
