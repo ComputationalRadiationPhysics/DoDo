@@ -1,0 +1,38 @@
+image: coin/archlinux
+
+script:
+  - date
+  - echo "installing HANA"
+  - git clone git@github.com:boostorg/hana.git --depth=1
+  - cd hana
+  - mkdir build && cd build
+  - cmake ..
+  - sudo make install
+  - cd ../..
+  - echo "USING G++"
+  - mkdir build_examples_gcc && cd build_examples_gcc
+  - cmake -DCMAKE_CXX_FLAGS="-Werror" ../examples
+  - make
+  - ls -l
+  - for i in example* ; do $i/$i ; done
+  - cd ..
+  - mkdir build_testcases_gcc && cd build_testcases_gcc
+  - cmake -DCMAKE_CXX_FLAGS="-Werror" ../testcases
+  - make
+  - ls -l
+  - for i in test* ; do $i/$i ; done
+  - cd ..
+  - echo "USING clang++"
+  - mkdir build_examples_clang && cd build_examples_clang
+  - cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS="-Werror" ../examples
+  - make
+  - ls -l
+  - for i in example* ; do $i/$i ; done
+  - cd ..
+  - mkdir build_testcases_clang && cd build_testcases_clang
+  - cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS="-Werror" ../testcases
+  - make
+  - ls -l
+  - for i in test* ; do $i/$i ; done
+  - cd ..
+
