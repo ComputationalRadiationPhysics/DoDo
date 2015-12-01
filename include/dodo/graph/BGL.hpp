@@ -14,7 +14,7 @@
 #include <stdexcept>
 
 
-namespace chunky{
+namespace dodo{
 namespace graph{
 
 struct SimpleProperty{
@@ -337,5 +337,5 @@ void attachSubtree(
 
 
 } /* graph */
-} /* chunky */
+} /* dodo */
 

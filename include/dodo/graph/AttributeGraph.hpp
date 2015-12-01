@@ -2,11 +2,11 @@
 
 #include <memory>
 
-#include <chunky/graph/Property.hpp>
-#include <chunky/graph/AttributeMapStore.hpp>
-#include <chunky/graph/BGL.hpp>
+#include <dodo/graph/Property.hpp>
+#include <dodo/graph/AttributeMapStore.hpp>
+#include <dodo/graph/BGL.hpp>
 
-namespace chunky{
+namespace dodo{
 namespace graph{
 
 
@@ -261,4 +261,4 @@ GraphDestination transformIntoVertexOnly(const GraphOrigin& origin)
 
 
 } /* graph */
-} /* chunky */
+} /* dodo */

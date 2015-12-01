@@ -1,12 +1,14 @@
 #pragma once
 
-namespace chunky{
+namespace dodo{
 namespace physical{
 namespace attributes{
 
-struct Speed{
-    double value;
+
+struct EnergyLevel{
+    int value;
 };
+
 
 }
 }

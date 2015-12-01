@@ -5,9 +5,9 @@
 
 //#include <boost/hana.hpp>
 
-#include <chunky/graph/AttributeMapStore.hpp>
+#include <dodo/graph/AttributeMapStore.hpp>
 
-namespace chunky{
+namespace dodo{
 namespace graph{
 
 template<typename... AttributeTypes>
@@ -103,4 +103,4 @@ public:
 /* } */
 
 } /* graph */
-} /* chunky */
+} /* dodo */

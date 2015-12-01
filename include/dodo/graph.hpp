@@ -1,20 +1,20 @@
 /**
  * Copyright 2015-2016 Carlchristian Eckert
  *
- * This file is part of chunky.
+ * This file is part of Dodo.
  *
- * chunky is free software: you can redistribute it and/or modify
+ * Dodo is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * chunky is distributed in the hope that it will be useful,
+ * Dodo is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with chunky.
+ * along with Dodo.
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <chunky/graph/AttributeGraph.hpp>
-#include <chunky/graph/AttributeMapStore.hpp>
-#include <chunky/graph/BGL.hpp>
-#include <chunky/graph/Property.hpp>
+#include <dodo/graph/AttributeGraph.hpp>
+#include <dodo/graph/AttributeMapStore.hpp>
+#include <dodo/graph/BGL.hpp>
+#include <dodo/graph/Property.hpp>

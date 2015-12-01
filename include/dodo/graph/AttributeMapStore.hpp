@@ -11,9 +11,9 @@
 #include <boost/mpl/list.hpp>
 #include <boost/mpl/for_each.hpp>
 
-#include <chunky/utility/tuple_index.hpp>
+#include <dodo/utility/tuple_index.hpp>
 
-namespace chunky{
+namespace dodo{
 namespace graph{
 
 template<typename... AttributeTypes>
@@ -273,4 +273,4 @@ public:
 
 
 } /* graph */
-} /* chunky */
+} /* dodo */

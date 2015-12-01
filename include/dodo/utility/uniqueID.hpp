@@ -1,6 +1,6 @@
 #pragma once
 
-namespace chunky{
+namespace dodo{
 namespace utility{
 
 
@@ -17,4 +17,4 @@ public:
 
 
 } /* utility */
-} /* chunky */
+} /* dodo */

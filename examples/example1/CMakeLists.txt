@@ -15,15 +15,15 @@ PROJECT("example1")
 
 
 #-------------------------------------------------------------------------------
-# Find chunky.
+# Find Dodo.
 #-------------------------------------------------------------------------------
 
-SET(CHUNKY_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../" CACHE STRING  "The location of the chunky library")
-LIST(APPEND CMAKE_PREFIX_PATH "${CHUNKY_ROOT}")
+SET(DODO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../" CACHE STRING  "The location of the Dodo library")
+LIST(APPEND CMAKE_PREFIX_PATH "${DODO_ROOT}")
 
-FIND_PACKAGE("chunky")
-ADD_DEFINITIONS(${chunky_DEFINITIONS})
-INCLUDE_DIRECTORIES(${chunky_INCLUDE_DIRS})
+FIND_PACKAGE("Dodo")
+ADD_DEFINITIONS(${Dodo_DEFINITIONS})
+INCLUDE_DIRECTORIES(${Dodo_INCLUDE_DIRS})
 
 
 #-------------------------------------------------------------------------------
@@ -38,4 +38,4 @@ INCLUDE_DIRECTORIES("include/")
 ADD_EXECUTABLE("example1" ${_SOURCES})
 
 # Set the link libraries for this library (adds libs, include directories, defines and compile options).
-#TARGET_LINK_LIBRARIES("example1" PUBLIC "chunky")
+#TARGET_LINK_LIBRARIES("example1" PUBLIC "Dodo")

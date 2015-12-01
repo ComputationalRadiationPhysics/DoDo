@@ -1,12 +1,12 @@
 #include <iostream>
 
-#include <chunky.hpp>
+#include <dodo.hpp>
 
 int main()
 {
-    using Speed                  = chunky::physical::attributes::Speed;
-    using Energy                 = chunky::physical::attributes::EnergyLevel;
-    using SEGraph                = chunky::graph::AttributeGraph<Speed, Energy>;
+    using Speed                  = dodo::physical::attributes::Speed;
+    using Energy                 = dodo::physical::attributes::EnergyLevel;
+    using SEGraph                = dodo::graph::AttributeGraph<Speed, Energy>;
     SEGraph graph;
 
     // create the elements that will be used to build the graph
@@ -46,8 +46,8 @@ int main()
         std::cout << *i << "  " << graph.getVertexProperty(*i).first << std::endl;
     }
 
-    using SGraph = chunky::graph::AttributeGraph<Speed>;
-    SGraph g2 = chunky::graph::transformInto<SGraph>(graph);
+    using SGraph = dodo::graph::AttributeGraph<Speed>;
+    SGraph g2 = dodo::graph::transformInto<SGraph>(graph);
 
     auto iterators2 = g2.getVertices();
     for(auto i=iterators2.first ; i!=iterators2.second ; ++i)

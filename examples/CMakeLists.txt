@@ -7,7 +7,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.3)
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
-PROJECT("chunky_examples")
+PROJECT("Dodo_examples")
 
 ################################################################################
 # Compiler Flags

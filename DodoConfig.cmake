@@ -1,49 +1,49 @@
-# - Config file for the chunky package
+# - Config file for the Dodo package
 cmake_minimum_required(VERSION 3.0.2)
-project(chunky)
+project(Dodo)
 
 
 #-------------------------------------------------------------------------------
 # Directory of this file.
 #-------------------------------------------------------------------------------
-set(_CHUNKY_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR})
+set(_DODO_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 # Normalize the path (e.g. remove ../)
-GET_FILENAME_COMPONENT(_CHUNKY_ROOT_DIR "${_CHUNKY_ROOT_DIR}" ABSOLUTE)
+GET_FILENAME_COMPONENT(_DODO_ROOT_DIR "${_DODO_ROOT_DIR}" ABSOLUTE)
 
 #-------------------------------------------------------------------------------
 # Set found to true initially and set it on false if a required dependency is missing.
 #-------------------------------------------------------------------------------
-set(_CHUNKY_FOUND TRUE)
+set(_DODO_FOUND TRUE)
 
 #-------------------------------------------------------------------------------
 # Common.
 #-------------------------------------------------------------------------------
 # Add common functions.
-set(_CHUNKY_COMMON_FILE "${_CHUNKY_ROOT_DIR}/cmake/common.cmake")
-INCLUDE("${_CHUNKY_COMMON_FILE}")
+set(_DODO_COMMON_FILE "${_DODO_ROOT_DIR}/cmake/common.cmake")
+INCLUDE("${_DODO_COMMON_FILE}")
 
 
 #-------------------------------------------------------------------------------
 # Options.
 #-------------------------------------------------------------------------------
-OPTION(CHUNKY_ACC_CPU_B_SEQ_T_SEQ_ENABLE "Enable the serial CPU accelerator" ON)
+OPTION(DODO_ACC_CPU_B_SEQ_T_SEQ_ENABLE "Enable the serial CPU accelerator" ON)
 
 # Drop-down combo box in cmake-gui.
-set(CHUNKY_DEBUG "0" CACHE STRING "Debug level")
-SET_PROPERTY(CACHE CHUNKY_DEBUG PROPERTY STRINGS "0;1;2")
+set(DODO_DEBUG "0" CACHE STRING "Debug level")
+SET_PROPERTY(CACHE DODO_DEBUG PROPERTY STRINGS "0;1;2")
 
 #-------------------------------------------------------------------------------
 # Find Boost.
 #-------------------------------------------------------------------------------
-set(_CHUNKY_BOOST_MIN_VER "1.58.0") # minimum version for basic features
-if(${CHUNKY_DEBUG} GREATER 1)
+set(_DODO_BOOST_MIN_VER "1.58.0") # minimum version for basic features
+if(${DODO_DEBUG} GREATER 1)
     set(Boost_DEBUG ON)
     set(Boost_DETAILED_FAILURE_MSG ON)
 endif()
-FIND_PACKAGE(Boost ${_CHUNKY_BOOST_MIN_VER} QUIET)
+FIND_PACKAGE(Boost ${_DODO_BOOST_MIN_VER} QUIET)
 
-if(${CHUNKY_DEBUG} GREATER 1)
+if(${DODO_DEBUG} GREATER 1)
     MESSAGE(STATUS "Boost in:")
     MESSAGE(STATUS "BOOST_ROOT : ${BOOST_ROOT}")
     MESSAGE(STATUS "BOOSTROOT : ${BOOSTROOT}")
@@ -97,12 +97,12 @@ if(${CHUNKY_DEBUG} GREATER 1)
 endif()
 
 if(NOT Boost_FOUND)
-    MESSAGE(WARNING "Required chunky dependency Boost (>=${_CHUNKY_BOOST_MIN_VER}) could not be found!")
-    set(_CHUNKY_FOUND FALSE)
+    MESSAGE(WARNING "Required Dodo dependency Boost (>=${_DODO_BOOST_MIN_VER}) could not be found!")
+    set(_DODO_FOUND FALSE)
 
 else()
-    LIST(APPEND _CHUNKY_INCLUDE_DIRECTORIES_PUBLIC ${Boost_INCLUDE_DIRS})
-    LIST(APPEND _CHUNKY_LINK_LIBRARIES_PUBLIC ${Boost_LIBRARIES})
+    LIST(APPEND _DODO_INCLUDE_DIRECTORIES_PUBLIC ${Boost_INCLUDE_DIRS})
+    LIST(APPEND _DODO_LINK_LIBRARIES_PUBLIC ${Boost_LIBRARIES})
 endif()
 
 if(Boost_VERSION LESS 1.61)
@@ -115,87 +115,87 @@ endif()
 #-------------------------------------------------------------------------------
 if(MSVC)
     # Empty append to define it if it does not already exist.
-    LIST(APPEND _CHUNKY_COMPILE_OPTIONS_PUBLIC)
+    LIST(APPEND _DODO_COMPILE_OPTIONS_PUBLIC)
 else()
     # Select C++ standard version.
-    LIST(APPEND _CHUNKY_COMPILE_OPTIONS_PUBLIC "-std=c++14")
+    LIST(APPEND _DODO_COMPILE_OPTIONS_PUBLIC "-std=c++14")
 endif()
 
 
-set(_CHUNKY_INCLUDE_DIRECTORY "${_CHUNKY_ROOT_DIR}/include")
-LIST(APPEND _CHUNKY_INCLUDE_DIRECTORIES_PUBLIC "${_CHUNKY_INCLUDE_DIRECTORY}")
-set(_CHUNKY_SUFFIXED_INCLUDE_DIR "${_CHUNKY_INCLUDE_DIRECTORY}/chunky")
+set(_DODO_INCLUDE_DIRECTORY "${_DODO_ROOT_DIR}/include")
+LIST(APPEND _DODO_INCLUDE_DIRECTORIES_PUBLIC "${_DODO_INCLUDE_DIRECTORY}")
+set(_DODO_SUFFIXED_INCLUDE_DIR "${_DODO_INCLUDE_DIRECTORY}/dodo")
 
-set(_CHUNKY_LINK_LIBRARY)
-LIST(APPEND _CHUNKY_LINK_LIBRARIES_PUBLIC "${_CHUNKY_LINK_LIBRARY}")
+set(_DODO_LINK_LIBRARY)
+LIST(APPEND _DODO_LINK_LIBRARIES_PUBLIC "${_DODO_LINK_LIBRARY}")
 
-set(_CHUNKY_FILES_OTHER "${_CHUNKY_ROOT_DIR}/chunkyConfig.cmake" "${_CHUNKY_COMMON_FILE}" "${_CHUNKY_ROOT_DIR}/.travis.yml" "${_CHUNKY_ROOT_DIR}/README.md")
+set(_DODO_FILES_OTHER "${_DODO_ROOT_DIR}/DodoConfig.cmake" "${_DODO_COMMON_FILE}" "${_DODO_ROOT_DIR}/.travis.yml" "${_DODO_ROOT_DIR}/README.md")
 
 # Add all the source and include files in all recursive subdirectories and group them accordingly.
-append_recursive_files_add_to_src_group("${_CHUNKY_SUFFIXED_INCLUDE_DIR}" "${_CHUNKY_SUFFIXED_INCLUDE_DIR}" "hpp" "_CHUNKY_FILES_HEADER")
-append_recursive_files_add_to_src_group("${_CHUNKY_SUFFIXED_INCLUDE_DIR}" "${_CHUNKY_SUFFIXED_INCLUDE_DIR}" "cpp" "_CHUNKY_FILES_SOURCE")
+append_recursive_files_add_to_src_group("${_DODO_SUFFIXED_INCLUDE_DIR}" "${_DODO_SUFFIXED_INCLUDE_DIR}" "hpp" "_DODO_FILES_HEADER")
+append_recursive_files_add_to_src_group("${_DODO_SUFFIXED_INCLUDE_DIR}" "${_DODO_SUFFIXED_INCLUDE_DIR}" "cpp" "_DODO_FILES_SOURCE")
 
 #-------------------------------------------------------------------------------
 # Set return values.
 #-------------------------------------------------------------------------------
-set(chunky_COMPILE_OPTIONS ${_CHUNKY_COMPILE_OPTIONS_PUBLIC})
-set(chunky_INCLUDE_DIR ${_CHUNKY_INCLUDE_DIRECTORY})
-set(chunky_INCLUDE_DIRS ${_CHUNKY_INCLUDE_DIRECTORIES_PUBLIC})
-set(chunky_LIBRARY ${_CHUNKY_LINK_LIBRARY})
-set(chunky_LIBRARIES ${_CHUNKY_LINK_FLAGS_PUBLIC})
-LIST(APPEND chunky_LIBRARIES ${_CHUNKY_LINK_LIBRARIES_PUBLIC})
+set(Dodo_COMPILE_OPTIONS ${_DODO_COMPILE_OPTIONS_PUBLIC})
+set(Dodo_INCLUDE_DIR ${_DODO_INCLUDE_DIRECTORY})
+set(Dodo_INCLUDE_DIRS ${_DODO_INCLUDE_DIRECTORIES_PUBLIC})
+set(Dodo_LIBRARY ${_DODO_LINK_LIBRARY})
+set(Dodo_LIBRARIES ${_DODO_LINK_FLAGS_PUBLIC})
+LIST(APPEND Dodo_LIBRARIES ${_DODO_LINK_LIBRARIES_PUBLIC})
 
 #-------------------------------------------------------------------------------
 # Print the return values.
 #-------------------------------------------------------------------------------
-if(${CHUNKY_DEBUG} GREATER 0)
-    MESSAGE(STATUS "chunky_FOUND: ${chunky_FOUND}")
-    MESSAGE(STATUS "chunky_VERSION: ${chunky_VERSION}")
-    MESSAGE(STATUS "chunky_COMPILE_OPTIONS: ${chunky_COMPILE_OPTIONS}")
-    MESSAGE(STATUS "chunky_INCLUDE_DIR: ${chunky_INCLUDE_DIR}")
-    MESSAGE(STATUS "chunky_INCLUDE_DIRS: ${chunky_INCLUDE_DIRS}")
-    MESSAGE(STATUS "chunky_LIBRARY: ${chunky_LIBRARY}")
-    MESSAGE(STATUS "chunky_LIBRARIES: ${chunky_LIBRARIES}")
+if(${DODO_DEBUG} GREATER 0)
+    MESSAGE(STATUS "Dodo_FOUND: ${Dodo_FOUND}")
+    MESSAGE(STATUS "Dodo_VERSION: ${Dodo_VERSION}")
+    MESSAGE(STATUS "Dodo_COMPILE_OPTIONS: ${Dodo_COMPILE_OPTIONS}")
+    MESSAGE(STATUS "Dodo_INCLUDE_DIR: ${Dodo_INCLUDE_DIR}")
+    MESSAGE(STATUS "Dodo_INCLUDE_DIRS: ${Dodo_INCLUDE_DIRS}")
+    MESSAGE(STATUS "Dodo_LIBRARY: ${Dodo_LIBRARY}")
+    MESSAGE(STATUS "Dodo_LIBRARIES: ${Dodo_LIBRARIES}")
 endif()
 
 # Unset already set variables if not found.
-if(NOT _CHUNKY_FOUND)
-    unset(chunky_FOUND)
-    unset(chunky_VERSION)
-    unset(chunky_COMPILE_OPTIONS)
-    unset(chunky_INCLUDE_DIR)
-    unset(chunky_INCLUDE_DIRS)
-    unset(chunky_LIBRARY)
-    unset(chunky_LIBRARIES)
+if(NOT _DODO_FOUND)
+    unset(Dodo_FOUND)
+    unset(Dodo_VERSION)
+    unset(Dodo_COMPILE_OPTIONS)
+    unset(Dodo_INCLUDE_DIR)
+    unset(Dodo_INCLUDE_DIRS)
+    unset(Dodo_LIBRARY)
+    unset(Dodo_LIBRARIES)
 
-    unset(_CHUNKY_FOUND)
-    unset(_CHUNKY_COMPILE_OPTIONS_PUBLIC)
-    unset(_CHUNKY_INCLUDE_DIRECTORY)
-    unset(_CHUNKY_INCLUDE_DIRECTORIES_PUBLIC)
-    unset(_CHUNKY_LINK_LIBRARY)
-    unset(_CHUNKY_LINK_LIBRARIES_PUBLIC)
-    unset(_CHUNKY_LINK_FLAGS_PUBLIC)
-    unset(_CHUNKY_COMMON_FILE)
-    unset(_CHUNKY_FILES_HEADER)
-    unset(_CHUNKY_FILES_SOURCE)
-    unset(_CHUNKY_FILES_OTHER)
-    unset(_CHUNKY_BOOST_MIN_VER)
+    unset(_DODO_FOUND)
+    unset(_DODO_COMPILE_OPTIONS_PUBLIC)
+    unset(_DODO_INCLUDE_DIRECTORY)
+    unset(_DODO_INCLUDE_DIRECTORIES_PUBLIC)
+    unset(_DODO_LINK_LIBRARY)
+    unset(_DODO_LINK_LIBRARIES_PUBLIC)
+    unset(_DODO_LINK_FLAGS_PUBLIC)
+    unset(_DODO_COMMON_FILE)
+    unset(_DODO_FILES_HEADER)
+    unset(_DODO_FILES_SOURCE)
+    unset(_DODO_FILES_OTHER)
+    unset(_DODO_BOOST_MIN_VER)
 else()
     # Make internal variables advanced options in the GUI.
     MARK_AS_ADVANCED(
-        chunky_INCLUDE_DIR
-        chunky_LIBRARY
-        _CHUNKY_COMPILE_OPTIONS_PUBLIC
-        _CHUNKY_INCLUDE_DIRECTORY
-        _CHUNKY_INCLUDE_DIRECTORIES_PUBLIC
-        _CHUNKY_LINK_LIBRARY
-        _CHUNKY_LINK_LIBRARIES_PUBLIC
-        _CHUNKY_LINK_FLAGS_PUBLIC
-        _CHUNKY_COMMON_FILE
-        _CHUNKY_FILES_HEADER
-        _CHUNKY_FILES_SOURCE
-        _CHUNKY_FILES_OTHER
-        _CHUNKY_BOOST_MIN_VER
+        Dodo_INCLUDE_DIR
+        Dodo_LIBRARY
+        _DODO_COMPILE_OPTIONS_PUBLIC
+        _DODO_INCLUDE_DIRECTORY
+        _DODO_INCLUDE_DIRECTORIES_PUBLIC
+        _DODO_LINK_LIBRARY
+        _DODO_LINK_LIBRARIES_PUBLIC
+        _DODO_LINK_FLAGS_PUBLIC
+        _DODO_COMMON_FILE
+        _DODO_FILES_HEADER
+        _DODO_FILES_SOURCE
+        _DODO_FILES_OTHER
+        _DODO_BOOST_MIN_VER
         )
 endif()
 
@@ -204,11 +204,11 @@ endif()
 ###############################################################################
 
 # Handles the REQUIRED, QUIET and version-related arguments for FIND_PACKAGE.
-# NOTE: We do not check for chunky_LIBRARIES because they can be empty.
+# NOTE: We do not check for Dodo_LIBRARIES because they can be empty.
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(
-    "chunky"
-    FOUND_VAR chunky_FOUND
-    REQUIRED_VARS chunky_INCLUDE_DIR
-    VERSION_VAR chunky_VERSION
+    "Dodo"
+    FOUND_VAR Dodo_FOUND
+    REQUIRED_VARS Dodo_INCLUDE_DIR
+    VERSION_VAR Dodo_VERSION
     )

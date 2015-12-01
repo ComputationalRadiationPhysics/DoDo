@@ -1,6 +1,6 @@
 #pragma once
 
-namespace chunky{
+namespace dodo{
 namespace utility{
 
 
@@ -24,4 +24,4 @@ struct tuple_index<T, S, -1>
 };
 
 } /* utility */
-} /* chunky */
+} /* dodo */
