@@ -3,6 +3,8 @@
 #include <memory>
 #include <vector>
 
+#include <boost/variant.hpp>
+
 #include <dodo/graph/AttributeMapStore.hpp>
 
 namespace dodo
@@ -50,7 +52,7 @@ public:
     T getEntry()
     {
         auto mapID = getMapID<T>(attributeMapStore);
-        return boost::any_cast<T>(attributeMapStore.lock()->getEntry(handles[mapID]));
+        return boost::get<T>(attributeMapStore.lock()->getEntry(handles[mapID]));
     }
     template<typename T>
     bool hasEntry()

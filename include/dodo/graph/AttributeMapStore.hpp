@@ -7,7 +7,7 @@
 #include <stack>
 
 
-#include <boost/any.hpp>
+#include <boost/variant.hpp>
 #include <boost/mpl/list.hpp>
 #include <boost/mpl/for_each.hpp>
 
@@ -32,13 +32,13 @@ public:
     using EntryID = size_t;
 
 //private:
-    std::vector<std::vector<boost::any>> maps;
+    std::vector<std::vector<boost::variant<AttributeTypes...>>> maps;
     using EntryIDContainer = std::stack<EntryID>;
     std::vector<EntryIDContainer> unusedEntryIDs;
 
     AttributeMapStore();
     void       removeEntry(MapID mapID, EntryID entryID);
-    EntryID    placeCopy(MapID mapID, boost::any entry);
+    EntryID    placeCopy(MapID mapID, boost::variant<AttributeTypes...> entry);
 
 public:
     template<typename T>
@@ -49,8 +49,8 @@ public:
 
     template<typename T>
     T          getEntry(EntryID entryID) const;
-    boost::any getEntry(MapID mapID, EntryID entryID) const;
-    boost::any getEntry(Handle handle) const;
+    boost::variant<AttributeTypes...> getEntry(MapID mapID, EntryID entryID) const;
+    boost::variant<AttributeTypes...> getEntry(Handle handle) const;
 
 };
 
@@ -138,7 +138,7 @@ template<typename T>
 auto AttributeMapStore<AttributeTypes...>::addEntry(MapID mapID, T t)
 -> std::shared_ptr<typename AttributeMapStore<AttributeTypes...>::AttributeHandle>
 {
-    EntryID entryID    = placeCopy(mapID, boost::any(t));
+    EntryID entryID    = placeCopy(mapID, boost::variant<AttributeTypes...>(t));
     return AttributeHandle::create(
         mapID,
         entryID,
@@ -149,7 +149,7 @@ auto AttributeMapStore<AttributeTypes...>::addEntry(MapID mapID, T t)
 
 template<typename... AttributeTypes>
 auto
-AttributeMapStore<AttributeTypes...>::placeCopy(MapID mapID, boost::any entry)
+AttributeMapStore<AttributeTypes...>::placeCopy(MapID mapID, boost::variant<AttributeTypes...> entry)
 -> typename AttributeMapStore<AttributeTypes...>::EntryID
 {
     auto x = unusedEntryIDs;
@@ -173,7 +173,7 @@ AttributeMapStore<AttributeTypes...>::getEntry(EntryID entryID) const
 -> T
 {
     MapID mapID = getMapID<T>(this->shared_from_this());
-    return boost::any_cast<T>(maps[mapID][entryID]);
+    return boost::get<T>(maps[mapID][entryID]);
 }
 
 
@@ -183,7 +183,7 @@ AttributeMapStore<AttributeTypes...>::getEntry(
     MapID mapID,
     EntryID entryID
 ) const
--> boost::any
+-> boost::variant<AttributeTypes...>
 {
     return maps[mapID][entryID];
 }
@@ -193,7 +193,7 @@ auto
 AttributeMapStore<AttributeTypes...>::getEntry(
     std::shared_ptr<AttributeHandle> handle
 ) const
--> boost::any
+-> boost::variant<AttributeTypes...>
 {
     return maps[handle->mapID][handle->entryID];
 }
@@ -206,7 +206,7 @@ AttributeMapStore<AttributeTypes...>::AttributeMapStore()
 
     for(size_t i = 0 ; i<n ; ++i)
     {
-        maps.emplace_back(std::vector<boost::any>());
+        maps.emplace_back(std::vector<boost::variant<AttributeTypes...>>());
     }
 
     for(size_t i = 0 ; i<n ; ++i)
