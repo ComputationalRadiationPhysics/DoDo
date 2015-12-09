@@ -1,10 +1,14 @@
 #pragma once
 
-namespace dodo{
-namespace physical{
-namespace attributes{
+namespace dodo
+{
+namespace physical
+{
+namespace attributes
+{
 
-struct Speed{
+struct Speed
+{
     double value;
 };
 

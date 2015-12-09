@@ -1,15 +1,24 @@
 #pragma once
 
-namespace dodo{
-namespace utility{
+namespace dodo
+{
+namespace utility
+{
 
 
-class UniqueID{
+class UniqueID
+{
     size_t current;
-    UniqueID() : current(0) {};
+    UniqueID( ) :
+        current( 0 )
+    {
+    };
 
 public:
-    static size_t get(){
+    static
+    size_t
+    get( )
+    {
         static UniqueID instance;
         return instance.current++;
     }

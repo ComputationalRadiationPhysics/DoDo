@@ -26,7 +26,7 @@ public:
     IsoMap mappingToStructureGraph;
 
     AttributeGraph()
-      :  attributeMapStore(StoreType::createInstance())
+      :  attributeMapStore(std::make_shared<StoreType>())
     {}
 
     AttributeGraph(std::shared_ptr<StoreType> existingStore)

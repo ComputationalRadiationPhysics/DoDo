@@ -1,14 +1,16 @@
 #pragma once
 
-namespace dodo{
-namespace physical{
-namespace attributes{
+namespace dodo
+{
+namespace physical
+{
+namespace attributes
+{
 
-
-struct EnergyLevel{
+struct EnergyLevel
+{
     int value;
 };
-
 
 }
 }
