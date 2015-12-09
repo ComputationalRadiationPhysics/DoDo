@@ -139,7 +139,7 @@ auto AttributeMapStore<AttributeTypes...>::addEntry(MapID mapID, T t)
 -> std::shared_ptr<typename AttributeMapStore<AttributeTypes...>::AttributeHandle>
 {
     EntryID entryID    = placeCopy(mapID, boost::any(t));
-    return std::make_shared<AttributeHandle>(
+    return AttributeHandle::create(
         mapID,
         entryID,
         this->shared_from_this()
@@ -222,6 +222,7 @@ AttributeMapStore<AttributeTypes...>::AttributeMapStore()
 template<typename... AttributeTypes>
 class AttributeMapStore<AttributeTypes...>::AttributeHandle
 {
+
 public:
     const MapID mapID;
     const EntryID entryID;
@@ -229,23 +230,26 @@ public:
 private:
     using StoreType = AttributeMapStore<AttributeTypes...>;
     std::weak_ptr<StoreType> attributeMapStore;
+    class HiddenType{};
 
-    //template<typename T>
-    //friend StoreType::Handle StoreType::addEntry(MapID mapID, T t);
-    //friend make_shared<StoreType::Handle>();
-
-public:
-    AttributeHandle(MapID pMapID, EntryID pEntryID, std::weak_ptr<StoreType> p)
-    :   mapID(pMapID),
-        entryID(pEntryID),
-        attributeMapStore(p)
-    {}
 public:
     AttributeHandle(const AttributeHandle&) = delete;
     AttributeHandle(const AttributeHandle&&) = delete;
     AttributeHandle& operator=(const AttributeHandle&) = delete;
     AttributeHandle& operator=(const AttributeHandle&&) = delete;
 
+    explicit AttributeHandle(MapID pMapID, EntryID pEntryID, std::weak_ptr<StoreType> p, HiddenType)
+    :   mapID(pMapID),
+        entryID(pEntryID),
+        attributeMapStore(p)
+    {}
+
+    static
+    std::unique_ptr<AttributeHandle>
+    create(MapID pMapID, EntryID pEntryID, std::weak_ptr<StoreType> p)
+    {
+        return std::make_unique<AttributeHandle>(pMapID, pEntryID, p, HiddenType());
+    }
 
     ~AttributeHandle()
     {
