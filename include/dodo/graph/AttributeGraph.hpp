@@ -5,13 +5,16 @@
 #include <dodo/graph/Property.hpp>
 #include <dodo/graph/AttributeMapStore.hpp>
 #include <dodo/graph/BGL.hpp>
+#include <dodo/graph/HWNode.hpp>
 
 namespace dodo{
 namespace graph{
 
 
 template<typename... AttributeTypes>
-class AttributeGraph : public BGL<Property<AttributeTypes...>, Property<AttributeTypes...>>
+class AttributeGraph :
+    public BGL<Property<AttributeTypes...>, Property<AttributeTypes...>>,
+    public std::enable_shared_from_this<AttributeGraph<AttributeTypes...>>
 {
 public:
     using AttributesTuple = std::tuple<AttributeTypes...>;
@@ -33,11 +36,58 @@ public:
       : attributeMapStore(existingStore)
     {}
 
+private:
     template<typename... T>
     PropertyType createProperty(T... attributes)
     {
         return PropertyType(attributeMapStore, attributes...);
     }
+
+public:
+    template<typename... T>
+    PropertyType createStructuralElement(T... attributes)
+    {
+        auto p = createProperty(std::forward<T>(attributes)...);
+        p.tagInfo.addNode(NodeType::STRUCTURAL);
+        return p;
+    }
+
+    template<typename... T>
+    PropertyType createComputeElement(T... attributes)
+    {
+        auto p = createProperty(std::forward<T>(attributes)...);
+        p.tagInfo.addNode(NodeType::COMPUTE);
+        return p;
+    }
+
+    template<typename... T>
+    PropertyType createMemoryElement(T... attributes)
+    {
+        auto p = createProperty(std::forward<T>(attributes)...);
+        p.tagInfo.addNode(NodeType::MEMORY);
+        return p;
+    }
+
+    template<typename... T>
+    PropertyType createInterconnectElement(T... attributes)
+    {
+        auto p = createProperty(std::forward<T>(attributes)...);
+        p.tagInfo.addNode(NodeType::INTERCONNECT);
+        return p;
+    }
+
+    HWNode<AttributeTypes...> add()
+    {
+        auto id = this->addVertex();
+        return HWNode<AttributeTypes...>(id, this);
+    }
+
+    HWNode<AttributeTypes...> add(PropertyType& p)
+    {
+        auto id = this->addVertex(p.clone());
+        return HWNode<AttributeTypes...>(id, this);
+    }
+
 
 };
 
@@ -77,7 +127,7 @@ struct transform_vertex_copier
         typename AttributeGraph2::VertexPropertyBundle v2prop;
         v2prop.first = v1prop.first;
         v2prop.second = typename AttributeGraph2::PropertyType(ams2_ptr);
-        v1prop.second.remapHandles(v2prop.second);
+        v1prop.second.remapHandlesAndTags(v2prop.second);
 
         put(vertex_all_map2, v2, v2prop);
     }
@@ -108,7 +158,7 @@ struct merge_vertex_copier
         typename AttributeGraph2::VertexPropertyBundle v2prop;
         v2prop.first = v1prop.first;
         v2prop.second = typename AttributeGraph2::PropertyType(ams2_ptr);
-        v1prop.second.remapHandles(v2prop.second);
+        v1prop.second.remapHandlesAndTags(v2prop.second);
 
         put(vertex_all_map2, v2, v2prop);
     }
@@ -168,7 +218,7 @@ struct transform_edge_copier
 
         e2prop.first = e1prop.first;
         e2prop.second = typename AttributeGraph2::PropertyType(ams2_ptr);
-        e1prop.second.remapHandles(e2prop.second);
+        e1prop.second.remapHandlesAndTags(e2prop.second);
 
         put(edge_all_map2, e2, e2prop);
     }

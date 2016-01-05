@@ -11,32 +11,31 @@ int main( )
 
     // create the elements that will be used to build the graph
     //
-    auto laserCPU = graph.createProperty( );
-    laserCPU.setEntry( Speed{ 3000. } );
-    laserCPU.setEntry( Energy{ 80 } );
+    auto laserCPUElement = graph.createComputeElement( );
+    laserCPUElement.setEntry( Speed{ 3000. } );
+    laserCPUElement.setEntry( Energy{ 80 } );
 
-    auto laserNode = graph.createProperty( );
-    laserNode.setEntry( Energy{ 200 } );
-
+    auto laserNodeElement = graph.createStructuralElement( );
+    laserNodeElement.setEntry( Energy{ 200 } );
 
     // construct the actual graph
     //
-    auto hypnosVID = graph.addVertex( );
-    auto laserQueueVID = graph.addVertex( );
+    auto hypnos = graph.add();
+    auto laserQueue = graph.add();
 
-    graph.addEdge( hypnosVID, laserQueueVID );
+    hypnos.consistsOf(laserQueue);
 
     // Assume 2 Laser Nodes in the queue
     for( int i = 0; i < 2 ; ++i )
     {
-        auto laserNodeVID = graph.addVertex( laserNode.clone( ) );
-        graph.addEdge(laserQueueVID, laserNodeVID);
+        auto laserNode = graph.add(laserNodeElement);
+        laserQueue.consistsOf(laserNode);
 
         // 8 Cores per Node
         for( int j = 0; j < 8 ; ++j )
         {
-            auto laserCPUVID = graph.addVertex( laserCPU.clone( ) );
-            graph.addEdge( laserNodeVID, laserCPUVID );
+            auto laserCPU = graph.add(laserCPUElement);
+            laserNode.consistsOf(laserCPU);
         }
     }
 

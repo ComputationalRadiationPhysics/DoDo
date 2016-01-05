@@ -6,6 +6,7 @@
 #include <boost/variant.hpp>
 
 #include <dodo/graph/AttributeMapStore.hpp>
+#include <dodo/graph/TagInfo.hpp>
 
 namespace dodo
 {
@@ -21,6 +22,8 @@ class Property
     std::vector<Handle> handles;
 
 public:
+    TagInfo tagInfo;
+
     Property()
       : attributeMapStore()
       , handles(StoreType::AttributeCount, nullptr)
@@ -79,7 +82,7 @@ public:
 
     // template parameters that we want to convert to
     template<typename... Attrs>
-    void remapHandles(Property<Attrs...> &destination){
+    void remapHandlesAndTags(Property<Attrs...> &destination){
         using T_tuple = boost::mpl::list<Attrs...>;
         boost::mpl::for_each<T_tuple>(
             [this, &destination](auto t)
@@ -95,6 +98,7 @@ public:
                 }
             }
         );
+        destination.tagInfo = tagInfo;
     }
 
 };
