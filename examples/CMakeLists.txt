@@ -67,3 +67,4 @@ unset(MY_COMMON_FLAGS)
 # Add subdirectories.
 ################################################################################
 ADD_SUBDIRECTORY("example1/")
+ADD_SUBDIRECTORY("example2/")

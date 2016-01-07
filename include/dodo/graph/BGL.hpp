@@ -313,27 +313,27 @@ public:
 };
 
 
-template<typename Graph>
-void attachSubtree(
-        Graph& g1
-        , typename Graph::VertexID anchor
-        , const Graph& g2
-        , typename Graph::VertexID rootOfSubgraph
-        )
-{
-    using vertexID = typename Graph::VertexID;
+// template<typename Graph>
+// void attachSubtree(
+//         Graph& g1
+//         , typename Graph::VertexID anchor
+//         , const Graph& g2
+//         , typename Graph::VertexID rootOfSubgraph
+//         )
+// {
+//     using vertexID = typename Graph::VertexID;
 
-    // TODO: check how to copy properties in the best way. maybe replace clone
-    // member function with copy constructor/assignment
+//     // TODO: check how to copy properties in the best way. maybe replace clone
+//     // member function with copy constructor/assignment
 
-    using index_map_t = typename boost::property_map<Graph, boost::vertex_index_t>::type;
-    using IsoMap = boost::iterator_property_map<typename std::vector<vertexID>::iterator, index_map_t, vertexID, vertexID&>;
-    std::vector<vertexID> orig2copy_data(num_vertices(g2));
-    IsoMap mapV = make_iterator_property_map(orig2copy_data.begin(), get(boost::vertex_index, g2));
-    boost::copy_graph( g2, g1, boost::orig_to_copy(mapV)  ); //means g1 += g2
-    vertexID newRoot = mapV[rootOfSubgraph];
-    return g1.addEdge(anchor, newRoot);
-}
+//     using index_map_t = typename boost::property_map<Graph, boost::vertex_index_t>::type;
+//     using IsoMap = boost::iterator_property_map<typename std::vector<vertexID>::iterator, index_map_t, vertexID, vertexID&>;
+//     std::vector<vertexID> orig2copy_data(num_vertices(g2));
+//     IsoMap mapV = make_iterator_property_map(orig2copy_data.begin(), get(boost::vertex_index, g2));
+//     boost::copy_graph( g2, g1, boost::orig_to_copy(mapV)  ); //means g1 += g2
+//     vertexID newRoot = mapV[rootOfSubgraph];
+//     return g1.addEdge(anchor, newRoot);
+// }
 
 
 } /* graph */

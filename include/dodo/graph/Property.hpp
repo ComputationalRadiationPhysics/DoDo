@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include <boost/variant.hpp>
+#include <boost/hana.hpp>
 
 #include <dodo/graph/AttributeMapStore.hpp>
 #include <dodo/graph/TagInfo.hpp>
@@ -80,15 +80,25 @@ public:
         return cloned;
     }
 
+
     // template parameters that we want to convert to
     template<typename... Attrs>
     void remapHandlesAndTags(Property<Attrs...> &destination){
-        using T_tuple = boost::mpl::list<Attrs...>;
-        boost::mpl::for_each<T_tuple>(
+
+        destination.tagInfo = tagInfo;
+
+        namespace hana = boost::hana;
+
+        constexpr auto destSet = hana::to_set(hana::tuple_t<Attrs...>);
+        constexpr auto srcSet  = hana::to_set(hana::tuple_t<AttributeTypes...>);
+        constexpr auto intersection = hana::intersection( srcSet, destSet );
+
+        hana::for_each(intersection,
             [this, &destination](auto t)
             {
-                using T = decltype(t);
-                if( !attributeMapStore.expired() && hasType<T>(attributeMapStore) )
+                using T = typename decltype(t)::type;
+
+                if( !attributeMapStore.expired() )
                 {
                     if(handles[getMapID<T>(attributeMapStore)] != nullptr)
                     {
@@ -98,16 +108,35 @@ public:
                 }
             }
         );
-        destination.tagInfo = tagInfo;
-    }
 
+
+        // namespace mpl = boost::mpl;
+        //
+        // using DestSet = mpl::set<Attrs...>;
+        // using SrcSet  = mpl::set<AttributeTypes...>;
+        // using Intersection = typename mpl::copy_if<
+        //     DestSet,
+        //     mpl::has_key< SrcSet, mpl::_1 >,
+        //     mpl::back_inserter< mpl::vector<> >
+        // >::type;
+        //
+        // mpl::for_each<Intersection>(
+        //     [this, &destination](auto t)
+        //     {
+        //         using T = decltype(t);
+        //         if( !attributeMapStore.expired() && hasType<T>(attributeMapStore) )
+        //         {
+        //             if(handles[getMapID<T>(attributeMapStore)] != nullptr)
+        //             {
+        //                 T entry = this->getEntry<T>();
+        //                 destination.setEntry(entry);
+        //             }
+        //         }
+        //     }
+        // );
+    }
 };
 
-/* template<typename DestinationProperty, typename SourceProperty> */
-/* transferHandles(DestinationProperty& dp, const SourceProperty& sp) */
-/* { */
-/*     boost::mpl::for_each<DestinationProperty::StoreType:: */
-/* } */
 
 } /* graph */
 } /* dodo */

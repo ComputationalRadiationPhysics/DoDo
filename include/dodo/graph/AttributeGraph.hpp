@@ -2,14 +2,19 @@
 
 #include <memory>
 
+#include <boost/hana.hpp>
+
 #include <dodo/graph/Property.hpp>
 #include <dodo/graph/AttributeMapStore.hpp>
 #include <dodo/graph/BGL.hpp>
 #include <dodo/graph/HWNode.hpp>
 
-namespace dodo{
-namespace graph{
+namespace dodo
+{
+namespace graph
+{
 
+namespace hana = boost::hana;
 
 template<typename... AttributeTypes>
 class AttributeGraph :
@@ -18,6 +23,8 @@ class AttributeGraph :
 {
 public:
     using AttributesTuple = std::tuple<AttributeTypes...>;
+    static constexpr auto AttributesHanaSet = hana::to_set(hana::tuple_t<AttributeTypes...>);
+
     using StoreType = AttributeMapStore<AttributeTypes...>;
     std::shared_ptr<StoreType> attributeMapStore;
 
@@ -27,6 +34,7 @@ public:
     using index_map_t = typename boost::property_map<Graph, boost::vertex_index_t>::type;
     using IsoMap = boost::iterator_property_map<typename std::vector<VertexID>::iterator, index_map_t, VertexID, VertexID&>;
     IsoMap mappingToStructureGraph;
+    VertexID root;
 
     AttributeGraph()
       :  attributeMapStore(std::make_shared<StoreType>())
@@ -41,6 +49,13 @@ private:
     PropertyType createProperty(T... attributes)
     {
         return PropertyType(attributeMapStore, attributes...);
+    }
+
+protected:
+    template<typename Subgraph>
+    VertexID consistsOf(Subgraph g)
+    {
+        return attachSubtree(*this, g);
     }
 
 public:
@@ -107,6 +122,7 @@ Graph cloneView(const Graph& origin)
     copy.mappingToStructureGraph = m;
     return copy;
 }
+
 
 template<typename AttributeGraph1, typename AttributeGraph2>
 struct transform_vertex_copier
@@ -296,18 +312,74 @@ GraphDestination transformIntoVertexOnly(const GraphOrigin& origin)
     return copy;
 }
 
-/* // graphs must be structurally the same! */
-/* template<typename GraphDestination, typename Graph1, typename Graph2> */
-/* GraphDestination merge(const Graph1& graph1, const Graph2& graph2) */
-/* { */
-/*     GraphDestination dest; */
+/**
+ * Copy nodes from one graph to another, then combine the structures.
+ *
+ * All nodes and vertices from subGraph are copied into parentGraph.
+ * After that, a directed edge from the parent's root node to the (copied)
+ * subGraph's root node is created.
+ * The function assumes that both graphs have identical types.
+ * The function also assumes, that the 'root' member variable is defined
+ * for both graphs.
+ *
+ * @param parentGraph the graph that the subGraph will be attached to
+ * @param subGraph the graph that will be attached
+ *
+ * @return the VertexID of the root node of the newly attached subGraph.
+ */
+template<typename... Attributes>
+typename AttributeGraph<Attributes...>::VertexID attachSubtree(
+    AttributeGraph<Attributes...>& parentGraph
+    , const AttributeGraph<Attributes...>& subGraph
+    )
+{
+    using Graph = AttributeGraph<Attributes...>;
+    std::vector<typename Graph::VertexID> sub2parent_data(num_vertices(*subGraph.graph));
+    auto mapV = make_iterator_property_map(sub2parent_data.begin(), get(boost::vertex_index, *(subGraph.graph)));
 
-/*     merge_vertex_copier <Graph1, Graph2, GraphDestination> vc(*(graph1.graph), *(graph2.graph), *(dest.graph)); */
-/*     //delete_edge_copier      <GraphOrigin, GraphDestination> ec(*(origin.graph), *(copy.graph)); */
-/*     //boost::copy_graph(*(origin.graph), *(copy.graph), boost::vertex_copy(vc).edge_copy(ec)); */
-/*     boost::copy_graph(*(origin.graph), *(copy.graph), boost::vertex_copy(vc)); */
-/*     return copy; */
-/* } */
+    transform_vertex_copier <Graph, Graph> vc(*(subGraph.graph), *(parentGraph.graph), parentGraph);
+    transform_edge_copier   <Graph, Graph> ec(*(subGraph.graph), *(parentGraph.graph), parentGraph);
+
+    //parentGraph += subGraph
+    boost::copy_graph(
+        *(subGraph.graph),
+        *(parentGraph.graph),
+        boost::vertex_copy(vc).edge_copy(ec).orig_to_copy(mapV)
+    );
+
+    typename Graph::VertexID subGraphRoot = mapV[subGraph.root];
+
+    parentGraph.addEdge(parentGraph.root, subGraphRoot);
+    return subGraphRoot;
+
+}
+
+/**
+ * Wrapper function for attachSubtree that allows the graphs to have
+ * different types.
+ *
+ * The types of the subgraph have to be a subset of the types of the parent graph
+ */
+template<typename ParentGraph, typename SubGraph>
+typename ParentGraph::VertexID attachSubtree(
+    ParentGraph& parentGraph
+    , const SubGraph& subGraph
+    )
+{
+    static_assert(
+        hana::is_subset(
+            SubGraph::AttributesHanaSet,
+            ParentGraph::AttributesHanaSet
+        ),
+        "Subgraph is not a subgraph-type of Parent. Can not attach."
+    );
+
+    return attachSubtree(parentGraph, transformInto<ParentGraph>(subGraph)) ;
+}
+
+
+
+
 
 
 } /* graph */

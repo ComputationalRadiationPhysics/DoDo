@@ -25,4 +25,5 @@
 #pragma once
 
 #include <dodo/physical/attributes/EnergyLevel.hpp>
+#include <dodo/physical/attributes/Memorysize.hpp>
 #include <dodo/physical/attributes/Speed.hpp>
