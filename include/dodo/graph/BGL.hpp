@@ -175,7 +175,7 @@ public:
 
     void setEdgeProperty(EdgeID edge, EdgeProperty value){
         std::pair<unsigned, EdgeProperty> propPair = (*graph)[edge];
-        (*graph)[edge] = std::make_pair<propPair.first, value>;
+        (*graph)[edge] = std::make_pair(propPair.first, value);
     }
 
     void setEdgeProperty(EdgeID edge, std::pair<unsigned, EdgeProperty> propPair){

@@ -26,24 +26,8 @@ struct HWNode
         aGraph(pAGraph)
     {}
 
-    HWNode(){}
 
 
-    typename AGraph::EdgeID consistsOf(HWNode other)
-    {
-        return aGraph->addEdge(id, other.id);
-    }
-
-
-    std::vector<typename AGraph::EdgeID> consistsOf(std::initializer_list<HWNode> otherlist)
-    {
-        std::vector<typename AGraph::EdgeID> edges;
-        for(HWNode other : otherlist)
-        {
-            edges.push_back(aGraph->addEdge(id, other.id));
-        }
-        return edges;
-    }
 
 };
 

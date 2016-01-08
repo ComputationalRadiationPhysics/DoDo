@@ -4,6 +4,8 @@
 
 #include <boost/hana.hpp>
 
+#include <dout/dout.hpp>
+
 #include <dodo/graph/Property.hpp>
 #include <dodo/graph/AttributeMapStore.hpp>
 #include <dodo/graph/BGL.hpp>
@@ -18,8 +20,7 @@ namespace hana = boost::hana;
 
 template<typename... AttributeTypes>
 class AttributeGraph :
-    public BGL<Property<AttributeTypes...>, Property<AttributeTypes...>>,
-    public std::enable_shared_from_this<AttributeGraph<AttributeTypes...>>
+    public BGL<Property<AttributeTypes...>, Property<AttributeTypes...>>
 {
 public:
     using AttributesTuple = std::tuple<AttributeTypes...>;
@@ -31,9 +32,9 @@ public:
     using PropertyType = Property<AttributeTypes...>;
     using Graph = typename BGL<PropertyType, PropertyType>::BGLGraph;
     using VertexID = typename Graph::vertex_descriptor;
-    using index_map_t = typename boost::property_map<Graph, boost::vertex_index_t>::type;
-    using IsoMap = boost::iterator_property_map<typename std::vector<VertexID>::iterator, index_map_t, VertexID, VertexID&>;
-    IsoMap mappingToStructureGraph;
+    using EdgeID = typename Graph::edge_descriptor;
+
+    // invariant: root vertex exists and has no incoming edges
     VertexID root;
 
     AttributeGraph()
@@ -55,7 +56,23 @@ protected:
     template<typename Subgraph>
     VertexID consistsOf(Subgraph g)
     {
-        return attachSubtree(*this, g);
+        decltype(auto) dout = dout::Dout::getInstance();
+        dout(dout::Flags::DEBUG) << "in AttributeGraph::consistsOf" << std::endl;
+
+        // attach the subtree
+        VertexID attachedRoot = attachSubtree(*this, g);
+
+        // collect the tags from the subtree and add them to own root
+        auto attachedTags = this->getVertexProperty(attachedRoot).second.tagInfo;
+        this->getVertexProperty(root).second.tagInfo.add(std::move(attachedTags));
+
+        auto connectingEdge = this->addEdge(root, attachedRoot);
+        auto edgeProperty = this->getEdgeProperty(connectingEdge).second;
+        edgeProperty.tagInfo.addNode(NodeType::STRUCTURAL);
+        this->setEdgeProperty(connectingEdge, edgeProperty);
+
+        dout(dout::Flags::DEBUG) << "in AttributeGraph::consistsOf end" << std::endl;
+        return attachedRoot;
     }
 
 public:
@@ -66,6 +83,23 @@ public:
         p.tagInfo.addNode(NodeType::STRUCTURAL);
         return p;
     }
+
+    std::pair<EdgeID, EdgeID> connectBidirectional(const VertexID a, const VertexID b)
+    {
+        auto edge1 = this->addEdge(a, b);
+        auto edge2 = this->addEdge(a, b);
+
+        auto edgeProperty1 = this->getEdgeProperty(edge1).second;
+        auto edgeProperty2 = this->getEdgeProperty(edge2).second;
+
+        edgeProperty1.tagInfo.addNode(NodeType::INTERCONNECT);
+        edgeProperty2.tagInfo.addNode(NodeType::INTERCONNECT);
+        this->setEdgeProperty(edge1, edgeProperty1);
+        this->setEdgeProperty(edge2, edgeProperty2);
+
+        return std::make_pair(edge1, edge2);
+    }
+
 
     template<typename... T>
     PropertyType createComputeElement(T... attributes)
@@ -333,9 +367,14 @@ typename AttributeGraph<Attributes...>::VertexID attachSubtree(
     , const AttributeGraph<Attributes...>& subGraph
     )
 {
+    decltype(auto) dout = dout::Dout::getInstance();
+    dout(dout::Flags::DEBUG) << "in attachSubtree with same types" << std::endl;
     using Graph = AttributeGraph<Attributes...>;
-    std::vector<typename Graph::VertexID> sub2parent_data(num_vertices(*subGraph.graph));
-    auto mapV = make_iterator_property_map(sub2parent_data.begin(), get(boost::vertex_index, *(subGraph.graph)));
+    using VertexID = typename Graph::VertexID;
+    using Map = std::map<VertexID, VertexID>;
+
+    Map m;
+    boost::associative_property_map<Map> mapV(m);
 
     transform_vertex_copier <Graph, Graph> vc(*(subGraph.graph), *(parentGraph.graph), parentGraph);
     transform_edge_copier   <Graph, Graph> ec(*(subGraph.graph), *(parentGraph.graph), parentGraph);
@@ -347,9 +386,10 @@ typename AttributeGraph<Attributes...>::VertexID attachSubtree(
         boost::vertex_copy(vc).edge_copy(ec).orig_to_copy(mapV)
     );
 
-    typename Graph::VertexID subGraphRoot = mapV[subGraph.root];
+    VertexID subGraphRoot = mapV[subGraph.root];
+//    parentGraph.addEdge(parentGraph.root, subGraphRoot);
 
-    parentGraph.addEdge(parentGraph.root, subGraphRoot);
+    dout(dout::Flags::DEBUG) << "in attachSubtree with same types end" << std::endl;
     return subGraphRoot;
 
 }
@@ -366,6 +406,8 @@ typename ParentGraph::VertexID attachSubtree(
     , const SubGraph& subGraph
     )
 {
+    decltype(auto) dout = dout::Dout::getInstance();
+    dout(dout::Flags::DEBUG) << "in attachSubtree to transform types" << std::endl;
     static_assert(
         hana::is_subset(
             SubGraph::AttributesHanaSet,
@@ -373,8 +415,10 @@ typename ParentGraph::VertexID attachSubtree(
         ),
         "Subgraph is not a subgraph-type of Parent. Can not attach."
     );
+    auto newSubGraph = transformInto<ParentGraph>(subGraph);
+    dout(dout::Flags::DEBUG) << "in attachSubtree to transform types end" << std::endl;
 
-    return attachSubtree(parentGraph, transformInto<ParentGraph>(subGraph)) ;
+    return attachSubtree(parentGraph, newSubGraph) ;
 }
 
 

@@ -52,6 +52,23 @@ public:
         return values[static_cast<int>(n)];
     }
 
+    void add(const TagInfo&& otherTagInfo)
+    {
+        for(unsigned i=0; i < values.size(); ++i)
+        {
+            values[i] += otherTagInfo.values[i];
+        }
+    }
+
+    void subtract(const TagInfo&& otherTagInfo)
+    {
+        for(unsigned i=0; i < values.size(); ++i)
+        {
+            assert(values[i] >= otherTagInfo.values[i]);
+            values[i] -= otherTagInfo.values[i];
+        }
+    }
+
 };
 
 } /* graph */

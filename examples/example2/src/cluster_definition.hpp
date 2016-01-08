@@ -57,6 +57,7 @@ struct RAM
     }
 };
 
+
 struct LaserNode
     :
     dodo::graph::AttributeGraph<
@@ -80,6 +81,21 @@ struct LaserNode
     }
 };
 
+struct EthernetSwitch
+    :
+    dodo::graph::AttributeGraph<
+        Energy
+    >
+{
+    EthernetSwitch()
+    {
+        auto switchElement = createInterconnectElement( );
+        switchElement.setEntry( Energy { 42 } );
+
+        root = add(switchElement).id;
+    }
+};
+
 
 struct LaserQueue
     :
@@ -95,8 +111,14 @@ struct LaserQueue
         auto x = createStructuralElement( );
         root = add(x).id;
 
+        auto ethSwitch = this->consistsOf(EthernetSwitch());
+
         for(int i=0 ; i < 3 ; ++i)
-            this->consistsOf(LaserNode());
+        {
+            auto lNode = this->consistsOf(LaserNode());
+            auto connection = this->connectBidirectional(lNode, ethSwitch);
+
+        }
     }
 };
 

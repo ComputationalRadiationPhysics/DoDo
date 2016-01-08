@@ -110,6 +110,11 @@ if(Boost_VERSION LESS 1.61)
     LIST(APPEND _DODO_INCLUDE_DIRECTORIES_PUBLIC ${Hana_INCLUDE_DIRS})
 endif()
 
+FIND_PACKAGE(dout REQUIRED)
+if(dout_FOUND)
+    LIST(APPEND _DODO_INCLUDE_DIRECTORIES_PUBLIC ${dout_INCLUDE_DIRS})
+endif()
+
 
 #-------------------------------------------------------------------------------
 # Compiler settings.
