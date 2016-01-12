@@ -24,5 +24,6 @@
 
 #pragma once
 
+#include <dodo/utility/tree_id.hpp>
 #include <dodo/utility/tuple_index.hpp>
 #include <dodo/utility/uniqueID.hpp>

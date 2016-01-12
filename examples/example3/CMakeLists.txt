@@ -11,7 +11,7 @@ SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 # Project.
 ################################################################################
 
-PROJECT("example2")
+PROJECT("example3")
 
 
 #-------------------------------------------------------------------------------
@@ -35,7 +35,7 @@ file(GLOB_RECURSE _SOURCES "src" "*.cpp")
 INCLUDE_DIRECTORIES("include/")
 
 # Always add all files to the target executable build call to add them to the build project.
-ADD_EXECUTABLE("example2" ${_SOURCES})
+ADD_EXECUTABLE("example3" ${_SOURCES})
 
 # Set the link libraries for this library (adds libs, include directories, defines and compile options).
 #TARGET_LINK_LIBRARIES("example1" PUBLIC "Dodo")

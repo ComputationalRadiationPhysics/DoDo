@@ -68,3 +68,4 @@ unset(MY_COMMON_FLAGS)
 ################################################################################
 ADD_SUBDIRECTORY("example1/")
 ADD_SUBDIRECTORY("example2/")
+ADD_SUBDIRECTORY("example3/")

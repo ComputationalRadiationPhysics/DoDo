@@ -27,7 +27,10 @@
 #include <dodo/graph/AttributeGraph.hpp>
 #include <dodo/graph/AttributeMapStore.hpp>
 #include <dodo/graph/BGL.hpp>
+#include <dodo/graph/HardwareGraphVertex.hpp>
 #include <dodo/graph/HWNode.hpp>
+#include <dodo/graph/InterconnectEdge.hpp>
+#include <dodo/graph/InterconnectGraph.hpp>
 #include <dodo/graph/NodeType.hpp>
 #include <dodo/graph/Property.hpp>
 #include <dodo/graph/TagInfo.hpp>

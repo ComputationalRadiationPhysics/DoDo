@@ -125,17 +125,17 @@ public:
         return p;
     }
 
-    HWNode<AttributeTypes...> add()
-    {
-        auto id = this->addVertex();
-        return HWNode<AttributeTypes...>(id, this);
-    }
+    // HWNode<AttributeTypes...> add()
+    // {
+    //     auto id = this->addVertex();
+    //     return HWNode<AttributeTypes...>(id, this);
+    // }
 
-    HWNode<AttributeTypes...> add(PropertyType& p)
-    {
-        auto id = this->addVertex(p.clone());
-        return HWNode<AttributeTypes...>(id, this);
-    }
+    // HWNode<AttributeTypes...> add(PropertyType& p)
+    // {
+    //     auto id = this->addVertex(p.clone());
+    //     return HWNode<AttributeTypes...>(id, this);
+    // }
 
 
 };
