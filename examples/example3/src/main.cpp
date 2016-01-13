@@ -15,7 +15,6 @@ int main( )
 
     auto interconnectGraph = std::make_shared<dodo::graph::InterconnectGraph<InterconnectProperties>>();
 
-
     HypnosClusterVertex hgv(dodo::utility::TreeID(), interconnectGraph);
 
     return 0;

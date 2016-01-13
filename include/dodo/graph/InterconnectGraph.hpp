@@ -23,8 +23,7 @@ namespace hana = boost::hana;
 
 template<typename T_InterconnectProperties>
 class InterconnectGraph :
-    BGL<SimpleProperty, T_InterconnectProperties>,
-    std::enable_shared_from_this<InterconnectGraph>
+    BGL<SimpleProperty, T_InterconnectProperties>
 {
 public:
     using Properties = T_InterconnectProperties;

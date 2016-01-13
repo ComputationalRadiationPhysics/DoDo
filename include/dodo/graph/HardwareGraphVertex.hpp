@@ -20,29 +20,34 @@ class HardwareGraphVertex
 {
 protected:
     dout::Dout& dout = dout::Dout::getInstance();
-    utility::TreeID id;
 
     using ConsistsOfStructure = std::vector<HardwareGraphVertex>;
-    using InterconnectGraph_T = InterconnectGraph<T_InterconnectProperties>;
-
-    std::shared_ptr<InterconnectGraph_T> interconnectGraph;
-    T_LocalProperties properties;
-
-    ConsistsOfStructure children;
-
-    using InterconnectID = typename InterconnectGraph_T::VertexID;
+    using InterconnectGraph_t = InterconnectGraph<T_InterconnectProperties>;
+    using InterconnectID = typename InterconnectGraph_t::VertexID;
     using Mapping = std::map<utility::TreeID, InterconnectID, utility::TreeIDLess>;
+    using Properties = T_LocalProperties;
+
+    utility::TreeID id;
+    std::shared_ptr<InterconnectGraph_t> interconnectGraph;
+    Properties properties;
+    ConsistsOfStructure children;
 
 public:
 
-    HardwareGraphVertex(utility::TreeID i, std::shared_ptr<InterconnectGraph_T> a) :
+    HardwareGraphVertex(
+        utility::TreeID i,
+        std::shared_ptr<InterconnectGraph_t> a
+    ) :
         id(i),
         interconnectGraph(a)
     {
         interconnectGraph->add(id);
     }
 
-    template<typename T_Child, typename... T_Args>
+    template<
+        typename T_Child,
+        typename... T_Args
+    >
     utility::TreeID createChild(T_Args&&... args)
     {
         dout(dout::Flags::DEBUG) << "in createChild, id = " << id.get() << std::endl;
@@ -79,6 +84,22 @@ public:
                 dout(dout::Flags::INFO) << std::endl;
         }
 
+    }
+
+    template<typename T>
+    void setProperty(T t)
+    {
+        constexpr auto tupleIndex = utility::tuple_index<Properties, T>::value;
+        static_assert(static_cast<int>(tupleIndex) >= 0);
+        std::get<tupleIndex>(properties) = t;
+    }
+
+    template<typename T>
+    T& getProperty()
+    {
+        constexpr auto tupleIndex = utility::tuple_index<Properties, T>::value;
+        static_assert(static_cast<int>(tupleIndex) >= 0);
+        return std::get<tupleIndex>(properties);
     }
 
 };

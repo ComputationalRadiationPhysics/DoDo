@@ -24,7 +24,9 @@ public:
     CPUVertex(utility::TreeID i, ICG a) :
         HardwareGraphVertex(i, a)
     {
-        // localProperty.setEntry(physical::attributes::EnergyLevel({ 20 }));
+        setProperty<physical::attributes::EnergyLevel>({20});
+        auto& p = getProperty<physical::attributes::EnergyLevel>();
+        getProperty<physical::attributes::EnergyLevel>() = {22};
     }
 };
 
