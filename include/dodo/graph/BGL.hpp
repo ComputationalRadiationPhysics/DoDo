@@ -50,7 +50,7 @@ public:
 
     // BGL typdefs
     typedef boost::adjacency_list<boost::listS,
-            boost::vecS,
+            boost::listS,
             boost::bidirectionalS,
             boost::property<boost::vertex_index_t, size_t, VertexPropertyBundle >,
             boost::property<boost::edge_index_t, size_t, EdgePropertyBundle > > BGLGraph;

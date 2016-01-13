@@ -73,7 +73,7 @@ public:
         for(auto i=0u ; i<offset+id.get().size() ; ++i)
             indent << " ";
 
-        dout(dout::Flags::INFO, offset==0) << id.get() << std::endl;
+        dout(dout::Flags::INFO, offset==0) << id.get() << " ---> " << mapping.at(id) << std::endl;
         for(unsigned i=0; i<children.size(); ++i)
         {
             dout(dout::Flags::INFO) << indent.str() << "\\___";
