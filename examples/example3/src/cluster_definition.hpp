@@ -5,17 +5,15 @@
 using namespace dodo::graph;
 using namespace dodo;
 
+using ConsistsOfProperties = std::tuple<physical::attributes::EnergyLevel>;
+using InterconnectProperties = std::tuple<physical::attributes::Bandwidth>;
+
 using HWVertex_t = HardwareGraphVertex<
-    physical::attributes::EnergyLevel,
-    physical::attributes::Bandwidth
+    ConsistsOfProperties,
+    InterconnectProperties
 >;
 
-using ICG = std::shared_ptr<
-    InterconnectGraph<
-        physical::attributes::EnergyLevel,
-        physical::attributes::Bandwidth
-    >
->;
+using ICG = std::shared_ptr< InterconnectGraph< InterconnectProperties > >;
 
 
 
@@ -26,7 +24,7 @@ public:
     CPUVertex(utility::TreeID i, ICG a) :
         HardwareGraphVertex(i, a)
     {
-        localProperty.setEntry(physical::attributes::EnergyLevel({ 20 }));
+        // localProperty.setEntry(physical::attributes::EnergyLevel({ 20 }));
     }
 };
 
@@ -37,7 +35,7 @@ public:
     FSBVertex(utility::TreeID i, ICG a) :
         HardwareGraphVertex(i, a)
     {
-        localProperty.setEntry(physical::attributes::EnergyLevel({ 20 }));
+        // localProperty.setEntry(physical::attributes::EnergyLevel({ 20 }));
     }
 };
 
@@ -50,13 +48,13 @@ public:
         HardwareGraphVertex(i, a)
     {
 
-        localProperty.setEntry(physical::attributes::EnergyLevel({ 20 }));
-        auto cpu1_id = this->createChild<CPUVertex>();
-        auto cpu2_id = this->createChild<CPUVertex>();
-        auto fsb_id = this->createChild<FSBVertex>();
-        auto bus1 = interconnectGraph->connect(mapping[fsb_id], mapping[cpu1_id]);
-        auto bus2 = interconnectGraph->connect(mapping[fsb_id], mapping[cpu2_id]);
-        auto bus3 = interconnectGraph->connect(mapping[id], mapping[fsb_id]);
+        // localProperty.setEntry(physical::attributes::EnergyLevel({ 20 }));
+        auto cpu1 = this->createChild<CPUVertex>();
+        auto cpu2 = this->createChild<CPUVertex>();
+        auto fsb = this->createChild<FSBVertex>();
+        auto bus1 = interconnectGraph->connect(fsb, cpu1);
+        auto bus2 = interconnectGraph->connect(fsb, cpu2);
+        auto bus3 = interconnectGraph->connect(id, fsb);
 
     }
 };
@@ -69,7 +67,7 @@ public:
     EthernetSwitchVertex(utility::TreeID i, ICG a) :
         HardwareGraphVertex(i, a)
     {
-        localProperty.setEntry(physical::attributes::EnergyLevel({ 20 }));
+        // localProperty.setEntry(physical::attributes::EnergyLevel({ 20 }));
     }
 };
 
@@ -82,13 +80,13 @@ public:
         HardwareGraphVertex(i, a)
     {
 
-        localProperty.setEntry(physical::attributes::EnergyLevel({ 20 }));
-        auto node1_id = this->createChild<LaserNodeVertex>();
-        auto node2_id = this->createChild<LaserNodeVertex>();
-        auto switch_id = this->createChild<EthernetSwitchVertex>();
-        auto cable1 = interconnectGraph->connect(mapping[node1_id], mapping[switch_id]);
-        auto cable2 = interconnectGraph->connect(mapping[node2_id], mapping[switch_id]);
-        auto cable3 = interconnectGraph->connect(mapping[id], mapping[switch_id]);
+        // localProperty.setEntry(physical::attributes::EnergyLevel({ 20 }));
+        auto node1 = this->createChild<LaserNodeVertex>();
+        auto node2 = this->createChild<LaserNodeVertex>();
+        auto ethSwitch = this->createChild<EthernetSwitchVertex>();
+        auto cable1 = interconnectGraph->connect(node1, ethSwitch);
+        auto cable2 = interconnectGraph->connect(node2, ethSwitch);
+        auto cable3 = interconnectGraph->connect(id, ethSwitch);
 
         printAllChildren();
 

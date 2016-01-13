@@ -20,48 +20,42 @@ namespace graph
 
 namespace hana = boost::hana;
 
-template<typename... AttributeTypes>
+
+template<typename T_InterconnectProperties>
 class InterconnectGraph :
-    BGL<SimpleProperty, Property<AttributeTypes...>>
+    BGL<SimpleProperty, T_InterconnectProperties>,
+    std::enable_shared_from_this<InterconnectGraph>
 {
 public:
-    using AttributesTuple = std::tuple<AttributeTypes...>;
-    static constexpr auto AttributesHanaSet = hana::to_set(hana::tuple_t<AttributeTypes...>);
+    using Properties = T_InterconnectProperties;
+    using Graph =  BGL<SimpleProperty, T_InterconnectProperties>;
+    using VertexID = typename Graph::VertexID;
+    using EdgeID = typename Graph::EdgeID;
 
-    using StoreType = AttributeMapStore<AttributeTypes...>;
-    std::shared_ptr<StoreType> attributeMapStore;
+    using StableVertexID = typename Graph::VertexPropertyBundle::first_type;
 
-    using PropertyType = Property<AttributeTypes...>;
-    using Graph = typename BGL<PropertyType, PropertyType>::BGLGraph;
-    using VertexID = typename Graph::vertex_descriptor;
-    using EdgeID = typename Graph::edge_descriptor;
+    using Mapping = std::map<utility::TreeID, VertexID, utility::TreeIDLess>;
+    using StableMapping = std::map<utility::TreeID, StableVertexID, utility::TreeIDLess>;
 
-    VertexID root;
+    Mapping mapping;
+    StableMapping stableMapping;
 
-    InterconnectGraph() :
-        attributeMapStore(std::make_shared<StoreType>()),
-        root(add())
-    {}
-
-    InterconnectGraph(std::shared_ptr<StoreType> existingStore) :
-        attributeMapStore(existingStore),
-        root(add())
-    {}
-
-public:
-
-    VertexID add()
+    VertexID add(const utility::TreeID& tid)
     {
-        return this->addVertex();
+        auto id = this->addVertex();
+        mapping.insert({tid, id});
+        stableMapping.insert({tid, this->getVertexProperty(id).first});
+        return id;
     }
 
-    InterconnectEdge<InterconnectGraph> connect(VertexID a, VertexID b)
+    InterconnectEdge<InterconnectGraph> connect(
+        const utility::TreeID& a,
+        const utility::TreeID& b
+    )
     {
-        auto id = this->addEdge(a, b);
+        auto id = this->addEdge(mapping[a], mapping[b]);
         return InterconnectEdge<InterconnectGraph>(id, this);
     }
-
-
 
 
 };

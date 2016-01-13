@@ -13,7 +13,8 @@ int main( )
     dout.setVerbosity(dout::Flags::WARN | dout::Flags::INFO | dout::Flags::STAT | dout::Flags::ERROR);
     //dout.addVerbosity(dout::Flags::DEBUG);
 
-    auto interconnectGraph = std::make_shared<dodo::graph::InterconnectGraph<dodo::physical::attributes::EnergyLevel, dodo::physical::attributes::Bandwidth>>();
+    auto interconnectGraph = std::make_shared<dodo::graph::InterconnectGraph<InterconnectProperties>>();
+
 
     HypnosClusterVertex hgv(dodo::utility::TreeID(), interconnectGraph);
 

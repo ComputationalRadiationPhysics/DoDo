@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include <iostream>
-#include <tuple>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/subgraph.hpp>
@@ -40,10 +39,7 @@ public:
     // Public typedefs
     typedef T_VertexProperty                                                VertexProperty;
     typedef T_EdgeProperty                                                  EdgeProperty;
-    typedef std::pair<unsigned, unsigned>                                   EdgeDescription;
-    typedef std::pair<std::vector<unsigned>, std::vector<EdgeDescription> > GraphDescription;
 
-    typedef unsigned                                                        GraphID;
     typedef std::pair<unsigned, VertexProperty>                             VertexPropertyBundle;
     typedef std::pair<unsigned, EdgeProperty>                               EdgePropertyBundle;
 
@@ -73,48 +69,13 @@ public:
     size_t vertexIDCounter=0;
 
 public:
-    GraphID id;
 
 
-    /**
-     * @brief The graph has to be described by *edges*
-     * (source Vertex ==> target Vertex) and
-     * the *vertices* of this graph.
-     *
-     */
-    BGL(GraphDescription graphDesc)
-      : id(0)
+    BGL()
     {
-        std::vector<unsigned> vertices     = graphDesc.first;
-        std::vector<EdgeDescription> edges = graphDesc.second;
-
-        graph = std::make_shared<BGLGraph>(vertices.size());
-
-        for(EdgeDescription edge: edges){
-            VertexID srcVertex    = std::get<0>(edge);
-            VertexID targetVertex = std::get<1>(edge);
-            EdgeID edgeID = boost::add_edge(srcVertex, targetVertex, (*graph)).first;
-            edgeIdMap.push_back(edgeID);
-            setEdgeProperty(edgeID, std::make_pair(edgeIDCounter++, EdgeProperty()));
-
-        }
-
-        // Bind vertex_descriptor and VertexProperty;
-        for(; vertexIDCounter < vertices.size(); ++vertexIDCounter){
-            setVertexProperty(vertexIDCounter, std::make_pair(vertexIDCounter, VertexProperty()));
-        }
-
+        graph = std::make_shared<BGLGraph>();
     }
 
-    BGL() :
-        id(0){
-            graph = std::make_shared<BGLGraph>();
-        }
-
-    BGL(size_t nVertices) :
-        id(0){
-            graph = std::make_shared<BGLGraph>(nVertices);
-        }
 
     /**
      * @brief Returns all vertices of the graph

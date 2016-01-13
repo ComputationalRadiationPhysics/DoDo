@@ -11,11 +11,10 @@ namespace dodo
 namespace graph
 {
 
-template<typename... AttributeTypes>
-class InterconnectGraph;
 
 template<
-    typename... T_Property
+    typename T_LocalProperties,
+    typename T_InterconnectProperties
 >
 class HardwareGraphVertex
 {
@@ -24,24 +23,23 @@ protected:
     utility::TreeID id;
 
     using ConsistsOfStructure = std::vector<HardwareGraphVertex>;
+    using InterconnectGraph_T = InterconnectGraph<T_InterconnectProperties>;
 
-    std::shared_ptr<InterconnectGraph<T_Property...>> interconnectGraph;
-    Property<T_Property...> localProperty;
+    std::shared_ptr<InterconnectGraph_T> interconnectGraph;
+    T_LocalProperties properties;
 
     ConsistsOfStructure children;
 
-    using InterconnectID = typename InterconnectGraph<T_Property...>::VertexID;
+    using InterconnectID = typename InterconnectGraph_T::VertexID;
     using Mapping = std::map<utility::TreeID, InterconnectID, utility::TreeIDLess>;
-    Mapping mapping;
 
 public:
 
-    HardwareGraphVertex(utility::TreeID i, std::shared_ptr<InterconnectGraph<T_Property...>> a) :
+    HardwareGraphVertex(utility::TreeID i, std::shared_ptr<InterconnectGraph_T> a) :
         id(i),
-        interconnectGraph(a),
-        localProperty(a->attributeMapStore)
+        interconnectGraph(a)
     {
-        mapping.insert({id, interconnectGraph->add()});
+        interconnectGraph->add(id);
     }
 
     template<typename T_Child, typename... T_Args>
@@ -53,7 +51,6 @@ public:
 
         T_Child child(consistID, interconnectGraph, std::forward(args)...);
         children.push_back(child);
-        mapping.insert(child.mapping.begin(), child.mapping.end());
 
         return consistID;
     }
@@ -73,7 +70,7 @@ public:
         for(auto i=0u ; i<offset+id.get().size() ; ++i)
             indent << " ";
 
-        dout(dout::Flags::INFO, offset==0) << id.get() << " ---> " << mapping.at(id) << std::endl;
+        dout(dout::Flags::INFO, offset==0) << id.get() << " ---> " << interconnectGraph->mapping.at(id) << std::endl;
         for(unsigned i=0; i<children.size(); ++i)
         {
             dout(dout::Flags::INFO) << indent.str() << "\\___";
