@@ -19,14 +19,13 @@ template<
 >
 class HardwareGraphVertex
 {
+protected:
     dout::Dout& dout = dout::Dout::getInstance();
     utility::TreeID id;
-    std::shared_ptr<AttributeMapStore<T_Property...>> ams;
 
     using ConsistsOfStructure = std::vector<HardwareGraphVertex>;
 
-protected:
-    InterconnectGraph<T_Property...> interconnectGraph;
+    std::shared_ptr<InterconnectGraph<T_Property...>> interconnectGraph;
     Property<T_Property...> localProperty;
 
     ConsistsOfStructure children;
@@ -37,13 +36,12 @@ protected:
 
 public:
 
-    HardwareGraphVertex(utility::TreeID i, std::shared_ptr<AttributeMapStore<T_Property...>> a) :
+    HardwareGraphVertex(utility::TreeID i, std::shared_ptr<InterconnectGraph<T_Property...>> a) :
         id(i),
-        ams(a),
         interconnectGraph(a),
-        localProperty(a)
+        localProperty(a->attributeMapStore)
     {
-        mapping.insert({id, interconnectGraph.root});
+        mapping.insert({id, interconnectGraph->add()});
     }
 
     template<typename T_Child, typename... T_Args>
@@ -52,10 +50,10 @@ public:
         dout(dout::Flags::DEBUG) << "in createChild, id = " << id.get() << std::endl;
         auto consistID = id.genChildID();
         dout(dout::Flags::DEBUG) << "                consistId = " << consistID.get() << std::endl;
-        children.push_back(T_Child(consistID, ams, std::forward(args)...));
 
-        auto commID = interconnectGraph.add();
-        mapping.insert({consistID, commID});
+        T_Child child(consistID, interconnectGraph, std::forward(args)...);
+        children.push_back(child);
+        mapping.insert(child.mapping.begin(), child.mapping.end());
 
         return consistID;
     }
@@ -83,10 +81,12 @@ public:
             if(i+1 == children.size())
                 dout(dout::Flags::INFO) << std::endl;
         }
-        
+
     }
 
 };
+
+
 
 
 } /* graph */

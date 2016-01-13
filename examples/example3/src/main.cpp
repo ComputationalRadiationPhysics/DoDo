@@ -13,9 +13,9 @@ int main( )
     dout.setVerbosity(dout::Flags::WARN | dout::Flags::INFO | dout::Flags::STAT | dout::Flags::ERROR);
     //dout.addVerbosity(dout::Flags::DEBUG);
 
-    auto ams = std::make_shared<dodo::graph::AttributeMapStore<dodo::physical::attributes::EnergyLevel, dodo::physical::attributes::Bandwidth>>();
+    auto interconnectGraph = std::make_shared<dodo::graph::InterconnectGraph<dodo::physical::attributes::EnergyLevel, dodo::physical::attributes::Bandwidth>>();
 
-    HypnosClusterVertex hgv(dodo::utility::TreeID(), ams);
+    HypnosClusterVertex hgv(dodo::utility::TreeID(), interconnectGraph);
 
     return 0;
 }
