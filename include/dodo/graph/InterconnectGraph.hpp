@@ -59,32 +59,45 @@ public:
     }
 
 
-    void mergeLinearPaths(
-            VertexID a,
-            VertexID v,
-            VertexID b
-            )
-    {
-        auto av = this->edgeRange(a, v);
-        auto vb = this->edgeRange(v, b);
+    void mergeStarTopology(
+        VertexID v
+        ){
+        auto inEdges  = this->getInEdges(v);
+        auto outEdges = this->getOutEdges(v);
 
-        // a->v + v->b
-        std::list<Properties> ab;
-
-        for(auto av1 = av.first; av1 != av.second; ++av1)
+        std::list<std::tuple<VertexID, VertexID, Properties>> newEdges;
+        for(auto inE = inEdges.first ; inE != inEdges.second ; ++inE)
         {
-            for(auto vb1 = vb.first; vb1 != vb.second; ++vb1)
+            auto inVertex = this->getEdgeSource(*inE);
+            Properties inP = this->getEdgeProperty(*inE).second;
+
+            for(auto outE = outEdges.first; outE != outEdges.second ; ++outE)
             {
-                ab.push_back(mergeProperties(
-                    this->getEdgeProperty(*av1).second,
-                    this->getEdgeProperty(*vb1).second)
-                );
+                auto outVertex = this->getEdgeSource(*outE);
+                if(inVertex == outVertex) continue;
+                Properties outP = this->getEdgeProperty(*outE).second;
+
+                auto newEdge = std::make_tuple(
+                    inVertex,
+                    outVertex,
+                    mergeProperties( inP, outP )
+                    );
+                newEdges.push_back( newEdge );
             }
         }
-        for(auto& path : ab)
+
+        for(auto& e : newEdges)
         {
-            this->addEdge(a, b, path);
+            assert(std::get<0>(e) != std::get<1>(e)) ; // circular edges are not allowed
+            this->addEdge(
+                std::get<0>(e),
+                std::get<1>(e),
+                std::get<2>(e)
+            );
         }
+
+        this->removeVertex(v);
+
     }
 
     Properties mergeProperties(const Properties& a, const Properties& b)

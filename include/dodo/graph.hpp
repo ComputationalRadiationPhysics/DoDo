@@ -33,6 +33,5 @@
 #include <dodo/graph/InterconnectEdge.hpp>
 #include <dodo/graph/InterconnectGraph.hpp>
 #include <dodo/graph/NodeType.hpp>
-#include <dodo/graph/Predicate.hpp>
 #include <dodo/graph/Property.hpp>
 #include <dodo/graph/TagInfo.hpp>

@@ -106,7 +106,7 @@ public:
      *
      */
     std::pair<OutEdgeIter, OutEdgeIter> getOutEdges(const VertexID id){
-        return boost::out_edges((*graph).global_to_local(id), (*graph));
+        return boost::out_edges(id, (*graph));
     }
 
     /**
@@ -114,7 +114,7 @@ public:
      *
      */
     std::pair<InEdgeIter, InEdgeIter> getInEdges(const VertexID id){
-        return boost::in_edges((*graph).global_to_local(id), (*graph));
+        return boost::in_edges(id, (*graph));
     }
 
     /**
