@@ -6,16 +6,28 @@
 
 #include "cluster_definition.hpp"
 
+struct MyPredicate{
+    static bool check(HWVertex_t& current){
+        bool keep = true;
+        //keep |= current.getProperty<dodo::physical::attributes::EnergyLevel>().value > dodo::physical::attributes::EnergyLevel({15}).value;
+        //keep |= current.getProperty<dodo::physical::attributes::Tag>().value == dodo::physical::attributes::Tag({dodo::physical::attributes::Tag::Tags::Switch}).value;
+        keep = current.getProperty<dodo::physical::attributes::Tag>().value != dodo::physical::attributes::Tag({dodo::physical::attributes::Tag::           Tags::Switch}).value;
+
+        return keep;
+    }
+};
 
 int main( )
 {
     decltype(auto) dout = dout::Dout::getInstance();
     dout.setVerbosity(dout::Flags::WARN | dout::Flags::INFO | dout::Flags::STAT | dout::Flags::ERROR);
-    //dout.addVerbosity(dout::Flags::DEBUG);
+    dout.addVerbosity(dout::Flags::DEBUG);
 
-    auto interconnectGraph = std::make_shared<dodo::graph::InterconnectGraph<InterconnectProperties>>();
+    HardwareGraph<HypnosClusterVertex> hgv;
 
-    HypnosClusterVertex hgv(dodo::utility::TreeID(), interconnectGraph);
+    hgv.getSubgraph<MyPredicate>();
+
+
 
     return 0;
 }

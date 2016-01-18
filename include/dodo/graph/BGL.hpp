@@ -45,7 +45,7 @@ public:
 
 
     // BGL typdefs
-    typedef boost::adjacency_list<boost::listS,
+    typedef boost::adjacency_list<boost::multisetS,
             boost::listS,
             boost::bidirectionalS,
             boost::property<boost::vertex_index_t, size_t, VertexPropertyBundle >,
@@ -263,6 +263,15 @@ public:
 
     size_t numVertices() const {
         return num_vertices(*graph);
+    }
+
+    void removeVertex(VertexID v){
+        boost::remove_vertex(v, *graph);
+    }
+
+    std::pair<OutEdgeIter, OutEdgeIter> edgeRange(VertexID srcVertex, VertexID destVertex)
+    {
+        return boost::edge_range(srcVertex, destVertex, *graph);
     }
 
 

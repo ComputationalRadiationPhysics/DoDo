@@ -5,8 +5,8 @@
 using namespace dodo::graph;
 using namespace dodo;
 
-using ConsistsOfProperties = std::tuple<physical::attributes::EnergyLevel>;
-using InterconnectProperties = std::tuple<physical::attributes::Bandwidth>;
+using ConsistsOfProperties = std::tuple<physical::attributes::Tag, physical::attributes::EnergyLevel>;
+using InterconnectProperties = std::tuple<physical::attributes::Tag, physical::attributes::Bandwidth>;
 
 using HWVertex_t = HardwareGraphVertex<
     ConsistsOfProperties,
@@ -38,6 +38,7 @@ public:
         HardwareGraphVertex(i, a)
     {
         // localProperty.setEntry(physical::attributes::EnergyLevel({ 20 }));
+        setProperty<physical::attributes::Tag>({physical::attributes::Tag::Tags::Switch});
     }
 };
 
@@ -54,9 +55,12 @@ public:
         auto cpu1 = this->createChild<CPUVertex>();
         auto cpu2 = this->createChild<CPUVertex>();
         auto fsb = this->createChild<FSBVertex>();
-        auto bus1 = interconnectGraph->connect(fsb, cpu1);
-        auto bus2 = interconnectGraph->connect(fsb, cpu2);
-        auto bus3 = interconnectGraph->connect(id, fsb);
+        auto bus1a = interconnectGraph->connect(fsb, cpu1);
+        auto bus1b = interconnectGraph->connect(cpu1, fsb);
+        auto bus2a = interconnectGraph->connect(fsb, cpu2);
+        auto bus2b = interconnectGraph->connect(cpu2, fsb);
+        auto bus3a = interconnectGraph->connect(id, fsb);
+        auto bus3b = interconnectGraph->connect(fsb, id);
 
     }
 };
@@ -69,7 +73,6 @@ public:
     EthernetSwitchVertex(utility::TreeID i, ICG a) :
         HardwareGraphVertex(i, a)
     {
-        // localProperty.setEntry(physical::attributes::EnergyLevel({ 20 }));
     }
 };
 
@@ -86,9 +89,12 @@ public:
         auto node1 = this->createChild<LaserNodeVertex>();
         auto node2 = this->createChild<LaserNodeVertex>();
         auto ethSwitch = this->createChild<EthernetSwitchVertex>();
-        auto cable1 = interconnectGraph->connect(node1, ethSwitch);
-        auto cable2 = interconnectGraph->connect(node2, ethSwitch);
-        auto cable3 = interconnectGraph->connect(id, ethSwitch);
+        auto cable1a = interconnectGraph->connect(node1, ethSwitch);
+        auto cable1b = interconnectGraph->connect(ethSwitch, node2);
+        auto cable2a = interconnectGraph->connect(node2, ethSwitch);
+        auto cable2b = interconnectGraph->connect(ethSwitch, node2);
+        auto cable3a = interconnectGraph->connect(id, ethSwitch);
+        auto cable3b = interconnectGraph->connect(ethSwitch, id);
 
         printAllChildren();
 

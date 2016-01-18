@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <tuple>
+#include <utility>
 
 #include <boost/hana.hpp>
 
@@ -23,7 +25,7 @@ namespace hana = boost::hana;
 
 template<typename T_InterconnectProperties>
 class InterconnectGraph :
-    BGL<SimpleProperty, T_InterconnectProperties>
+    public BGL<SimpleProperty, T_InterconnectProperties>
 {
 public:
     using Properties = T_InterconnectProperties;
@@ -56,6 +58,51 @@ public:
         return InterconnectEdge<InterconnectGraph>(id, this);
     }
 
+
+    void mergeLinearPaths(
+            VertexID a,
+            VertexID v,
+            VertexID b
+            )
+    {
+        auto av = this->edgeRange(a, v);
+        auto vb = this->edgeRange(v, b);
+
+        // a->v + v->b
+        std::list<Properties> ab;
+
+        for(auto av1 = av.first; av1 != av.second; ++av1)
+        {
+            for(auto vb1 = vb.first; vb1 != vb.second; ++vb1)
+            {
+                ab.push_back(mergeProperties(
+                    this->getEdgeProperty(*av1).second,
+                    this->getEdgeProperty(*vb1).second)
+                );
+            }
+        }
+        for(auto& path : ab)
+        {
+            this->addEdge(a, b, path);
+        }
+    }
+
+    Properties mergeProperties(const Properties& a, const Properties& b)
+    {
+        Properties c;
+
+        constexpr auto iter = hana::make_range(hana::int_c<0>, hana::int_c<std::tuple_size<Properties>::value-1>);
+        hana::for_each(hana::to_tuple(iter),
+            [&](auto i){
+                auto ax = std::get<i>(a);
+                auto bx = std::get<i>(b);
+                std::get<i>(c) = ax.merge(bx);
+            }
+        );
+
+
+        return c;
+    }
 
 };
 

@@ -6,6 +6,8 @@
 #include <dodo/physical/attributes.hpp>
 #include <dodo/graph/InterconnectGraph.hpp>
 
+#include <boost/hana/ext/std/tuple.hpp>
+
 namespace dodo
 {
 namespace graph
@@ -18,19 +20,27 @@ template<
 >
 class HardwareGraphVertex
 {
-protected:
+public:
+    using Properties = T_LocalProperties;
+    using InterconnectProperties = T_InterconnectProperties;
+
+//protected:
     dout::Dout& dout = dout::Dout::getInstance();
+
 
     using ConsistsOfStructure = std::vector<HardwareGraphVertex>;
     using InterconnectGraph_t = InterconnectGraph<T_InterconnectProperties>;
     using InterconnectID = typename InterconnectGraph_t::VertexID;
     using Mapping = std::map<utility::TreeID, InterconnectID, utility::TreeIDLess>;
-    using Properties = T_LocalProperties;
 
     utility::TreeID id;
     std::shared_ptr<InterconnectGraph_t> interconnectGraph;
     Properties properties;
     ConsistsOfStructure children;
+    static constexpr auto t1 = std::tuple_cat(std::tuple<>(), Properties());
+    static constexpr auto t2 = std::tuple_cat(Properties());
+
+    //static_assert( decltype(properties)::type == decltype(properties)::type );
 
 public:
 
