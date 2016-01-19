@@ -44,6 +44,7 @@ public:
         std::list<VertexBase_t> closed;
         std::list<VertexBase_t> to_delete;
 
+
         using InterconnectID = typename Vertex::InterconnectID;
         using Map = std::map<InterconnectID, InterconnectID>;
         Map isoMap;

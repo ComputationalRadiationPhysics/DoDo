@@ -59,9 +59,8 @@ public:
     }
 
 
-    void mergeStarTopology(
-        VertexID v
-        ){
+    void mergeStarTopology( VertexID v )
+    {
         auto inEdges  = this->getInEdges(v);
         auto outEdges = this->getOutEdges(v);
 
@@ -81,7 +80,7 @@ public:
                     inVertex,
                     outVertex,
                     mergeProperties( inP, outP )
-                    );
+                );
                 newEdges.push_back( newEdge );
             }
         }
@@ -97,11 +96,13 @@ public:
         }
 
         this->removeVertex(v);
-
     }
 
-    Properties mergeProperties(const Properties& a, const Properties& b)
-    {
+
+    Properties mergeProperties(
+        const Properties& a,
+        const Properties& b
+    ){
         Properties c;
 
         constexpr auto iter = hana::make_range(hana::int_c<0>, hana::int_c<std::tuple_size<Properties>::value-1>);
@@ -112,7 +113,6 @@ public:
                 std::get<i>(c) = ax.merge(bx);
             }
         );
-
 
         return c;
     }
