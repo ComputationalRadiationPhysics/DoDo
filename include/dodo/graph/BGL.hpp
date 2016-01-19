@@ -113,7 +113,7 @@ public:
      * @brief Returns all incoming edges to *targetVertex* paired with its source vertex.
      *
      */
-    std::pair<InEdgeIter, InEdgeIter> getInEdges(const VertexID id){
+    std::pair<InEdgeIter, InEdgeIter> getInEdges(const VertexID id) const {
         return boost::in_edges(id, (*graph));
     }
 

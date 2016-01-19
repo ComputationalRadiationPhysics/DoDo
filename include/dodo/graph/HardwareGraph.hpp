@@ -1,23 +1,17 @@
 #pragma once
 
 #include "HardwareGraphVertex.hpp"
+#include "InterconnectGraph.hpp"
+#include "../utility/tree_id.hpp"
 
 namespace dodo
 {
 namespace graph
 {
 
-// template<
-//     template <
-//         typename T_ConsistsOfProperties,
-//         typename T_InterconnectProperties
-//     > typename T_RootVertex
-// >
-
 template<typename T_Vertex>
 class HardwareGraph
 {
-
     using ConsistsOfPropertes = typename T_Vertex::Properties;
     using InterconnectProperties = typename T_Vertex::InterconnectProperties;
     using VertexBase_t = typename T_Vertex::ConsistsOfStructure::value_type;
@@ -32,40 +26,42 @@ private:
 
 public:
     HardwareGraph() :
-      interconnectGraph(std::make_shared<Interconnect_t>()),
-      rootVertex(utility::TreeID(), interconnectGraph)
+      interconnectGraph{ std::make_shared<Interconnect_t>() },
+      rootVertex{utility::TreeID(), interconnectGraph}
     {}
 
     template<typename Predicate>
-    std::shared_ptr<Interconnect_t> getSubgraph()
+    std::shared_ptr<Interconnect_t>
+    getSubgraph(const Predicate& predicate)
     {
-        auto& dout = dout::Dout::getInstance();
-        std::list<VertexBase_t> open;
-        std::list<VertexBase_t> closed;
-        std::list<VertexBase_t> to_delete;
-
-
+        dout::Dout& dout{ dout::Dout::getInstance() };
         using InterconnectID = typename Vertex::InterconnectID;
-        using Map = std::map<InterconnectID, InterconnectID>;
-        Map isoMap;
-        boost::associative_property_map<Map> mapWrapper(isoMap);
-        auto reducedIGraph = std::make_shared<Interconnect_t>();
+        using IsoMap = std::map<InterconnectID, InterconnectID>;
+        using VertexList = std::list<VertexBase_t>;
+
+        VertexList openVertices;
+        VertexList to_delete;
+
+        IsoMap isoMap;
+        boost::associative_property_map<IsoMap> mapWrapper{isoMap};
+        auto reducedIGraph( std::make_shared<Interconnect_t>() );
+
         boost::copy_graph(*(interconnectGraph->graph), *(reducedIGraph->graph), boost::orig_to_copy(mapWrapper));
 
-        open.push_back(rootVertex);
+        openVertices.push_back(rootVertex);
 
-        while( ! open.empty() )
+        while( ! openVertices.empty() )
         {
-            VertexBase_t current = open.front();
-            open.pop_front();
+            VertexBase_t current{ openVertices.front() };
+            openVertices.pop_front();
 
-            open.insert(open.end(), current.children.begin(), current.children.end());
+            openVertices.insert(openVertices.end(), current.children.begin(), current.children.end());
 
-            if(Predicate::check(current))
+            if( predicate(current) )
             {
-                //closed.push_back(current);
-                reducedIGraph->mapping[current.id] = isoMap[interconnectGraph->mapping[current.id]];
-                reducedIGraph->stableMapping[current.id] = interconnectGraph->stableMapping[current.id];
+                const auto pos( current.id );
+                reducedIGraph->mapping[pos] = isoMap[interconnectGraph->mapping[pos]];
+                reducedIGraph->stableMapping[pos] = interconnectGraph->stableMapping[pos];
             } else
             {
                 to_delete.push_back(current);
@@ -73,24 +69,18 @@ public:
         }
 
         dout(dout::Flags::DEBUG) << "Processed consistsOf graph:" << std::endl;
-        dout(dout::Flags::DEBUG) << "closed: " << closed.size() << std::endl;
         dout(dout::Flags::DEBUG) << "to_delete: " << to_delete.size() << std::endl;
 
-
-        for(VertexBase_t v : to_delete)
+        for(const VertexBase_t& v : to_delete)
         {
             // id of interconnect node that corresponds to Vertex v in context of new interconnect graph
-            auto iid = isoMap[interconnectGraph->mapping[v.id]];
+            const auto iid( isoMap[interconnectGraph->mapping[v.id]] );
             reducedIGraph->mergeStarTopology(iid);
         }
         return reducedIGraph;
-
     }
 
-
-
 };
-
 
 } /* graph */
 } /* dodo */

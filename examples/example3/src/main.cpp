@@ -6,17 +6,6 @@
 
 #include "cluster_definition.hpp"
 
-struct MyPredicate{
-    static bool check(HWVertex_t& current){
-        bool keep = true;
-        //keep |= current.getProperty<dodo::physical::attributes::EnergyLevel>().value > dodo::physical::attributes::EnergyLevel({15}).value;
-        //keep |= current.getProperty<dodo::physical::attributes::Tag>().value == dodo::physical::attributes::Tag({dodo::physical::attributes::Tag::Tags::Switch}).value;
-        keep = current.getProperty<dodo::physical::attributes::Tag>().value != dodo::physical::attributes::Tag({dodo::physical::attributes::Tag::           Tags::Switch}).value;
-
-        return keep;
-    }
-};
-
 int main( )
 {
     decltype(auto) dout = dout::Dout::getInstance();
@@ -25,7 +14,14 @@ int main( )
 
     HardwareGraph<HypnosClusterVertex> hgv;
 
-    hgv.getSubgraph<MyPredicate>();
+
+    auto subgraph = hgv.getSubgraph(
+        [](auto& i)
+        {
+            using namespace dodo::physical::attributes;
+            return i.template getProperty<Tag>().value != Tag({Tag::Tags::Switch}).value;
+        }
+    );
 
 
 

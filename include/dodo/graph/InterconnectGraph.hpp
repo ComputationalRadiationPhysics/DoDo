@@ -1,18 +1,14 @@
 #pragma once
 
-#include <memory>
 #include <tuple>
-#include <utility>
 
 #include <boost/hana.hpp>
 
 #include <dout/dout.hpp>
 
-#include <dodo/graph/Property.hpp>
-#include <dodo/graph/AttributeMapStore.hpp>
-#include <dodo/graph/BGL.hpp>
-#include <dodo/graph/HWNode.hpp>
-#include <dodo/graph/InterconnectEdge.hpp>
+#include "BGL.hpp"
+#include "InterconnectEdge.hpp"
+#include "../utility/tree_id.hpp"
 
 
 namespace dodo
@@ -20,74 +16,78 @@ namespace dodo
 namespace graph
 {
 
-namespace hana = boost::hana;
-
-
 template<typename T_InterconnectProperties>
 class InterconnectGraph :
-    public BGL<SimpleProperty, T_InterconnectProperties>
+    public BGL<
+        SimpleProperty,
+        T_InterconnectProperties
+    >
 {
 public:
+    using TreeID = utility::TreeID;
     using Properties = T_InterconnectProperties;
     using Graph =  BGL<SimpleProperty, T_InterconnectProperties>;
     using VertexID = typename Graph::VertexID;
     using EdgeID = typename Graph::EdgeID;
-
     using StableVertexID = typename Graph::VertexPropertyBundle::first_type;
-
-    using Mapping = std::map<utility::TreeID, VertexID, utility::TreeIDLess>;
-    using StableMapping = std::map<utility::TreeID, StableVertexID, utility::TreeIDLess>;
+    using Mapping = std::map<TreeID, VertexID>;
+    using StableMapping = std::map<TreeID, StableVertexID>;
 
     Mapping mapping;
     StableMapping stableMapping;
 
-    VertexID add(const utility::TreeID& tid)
+    VertexID add(const TreeID& tid)
     {
-        auto id = this->addVertex();
+        const VertexID id{ this->addVertex() };
         mapping.insert({tid, id});
         stableMapping.insert({tid, this->getVertexProperty(id).first});
         return id;
     }
 
     InterconnectEdge<InterconnectGraph> connect(
-        const utility::TreeID& a,
-        const utility::TreeID& b
+        const TreeID& a,
+        const TreeID& b
     )
     {
-        auto id = this->addEdge(mapping[a], mapping[b]);
+        const EdgeID id{ this->addEdge(mapping[a], mapping[b]) };
         return InterconnectEdge<InterconnectGraph>(id, this);
     }
 
 
-    void mergeStarTopology( VertexID v )
+    void mergeStarTopology(const VertexID v )
     {
-        auto inEdges  = this->getInEdges(v);
-        auto outEdges = this->getOutEdges(v);
+        const auto inEdges  ( this->getInEdges(v) );
+        const auto outEdges ( this->getOutEdges(v) );
 
         std::list<std::tuple<VertexID, VertexID, Properties>> newEdges;
-        for(auto inE = inEdges.first ; inE != inEdges.second ; ++inE)
+
+        for(auto inE(inEdges.first) ; inE != inEdges.second ; ++inE)
         {
-            auto inVertex = this->getEdgeSource(*inE);
-            Properties inP = this->getEdgeProperty(*inE).second;
+            const VertexID inVertex { this->getEdgeSource(*inE) };
+            const Properties inP { this->getEdgeProperty(*inE).second };
 
-            for(auto outE = outEdges.first; outE != outEdges.second ; ++outE)
+            for(auto outE(outEdges.first); outE != outEdges.second ; ++outE)
             {
-                auto outVertex = this->getEdgeSource(*outE);
-                if(inVertex == outVertex) continue;
-                Properties outP = this->getEdgeProperty(*outE).second;
+                const VertexID outVertex { this->getEdgeSource(*outE) };
 
-                auto newEdge = std::make_tuple(
-                    inVertex,
-                    outVertex,
-                    mergeProperties( inP, outP )
+                // discard circular edges
+                if(inVertex == outVertex)
+                    continue;
+
+                const Properties outP { this->getEdgeProperty(*outE).second };
+
+                newEdges.push_back(
+                    std::make_tuple(
+                        inVertex,
+                        outVertex,
+                        mergeProperties( inP, outP )
+                    )
                 );
-                newEdges.push_back( newEdge );
             }
         }
 
-        for(auto& e : newEdges)
+        for(const auto& e : newEdges)
         {
-            assert(std::get<0>(e) != std::get<1>(e)) ; // circular edges are not allowed
             this->addEdge(
                 std::get<0>(e),
                 std::get<1>(e),
@@ -105,11 +105,16 @@ public:
     ){
         Properties c;
 
-        constexpr auto iter = hana::make_range(hana::int_c<0>, hana::int_c<std::tuple_size<Properties>::value-1>);
-        hana::for_each(hana::to_tuple(iter),
-            [&](auto i){
+        using namespace boost::hana;
+        constexpr auto iter = make_range(
+            int_c<0>,
+            int_c< std::tuple_size<Properties>::value - 1 >
+        );
+
+        for_each(to_tuple(iter),
+            [&a, &b, &c](const auto i){
                 auto ax = std::get<i>(a);
-                auto bx = std::get<i>(b);
+                const auto bx = std::get<i>(b);
                 std::get<i>(c) = ax.merge(bx);
             }
         );
@@ -118,7 +123,6 @@ public:
     }
 
 };
-
 
 } /* graph */
 } /* dodo */

@@ -1,18 +1,18 @@
 #pragma once
 
+#include <boost/hana/ext/std/tuple.hpp>
+
 #include <dout/dout.hpp>
 
-#include <dodo/utility/tree_id.hpp>
-#include <dodo/physical/attributes.hpp>
-#include <dodo/graph/InterconnectGraph.hpp>
+#include "../utility/tree_id.hpp"
+#include "../physical/attributes.hpp"
+#include "InterconnectGraph.hpp"
 
-#include <boost/hana/ext/std/tuple.hpp>
 
 namespace dodo
 {
 namespace graph
 {
-
 
 template<
     typename T_LocalProperties,
@@ -20,36 +20,30 @@ template<
 >
 class HardwareGraphVertex
 {
+    dout::Dout& dout { dout::Dout::getInstance() };
+    using TreeID = utility::TreeID;
+
 public:
     using Properties = T_LocalProperties;
     using InterconnectProperties = T_InterconnectProperties;
-
-//protected:
-    dout::Dout& dout = dout::Dout::getInstance();
-
-
-    using ConsistsOfStructure = std::vector<HardwareGraphVertex>;
-    using InterconnectGraph_t = InterconnectGraph<T_InterconnectProperties>;
+    using ConsistsOfStructure = std::vector< HardwareGraphVertex >;
+    using InterconnectGraph_t = InterconnectGraph< T_InterconnectProperties >;
     using InterconnectID = typename InterconnectGraph_t::VertexID;
-    using Mapping = std::map<utility::TreeID, InterconnectID, utility::TreeIDLess>;
+    using Mapping = std::map< TreeID, InterconnectID >;
 
-    utility::TreeID id;
+    TreeID id;
     std::shared_ptr<InterconnectGraph_t> interconnectGraph;
     Properties properties;
     ConsistsOfStructure children;
     static constexpr auto t1 = std::tuple_cat(std::tuple<>(), Properties());
     static constexpr auto t2 = std::tuple_cat(Properties());
 
-    //static_assert( decltype(properties)::type == decltype(properties)::type );
-
-public:
-
     HardwareGraphVertex(
-        utility::TreeID i,
+        TreeID i,
         std::shared_ptr<InterconnectGraph_t> a
     ) :
-        id(i),
-        interconnectGraph(a)
+        id{i},
+        interconnectGraph{a}
     {
         interconnectGraph->add(id);
     }
@@ -58,13 +52,13 @@ public:
         typename T_Child,
         typename... T_Args
     >
-    utility::TreeID createChild(T_Args&&... args)
+    TreeID createChild(T_Args&&... args)
     {
-        dout(dout::Flags::DEBUG) << "in createChild, id = " << id.get() << std::endl;
-        auto consistID = id.genChildID();
-        dout(dout::Flags::DEBUG) << "                consistId = " << consistID.get() << std::endl;
+        dout(dout::Flags::DEBUG) << "in createChild, id = " << id << std::endl;
+        TreeID consistID { id.genChildID() };
+        dout(dout::Flags::DEBUG) << "                consistId = " << consistID << std::endl;
 
-        T_Child child(consistID, interconnectGraph, std::forward(args)...);
+        T_Child child { consistID, interconnectGraph, std::forward(args)... };
         children.push_back(child);
 
         return consistID;
@@ -72,21 +66,21 @@ public:
 
     void printLocalChildren()
     {
-        dout(dout::Flags::INFO) << id.get() << std::endl;
+        dout(dout::Flags::INFO) << id << std::endl;
         for(const auto& c : children)
         {
-            dout(dout::Flags::INFO) << "\\___" << c.id.get() << std::endl;
+            dout(dout::Flags::INFO) << "\\___" << c.id << std::endl;
         }
     }
 
     void printAllChildren(const size_t offset = 0) const
     {
         std::stringstream indent;
-        for(auto i=0u ; i<offset+id.get().size() ; ++i)
+        for(auto i(0u) ; i<offset+id.get().size() ; ++i)
             indent << " ";
 
-        dout(dout::Flags::INFO, offset==0) << id.get() << " ---> " << interconnectGraph->mapping.at(id) << std::endl;
-        for(unsigned i=0; i<children.size(); ++i)
+        dout(dout::Flags::INFO, offset==0) << id << " ---> " << interconnectGraph->mapping.at(id) << std::endl;
+        for(auto i(0u); i<children.size(); ++i)
         {
             dout(dout::Flags::INFO) << indent.str() << "\\___";
             children[i].printAllChildren(offset + 4);
@@ -97,25 +91,21 @@ public:
     }
 
     template<typename T>
-    void setProperty(T t)
-    {
-        constexpr auto tupleIndex = utility::tuple_index<Properties, T>::value;
-        static_assert(static_cast<int>(tupleIndex) >= 0);
-        std::get<tupleIndex>(properties) = t;
-    }
-
-    template<typename T>
     T& getProperty()
     {
-        constexpr auto tupleIndex = utility::tuple_index<Properties, T>::value;
+        constexpr size_t tupleIndex { utility::tuple_index<Properties, T>::value };
         static_assert(static_cast<int>(tupleIndex) >= 0);
         return std::get<tupleIndex>(properties);
     }
 
+    template<typename T>
+    void setProperty(const T t)
+    {
+        getProperty<T>() = t;
+    }
+
+
 };
-
-
-
 
 } /* graph */
 } /* dodo */

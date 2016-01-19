@@ -9,23 +9,23 @@ namespace utility
 
 class TreeID
 {
-    size_t children = 0;
+    unsigned children{0};
     const std::string id;
 
 public:
 
     TreeID( ) :
-        id(std::to_string(children))
+        id{std::to_string(children)}
     {}
 
     TreeID(std::string i) :
-        id(i)
+        id{i}
     {}
 
     TreeID
     genChildID()
     {
-        return TreeID(id + "." + std::to_string(children++));
+        return {id + "." + std::to_string(children++)};
     }
 
     size_t
@@ -40,24 +40,41 @@ public:
         return id;
     }
 
-
-};
-
-struct TreeIDLess :
-    public std::binary_function<
-        const TreeID,
-        const TreeID,
-        bool
-    >
-{
-    bool operator()(
-        const TreeID a,
-        const TreeID b
-        ) const
-    {
-        return a.get() < b.get();
+    friend
+    std::ostream&
+    operator<<(
+        std::ostream& stream,
+        const TreeID& i
+    ){
+        return stream << i.id;
     }
+
+    friend
+    bool
+    operator<(
+        const TreeID& lhs,
+        const TreeID& rhs
+    ){
+        return lhs.id < rhs.id;
+    }
+
 };
+
+// struct TreeIDLess :
+//     public std::binary_function<
+//         const TreeID,
+//         const TreeID,
+//         bool
+//     >
+// {
+//     bool operator()(
+//         const TreeID a,
+//         const TreeID b
+//         ) const
+//     {
+//         return a.get() < b.get();
+//     }
+// };
 
 
 
