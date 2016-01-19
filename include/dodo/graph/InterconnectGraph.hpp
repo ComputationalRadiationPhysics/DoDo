@@ -26,7 +26,7 @@ class InterconnectGraph :
 public:
     using TreeID = utility::TreeID;
     using Properties = T_InterconnectProperties;
-    using Graph =  BGL<SimpleProperty, T_InterconnectProperties>;
+    using Graph =  BGL<SimpleProperty, Properties>;
     using VertexID = typename Graph::VertexID;
     using EdgeID = typename Graph::EdgeID;
     using StableVertexID = typename Graph::VertexPropertyBundle::first_type;
@@ -96,6 +96,21 @@ public:
         }
 
         this->removeVertex(v);
+    }
+
+    template<typename T>
+    T& getProperty(const EdgeID& e)
+    {
+        constexpr size_t tupleIndex { utility::tuple_index<Properties, T>::value  };
+        static_assert(static_cast<int>(tupleIndex) >= 0);
+        Properties properties = this->getEdgeProperty(e).second;
+        return std::get<tupleIndex>(properties);
+    }
+
+    template<typename T>
+    void setProperty(const EdgeID& e, const T t)
+    {
+        getProperty<T>(e) = t;
     }
 
 

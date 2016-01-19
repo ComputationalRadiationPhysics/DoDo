@@ -50,12 +50,13 @@ public:
     LaserNodeVertex(utility::TreeID i, ICG a) :
         HardwareGraphVertex(i, a)
     {
-
-        // localProperty.setEntry(physical::attributes::EnergyLevel({ 20 }));
         auto cpu1 = this->createChild<CPUVertex>();
         auto cpu2 = this->createChild<CPUVertex>();
         auto fsb = this->createChild<FSBVertex>();
+
         auto bus1a = interconnectGraph->connect(fsb, cpu1);
+        interconnectGraph->setProperty<physical::attributes::Tag>(bus1a.id, {physical::attributes::Tag::Tags::Switch});
+
         auto bus1b = interconnectGraph->connect(cpu1, fsb);
         auto bus2a = interconnectGraph->connect(fsb, cpu2);
         auto bus2b = interconnectGraph->connect(cpu2, fsb);
