@@ -44,13 +44,18 @@ public:
         return id;
     }
 
-    InterconnectEdge<InterconnectGraph> connect(
+    template<unsigned T_directions>
+    InterconnectEdge<InterconnectGraph, T_directions> connect(
         const TreeID& a,
         const TreeID& b
     )
     {
-        const EdgeID id{ this->addEdge(mapping[a], mapping[b]) };
-        return InterconnectEdge<InterconnectGraph>(id, this);
+        const EdgeID id1{ this->addEdge(mapping[a], mapping[b]) };
+        EdgeID id2{id1};
+        if(T_directions > 1){
+            id2 = this->addEdge(mapping[b], mapping[a]);
+        }
+        return InterconnectEdge<InterconnectGraph, T_directions>(this, id1, id2);
     }
 
 
@@ -98,6 +103,10 @@ public:
         this->removeVertex(v);
     }
 
+    /**
+     * This method is not intended to be used directly. Use the Edge containers (InterconnectEdge)
+     * instead.
+     */
     template<typename T>
     T& getProperty(const EdgeID& e)
     {
@@ -107,6 +116,10 @@ public:
         return std::get<tupleIndex>(properties);
     }
 
+    /**
+     * This method is not intended to be used directly. Use the Edge containers (InterconnectEdge)
+     * instead.
+     */
     template<typename T>
     void setProperty(const EdgeID& e, const T t)
     {
@@ -126,7 +139,8 @@ public:
             int_c< std::tuple_size<Properties>::value - 1 >
         );
 
-        for_each(to_tuple(iter),
+        for_each(
+            to_tuple(iter),
             [&a, &b, &c](const auto i){
                 auto ax = std::get<i>(a);
                 const auto bx = std::get<i>(b);

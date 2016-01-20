@@ -5,21 +5,45 @@ namespace dodo
 namespace graph
 {
 
-template<typename T_Graph>
-struct InterconnectEdge
+template<typename T_Graph, unsigned T_directions>
+class InterconnectEdge
 {
-    const typename T_Graph::EdgeID id;
-    const T_Graph* graph;
+
+    T_Graph* graph;
+    const typename T_Graph::EdgeID id1;
+    const typename T_Graph::EdgeID id2;
+public:
 
     InterconnectEdge(
-        const typename T_Graph::EdgeID eid,
-        const T_Graph* pAGraph
+        T_Graph* pAGraph,
+        const typename T_Graph::EdgeID eid1,
+        const typename T_Graph::EdgeID eid2
     ) :
-        id{eid},
-        graph{pAGraph}
+        graph{pAGraph},
+        id1{eid1},
+        id2{eid2}
     {}
 
+    template<typename T>
+    T& getProperty()
+    {
+        T& t1 = this->graph->template getProperty<T>(id1);
+        if(T_directions > 1)
+            assert(t1 == this->graph->template getProperty<T>(id2));
+        return t1;
+    }
+
+    template<typename T>
+    void setProperty(const T t)
+    {
+        this->graph->template getProperty<T>(id1) = t;
+        if(T_directions > 1)
+            this->graph->template getProperty<T>(id2) = t;
+    }
+
 };
+
+
 
 } /* graph */
 } /* dodo */

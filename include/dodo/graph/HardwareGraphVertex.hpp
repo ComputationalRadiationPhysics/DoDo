@@ -104,6 +104,8 @@ public:
         getProperty<T>() = t;
     }
 
+    virtual ~HardwareGraphVertex() = default;
+
 
 };
 

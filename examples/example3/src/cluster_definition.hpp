@@ -25,8 +25,6 @@ public:
         HardwareGraphVertex(i, a)
     {
         setProperty<physical::attributes::EnergyLevel>({20});
-        auto& p = getProperty<physical::attributes::EnergyLevel>();
-        getProperty<physical::attributes::EnergyLevel>() = {22};
     }
 };
 
@@ -54,14 +52,15 @@ public:
         auto cpu2 = this->createChild<CPUVertex>();
         auto fsb = this->createChild<FSBVertex>();
 
-        auto bus1a = interconnectGraph->connect(fsb, cpu1);
-        interconnectGraph->setProperty<physical::attributes::Tag>(bus1a.id, {physical::attributes::Tag::Tags::Switch});
+        auto bus1a = interconnectGraph->connect<2>(fsb, cpu1);
+        //interconnectGraph->setProperty<physical::attributes::Tag>(bus1a.id, {physical::attributes::Tag::Tags::Switch});
+        bus1a.setProperty<physical::attributes::Tag>( {physical::attributes::Tag::Tags::Switch} );
 
-        auto bus1b = interconnectGraph->connect(cpu1, fsb);
-        auto bus2a = interconnectGraph->connect(fsb, cpu2);
-        auto bus2b = interconnectGraph->connect(cpu2, fsb);
-        auto bus3a = interconnectGraph->connect(id, fsb);
-        auto bus3b = interconnectGraph->connect(fsb, id);
+        auto bus1b = interconnectGraph->connect<2>(cpu1, fsb);
+        auto bus2a = interconnectGraph->connect<2>(fsb, cpu2);
+        auto bus2b = interconnectGraph->connect<2>(cpu2, fsb);
+        auto bus3a = interconnectGraph->connect<2>(id, fsb);
+        auto bus3b = interconnectGraph->connect<2>(fsb, id);
 
     }
 };
@@ -90,12 +89,12 @@ public:
         auto node1 = this->createChild<LaserNodeVertex>();
         auto node2 = this->createChild<LaserNodeVertex>();
         auto ethSwitch = this->createChild<EthernetSwitchVertex>();
-        auto cable1a = interconnectGraph->connect(node1, ethSwitch);
-        auto cable1b = interconnectGraph->connect(ethSwitch, node2);
-        auto cable2a = interconnectGraph->connect(node2, ethSwitch);
-        auto cable2b = interconnectGraph->connect(ethSwitch, node2);
-        auto cable3a = interconnectGraph->connect(id, ethSwitch);
-        auto cable3b = interconnectGraph->connect(ethSwitch, id);
+        auto cable1a = interconnectGraph->connect<2>(node1, ethSwitch);
+        auto cable1b = interconnectGraph->connect<2>(ethSwitch, node2);
+        auto cable2a = interconnectGraph->connect<2>(node2, ethSwitch);
+        auto cable2b = interconnectGraph->connect<2>(ethSwitch, node2);
+        auto cable3a = interconnectGraph->connect<2>(id, ethSwitch);
+        auto cable3b = interconnectGraph->connect<2>(ethSwitch, id);
 
         printAllChildren();
 
