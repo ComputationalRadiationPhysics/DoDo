@@ -16,85 +16,75 @@ using HWVertex_t = HardwareGraphVertex<
 using ICG = std::shared_ptr< InterconnectGraph< InterconnectProperties > >;
 
 
-
-class CPUVertex :
-    public HWVertex_t
+struct CPUVertex : public HWVertex_t
 {
-public:
     CPUVertex(utility::TreeID i, ICG a) :
         HardwareGraphVertex(i, a)
     {
         setProperty<physical::attributes::EnergyLevel>({20});
+        setProperty<physical::attributes::Tag>({physical::attributes::Tag::Tags::Compute});
     }
 };
 
-class FSBVertex :
-    public HWVertex_t
+struct FSBVertex : public HWVertex_t
 {
-public:
     FSBVertex(utility::TreeID i, ICG a) :
         HardwareGraphVertex(i, a)
     {
-        // localProperty.setEntry(physical::attributes::EnergyLevel({ 20 }));
         setProperty<physical::attributes::Tag>({physical::attributes::Tag::Tags::Switch});
     }
 };
 
 
-class LaserNodeVertex :
-    public HWVertex_t
+struct LaserNodeVertex : public HWVertex_t
 {
-public:
     LaserNodeVertex(utility::TreeID i, ICG a) :
         HardwareGraphVertex(i, a)
     {
+        // consistsOf elements
         auto cpu1 = this->createChild<CPUVertex>();
         auto cpu2 = this->createChild<CPUVertex>();
         auto fsb = this->createChild<FSBVertex>();
 
-        auto bus1a = interconnectGraph->connect<2>(fsb, cpu1);
-        //interconnectGraph->setProperty<physical::attributes::Tag>(bus1a.id, {physical::attributes::Tag::Tags::Switch});
-        bus1a.setProperty<physical::attributes::Tag>( {physical::attributes::Tag::Tags::Switch} );
+        // connection between the elements
+        auto bus1 = interconnectGraph->connect<2>(fsb, cpu1);
+        auto bus2 = interconnectGraph->connect<2>(fsb, cpu2);
+        auto bus3 = interconnectGraph->connect<2>(id, fsb);
 
-        auto bus1b = interconnectGraph->connect<2>(cpu1, fsb);
-        auto bus2a = interconnectGraph->connect<2>(fsb, cpu2);
-        auto bus2b = interconnectGraph->connect<2>(cpu2, fsb);
-        auto bus3a = interconnectGraph->connect<2>(id, fsb);
-        auto bus3b = interconnectGraph->connect<2>(fsb, id);
-
+        bus1.setProperty<physical::attributes::Bandwidth>( {8500} );
+        bus2.setProperty<physical::attributes::Bandwidth>( {8500} );
+        bus3.setProperty<physical::attributes::Bandwidth>( {4000} );
     }
 };
 
 
-class EthernetSwitchVertex :
-    public HWVertex_t
+struct EthernetSwitchVertex : public HWVertex_t
 {
-public:
     EthernetSwitchVertex(utility::TreeID i, ICG a) :
         HardwareGraphVertex(i, a)
     {
+        setProperty<physical::attributes::Tag>({physical::attributes::Tag::Tags::Switch});
     }
 };
 
 
-class HypnosClusterVertex :
-    public HWVertex_t
+struct HypnosClusterVertex : public HWVertex_t
 {
-public:
     HypnosClusterVertex(utility::TreeID i, ICG a) :
         HardwareGraphVertex(i, a)
     {
 
-        // localProperty.setEntry(physical::attributes::EnergyLevel({ 20 }));
+        // consistsOf elements
         auto node1 = this->createChild<LaserNodeVertex>();
         auto node2 = this->createChild<LaserNodeVertex>();
         auto ethSwitch = this->createChild<EthernetSwitchVertex>();
-        auto cable1a = interconnectGraph->connect<2>(node1, ethSwitch);
-        auto cable1b = interconnectGraph->connect<2>(ethSwitch, node2);
-        auto cable2a = interconnectGraph->connect<2>(node2, ethSwitch);
-        auto cable2b = interconnectGraph->connect<2>(ethSwitch, node2);
-        auto cable3a = interconnectGraph->connect<2>(id, ethSwitch);
-        auto cable3b = interconnectGraph->connect<2>(ethSwitch, id);
+
+        // connection between the elements
+        auto cable1 = interconnectGraph->connect<2>(node1, ethSwitch);
+        auto cable2 = interconnectGraph->connect<2>(node2, ethSwitch);
+
+        cable1.setProperty<physical::attributes::Bandwidth>( {1000} );
+        cable2.setProperty<physical::attributes::Bandwidth>( {1000} );
 
         printAllChildren();
 

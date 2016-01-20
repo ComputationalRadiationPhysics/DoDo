@@ -58,6 +58,7 @@ public:
     typedef typename boost::graph_traits<BGLGraph>::out_edge_iterator  OutEdgeIter;
     typedef typename boost::graph_traits<BGLGraph>::adjacency_iterator AdjacentVertexIter;
     typedef typename boost::graph_traits<BGLGraph>::vertex_iterator    AllVertexIter;
+    typedef typename boost::graph_traits<BGLGraph>::edge_iterator      AllEdgeIter;
 
 
 
@@ -83,6 +84,10 @@ public:
      */
     std::pair<AllVertexIter, AllVertexIter> getVertices(){
         return boost::vertices((*graph));
+    }
+
+    std::pair<AllEdgeIter, AllEdgeIter> getEdges(){
+        return boost::edges((*graph));
     }
 
     /**

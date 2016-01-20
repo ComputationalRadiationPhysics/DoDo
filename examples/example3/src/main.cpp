@@ -19,10 +19,12 @@ int main( )
         [](auto& i)
         {
             using namespace dodo::physical::attributes;
-            return i.template getProperty<Tag>().value != Tag({Tag::Tags::Switch}).value;
+            bool keep = false;
+            //keep |= i.template getProperty<Tag>().value == Tag({Tag::Tags::Switch}).value;
+            keep |= i.template getProperty<Tag>().value == Tag({Tag::Tags::Compute}).value;
+            return keep;
         }
     );
-
 
 
     return 0;

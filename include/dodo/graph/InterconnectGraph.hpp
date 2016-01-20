@@ -16,6 +16,8 @@ namespace dodo
 namespace graph
 {
 
+namespace hana = boost::hana;
+
 template<typename T_InterconnectProperties>
 class InterconnectGraph :
     public BGL<
@@ -33,6 +35,8 @@ public:
     using Mapping = std::map<TreeID, VertexID>;
     using StableMapping = std::map<TreeID, StableVertexID>;
 
+    template<unsigned T, typename U> friend class InterconnectEdge;
+
     Mapping mapping;
     StableMapping stableMapping;
 
@@ -45,24 +49,22 @@ public:
     }
 
     template<unsigned T_directions>
-    InterconnectEdge<InterconnectGraph, T_directions> connect(
+    InterconnectEdge<T_directions, InterconnectGraph> connect(
         const TreeID& a,
         const TreeID& b
-    )
-    {
-        const EdgeID id1{ this->addEdge(mapping[a], mapping[b]) };
-        EdgeID id2{id1};
-        if(T_directions > 1){
-            id2 = this->addEdge(mapping[b], mapping[a]);
-        }
-        return InterconnectEdge<InterconnectGraph, T_directions>(this, id1, id2);
+    ){
+        return connectImpl(hana::int_c<T_directions>, a, b);
     }
-
 
     void mergeStarTopology(const VertexID v )
     {
+        dout::Dout& dout{ dout::Dout::getInstance()  };
+
         const auto inEdges  ( this->getInEdges(v) );
         const auto outEdges ( this->getOutEdges(v) );
+
+        dout(dout::Flags::DEBUG) << "    InEdges: " << std::distance(inEdges.first, inEdges.second) << std::endl;
+        dout(dout::Flags::DEBUG) << "    OutEdges: " << std::distance(outEdges.first, outEdges.second) << std::endl;
 
         std::list<std::tuple<VertexID, VertexID, Properties>> newEdges;
 
@@ -70,16 +72,18 @@ public:
         {
             const VertexID inVertex { this->getEdgeSource(*inE) };
             const Properties inP { this->getEdgeProperty(*inE).second };
+            std::cout << std::get<1>(this->getEdgeProperty(*inE).second).value << std::endl;
 
             for(auto outE(outEdges.first); outE != outEdges.second ; ++outE)
             {
-                const VertexID outVertex { this->getEdgeSource(*outE) };
+                const VertexID outVertex { this->getEdgeTarget(*outE) };
 
                 // discard circular edges
                 if(inVertex == outVertex)
                     continue;
 
                 const Properties outP { this->getEdgeProperty(*outE).second };
+                std::cout << std::get<1>(this->getEdgeProperty(*outE).second).value << std::endl;
 
                 newEdges.push_back(
                     std::make_tuple(
@@ -93,19 +97,28 @@ public:
 
         for(const auto& e : newEdges)
         {
+            // TODO: only add edges, if no other edge exists?
             this->addEdge(
                 std::get<0>(e),
                 std::get<1>(e),
                 std::get<2>(e)
             );
+            dout(dout::Flags::DEBUG) << "    adding Edge " << std::get<0>(e) << " -> " << std::get<1>(e) << std::endl;
         }
 
+        for(auto inE(inEdges.first) ; inE != inEdges.second ; ++inE)
+            this->removeEdge(*inE);
+        for(auto outE(outEdges.first); outE != outEdges.second ; ++outE)
+            this->removeEdge(*outE);
         this->removeVertex(v);
+
     }
 
+private:
+
     /**
-     * This method is not intended to be used directly. Use the Edge containers (InterconnectEdge)
-     * instead.
+     * This method is not intended to be used directly.
+     * Should only be called from the friend class InterconnectEdge
      */
     template<typename T>
     T& getProperty(const EdgeID& e)
@@ -114,16 +127,6 @@ public:
         static_assert(static_cast<int>(tupleIndex) >= 0);
         Properties properties = this->getEdgeProperty(e).second;
         return std::get<tupleIndex>(properties);
-    }
-
-    /**
-     * This method is not intended to be used directly. Use the Edge containers (InterconnectEdge)
-     * instead.
-     */
-    template<typename T>
-    void setProperty(const EdgeID& e, const T t)
-    {
-        getProperty<T>(e) = t;
     }
 
 
@@ -149,6 +152,26 @@ public:
         );
 
         return c;
+    }
+
+
+    InterconnectEdge<1, InterconnectGraph> connectImpl(
+        hana::int_<1>,
+        const TreeID& a,
+        const TreeID& b
+    ){
+        const EdgeID id1{ this->addEdge(mapping[a], mapping[b]) };
+        return InterconnectEdge<1, InterconnectGraph>(this, id1);
+    }
+
+    InterconnectEdge<2, InterconnectGraph> connectImpl(
+        hana::int_<2>,
+        const TreeID& a,
+        const TreeID& b
+    ){
+        const EdgeID id1{ this->addEdge(mapping[a], mapping[b]) };
+        const EdgeID id2{ this->addEdge(mapping[b], mapping[a]) };
+        return InterconnectEdge<2, InterconnectGraph>(this, id1, id2);
     }
 
 };

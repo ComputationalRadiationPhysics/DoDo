@@ -1,17 +1,20 @@
 #pragma once
 
+
+#include <boost/hana.hpp>
+
 namespace dodo
 {
 namespace graph
 {
 
-template<typename T_Graph, unsigned T_directions>
+template<unsigned T_directions, typename T_Graph>
 class InterconnectEdge
 {
-
     T_Graph* graph;
     const typename T_Graph::EdgeID id1;
     const typename T_Graph::EdgeID id2;
+
 public:
 
     InterconnectEdge(
@@ -24,25 +27,42 @@ public:
         id2{eid2}
     {}
 
+    InterconnectEdge(
+        T_Graph* pAGraph,
+        const typename T_Graph::EdgeID eid1
+    ) :
+        graph{pAGraph},
+        id1{eid1}
+    {}
+
     template<typename T>
-    T& getProperty()
+    T getProperty()
     {
-        T& t1 = this->graph->template getProperty<T>(id1);
-        if(T_directions > 1)
-            assert(t1 == this->graph->template getProperty<T>(id2));
-        return t1;
+        return this->graph->template getProperty<T>(id1);
     }
 
     template<typename T>
     void setProperty(const T t)
     {
+        setPropertyImpl(hana::int_c<T_directions>, t);
+    }
+
+private:
+
+    template<typename T>
+    void setPropertyImpl(hana::int_<1>, const T t)
+    {
         this->graph->template getProperty<T>(id1) = t;
-        if(T_directions > 1)
-            this->graph->template getProperty<T>(id2) = t;
+    }
+
+    template<typename T>
+    void setPropertyImpl(hana::int_<2>, const T t)
+    {
+        this->graph->template getProperty<T>(id1) = t;
+        this->graph->template getProperty<T>(id2) = t;
     }
 
 };
-
 
 
 } /* graph */

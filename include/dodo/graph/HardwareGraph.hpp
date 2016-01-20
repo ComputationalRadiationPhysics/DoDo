@@ -68,15 +68,30 @@ public:
             }
         }
 
-        dout(dout::Flags::DEBUG) << "Processed consistsOf graph:" << std::endl;
+        dout(dout::Flags::DEBUG) << "Processed consistsOf graph. Results for Interconnect graph:" << std::endl;
+        dout(dout::Flags::DEBUG) << "Vertices:  " << std::distance(reducedIGraph->getVertices().first, reducedIGraph->getVertices().second) << std::endl;
         dout(dout::Flags::DEBUG) << "to_delete: " << to_delete.size() << std::endl;
+        dout(dout::Flags::DEBUG) << "Edges:     " << std::distance(reducedIGraph->getEdges().first, reducedIGraph->getEdges().second) << std::endl;
+
 
         for(const VertexBase_t& v : to_delete)
         {
             // id of interconnect node that corresponds to Vertex v in context of new interconnect graph
             const auto iid( isoMap[interconnectGraph->mapping[v.id]] );
+            dout(dout::Flags::DEBUG) << "contracting Vertex " << iid << " (was: " << interconnectGraph->mapping[v.id] << " )"<< std::endl;
             reducedIGraph->mergeStarTopology(iid);
+            dout(dout::Flags::DEBUG) << "Interconnect graph was reduced:" << std::endl;
+            dout(dout::Flags::DEBUG) << "Vertices:  " << std::distance(reducedIGraph->getVertices().first, reducedIGraph->getVertices().second) << std::endl;
+            dout(dout::Flags::DEBUG) << "Edges:     " << std::distance(reducedIGraph->getEdges().first, reducedIGraph->getEdges().second) << std::endl;
         }
+            dout(dout::Flags::DEBUG) << "Final Edges:" << std::endl;
+            auto finalEdges = reducedIGraph->getEdges();
+            for(auto e=finalEdges.first ; e != finalEdges.second; ++e )
+            {
+                dout(dout::Flags::DEBUG) << "    " << *e << "    " << std::get<1>(reducedIGraph->getEdgeProperty(*e).second).value << std::endl;
+            }
+
+
         return reducedIGraph;
     }
 
