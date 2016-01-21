@@ -47,6 +47,7 @@ public:
         auto reducedIGraph( std::make_shared<Interconnect_t>() );
 
         boost::copy_graph(*(interconnectGraph->graph), *(reducedIGraph->graph), boost::orig_to_copy(mapWrapper));
+        reducedIGraph->resetEdgeHistory();
 
         openVertices.push_back(rootVertex);
 
@@ -78,24 +79,19 @@ public:
         {
             // id of interconnect node that corresponds to Vertex v in context of new interconnect graph
             const auto iid( isoMap[interconnectGraph->mapping[v.id]] );
-            dout(dout::Flags::DEBUG) << "contracting Vertex " << iid << " (was: " << interconnectGraph->mapping[v.id] << " )"<< std::endl;
+            // dout(dout::Flags::DEBUG) << "contracting Vertex " << iid << " (was: " << interconnectGraph->mapping[v.id] << " )"<< std::endl;
             reducedIGraph->mergeStarTopology(iid);
-            dout(dout::Flags::DEBUG) << "Interconnect graph was reduced:" << std::endl;
-            dout(dout::Flags::DEBUG) << "Vertices:  " << std::distance(reducedIGraph->getVertices().first, reducedIGraph->getVertices().second) << std::endl;
-            dout(dout::Flags::DEBUG) << "Edges:     " << std::distance(reducedIGraph->getEdges().first, reducedIGraph->getEdges().second) << std::endl;
+            // dout(dout::Flags::DEBUG) << "Interconnect graph was reduced:" << std::endl;
+            // dout(dout::Flags::DEBUG) << "Vertices:  " << std::distance(reducedIGraph->getVertices().first, reducedIGraph->getVertices().second) << std::endl;
+            // dout(dout::Flags::DEBUG) << "Edges:     " << std::distance(reducedIGraph->getEdges().first, reducedIGraph->getEdges().second) << std::endl;
         }
-            dout(dout::Flags::DEBUG) << "Final Edges:" << std::endl;
-            auto finalEdges = reducedIGraph->getEdges();
-            for(auto e=finalEdges.first ; e != finalEdges.second; ++e )
-            {
-                dout(dout::Flags::DEBUG) << "    " << *e << "    " << std::get<1>(reducedIGraph->getEdgeProperty(*e).second).value << std::endl;
-            }
 
 
         return reducedIGraph;
     }
 
 };
+
 
 } /* graph */
 } /* dodo */

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <tuple>
+#include <algorithm>
+#include <set>
+#include <map>
 
 #include <boost/hana.hpp>
 
@@ -34,11 +37,14 @@ public:
     using StableVertexID = typename Graph::VertexPropertyBundle::first_type;
     using Mapping = std::map<TreeID, VertexID>;
     using StableMapping = std::map<TreeID, StableVertexID>;
+    using EdgeHistory = std::set<EdgeID>;
+    using EdgeHistoryMap = std::map<EdgeID, EdgeHistory>;
 
     template<unsigned T, typename U> friend class InterconnectEdge;
 
     Mapping mapping;
     StableMapping stableMapping;
+    EdgeHistoryMap edgeHistoryMap;
 
     VertexID add(const TreeID& tid)
     {
@@ -56,23 +62,21 @@ public:
         return connectImpl(hana::int_c<T_directions>, a, b);
     }
 
-    void mergeStarTopology(const VertexID v )
+    void mergeStarTopology(const VertexID v)
     {
-        dout::Dout& dout{ dout::Dout::getInstance()  };
+        //dout::Dout& dout{ dout::Dout::getInstance()  };
 
         const auto inEdges  ( this->getInEdges(v) );
         const auto outEdges ( this->getOutEdges(v) );
 
-        dout(dout::Flags::DEBUG) << "    InEdges: " << std::distance(inEdges.first, inEdges.second) << std::endl;
-        dout(dout::Flags::DEBUG) << "    OutEdges: " << std::distance(outEdges.first, outEdges.second) << std::endl;
-
-        std::list<std::tuple<VertexID, VertexID, Properties>> newEdges;
+        std::list<std::tuple<VertexID, VertexID, Properties, EdgeHistory>> newEdges;
 
         for(auto inE(inEdges.first) ; inE != inEdges.second ; ++inE)
         {
             const VertexID inVertex { this->getEdgeSource(*inE) };
             const Properties inP { this->getEdgeProperty(*inE).second };
-            std::cout << std::get<1>(this->getEdgeProperty(*inE).second).value << std::endl;
+
+            EdgeHistory inEHist{edgeHistoryMap[*inE]};
 
             for(auto outE(outEdges.first); outE != outEdges.second ; ++outE)
             {
@@ -82,14 +86,47 @@ public:
                 if(inVertex == outVertex)
                     continue;
 
+                EdgeHistory newEHist{edgeHistoryMap[*outE]};
+                std::set_union(inEHist.begin(), inEHist.end(), newEHist.begin(), newEHist.end(), std::inserter(newEHist,newEHist.begin()));
+
+                // - get histories from all edges from InVertex to OutVertex
+                // - if there is a subset match between one of these histories and the newEHist, continue;
+                bool hasBetterPath{ false };
+                auto spanningEdges( this->edgeRange(inVertex, outVertex));
+                for(auto s(spanningEdges.first) ; s!=spanningEdges.second ; ++s)
+                {
+                    EdgeHistory sh{ edgeHistoryMap[*s] };
+                    // dout(dout::Flags::DEBUG) << "    spanningEdgeHistory: ";
+                    // for(auto shx : sh)
+                    // {
+                    //     dout(dout::Flags::DEBUG, false) << "  " << shx;
+                    // }
+                    // dout(dout::Flags::DEBUG, false) << std::endl;
+                    // dout(dout::Flags::DEBUG) << "    newEdgeHistory:      ";
+                    // for(auto shx : newEHist)
+                    // {
+                    //     dout(dout::Flags::DEBUG, false) << "  " << shx;
+                    // }
+                    // dout(dout::Flags::DEBUG, false) << std::endl;
+
+                    if(std::includes(newEHist.begin(), newEHist.end(), sh.begin(), sh.end()))
+                    {
+                        // dout(dout::Flags::DEBUG) << "    There was a better path " << std::endl;
+                        hasBetterPath = true;
+                        break;
+                    }
+                }
+                if(hasBetterPath)
+                    continue;
+
                 const Properties outP { this->getEdgeProperty(*outE).second };
-                std::cout << std::get<1>(this->getEdgeProperty(*outE).second).value << std::endl;
 
                 newEdges.push_back(
                     std::make_tuple(
                         inVertex,
                         outVertex,
-                        mergeProperties( inP, outP )
+                        mergeProperties( inP, outP ),
+                        newEHist
                     )
                 );
             }
@@ -97,19 +134,25 @@ public:
 
         for(const auto& e : newEdges)
         {
-            // TODO: only add edges, if no other edge exists?
-            this->addEdge(
+            auto newid = this->addEdge(
                 std::get<0>(e),
                 std::get<1>(e),
                 std::get<2>(e)
             );
-            dout(dout::Flags::DEBUG) << "    adding Edge " << std::get<0>(e) << " -> " << std::get<1>(e) << std::endl;
+
+            edgeHistoryMap[newid] = {std::get<3>(e)};
         }
 
         for(auto inE(inEdges.first) ; inE != inEdges.second ; ++inE)
+        {
             this->removeEdge(*inE);
+            edgeHistoryMap.erase(*inE);
+        }
         for(auto outE(outEdges.first); outE != outEdges.second ; ++outE)
+        {
             this->removeEdge(*outE);
+            edgeHistoryMap.erase(*outE);
+        }
         this->removeVertex(v);
 
     }
@@ -172,9 +215,42 @@ private:
         const EdgeID id1{ this->addEdge(mapping[a], mapping[b]) };
         const EdgeID id2{ this->addEdge(mapping[b], mapping[a]) };
         return InterconnectEdge<2, InterconnectGraph>(this, id1, id2);
+
+    }
+
+public:
+    void resetEdgeHistory()
+    {
+
+        edgeHistoryMap.clear();
+        auto allEdges = this->getEdges();
+        for(auto e(allEdges.first) ; e != allEdges.second; ++e )
+        {
+            edgeHistoryMap[*e] = {*e};
+        }
+    }
+
+    void printEdgeHistory(std::string offset="")
+    {
+        dout::Dout& dout{ dout::Dout::getInstance()  };
+
+        dout(dout::Flags::DEBUG) << offset << "HistoryMap:" <<  std::endl;
+        for(auto& histkey : edgeHistoryMap)
+        {
+            dout(dout::Flags::DEBUG) << offset << " " << histkey.first << ":";
+            for(auto& hist : histkey.second)
+                dout(dout::Flags::DEBUG, false) << " " << hist;
+            dout(dout::Flags::DEBUG, false) << std::endl;
+
+        }
+
     }
 
 };
+
+
+
+
 
 } /* graph */
 } /* dodo */
