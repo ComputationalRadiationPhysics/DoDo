@@ -20,7 +20,7 @@ int main( )
         {
             using namespace dodo::physical::attributes;
             bool keep = false;
-            //keep |= i.template getProperty<Tag>().value == Tag({Tag::Tags::Switch}).value;
+            keep |= i.template getProperty<Tag>().value == Tag({Tag::Tags::Switch}).value;
             keep |= i.template getProperty<Tag>().value == Tag({Tag::Tags::Compute}).value;
             return keep;
         }

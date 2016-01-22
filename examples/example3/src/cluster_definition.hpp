@@ -3,10 +3,11 @@
 #include <dodo.hpp>
 
 using namespace dodo::graph;
-using namespace dodo;
+namespace pattr = dodo::physical::attributes;
+namespace utility = dodo::utility;
 
-using ConsistsOfProperties = std::tuple<physical::attributes::Tag, physical::attributes::EnergyLevel>;
-using InterconnectProperties = std::tuple<physical::attributes::Tag, physical::attributes::Bandwidth>;
+using ConsistsOfProperties = std::tuple<pattr::Tag, pattr::EnergyLevel>;
+using InterconnectProperties = std::tuple<pattr::Tag, pattr::Bandwidth>;
 
 using HWVertex_t = HardwareGraphVertex<
     ConsistsOfProperties,
@@ -21,8 +22,8 @@ struct CPUVertex : public HWVertex_t
     CPUVertex(utility::TreeID i, ICG a) :
         HardwareGraphVertex(i, a)
     {
-        setProperty<physical::attributes::EnergyLevel>({20});
-        setProperty<physical::attributes::Tag>({physical::attributes::Tag::Tags::Compute});
+        setProperty<pattr::EnergyLevel>({20});
+        setProperty<pattr::Tag>({pattr::Tag::Tags::Compute});
     }
 };
 
@@ -31,7 +32,7 @@ struct FSBVertex : public HWVertex_t
     FSBVertex(utility::TreeID i, ICG a) :
         HardwareGraphVertex(i, a)
     {
-        setProperty<physical::attributes::Tag>({physical::attributes::Tag::Tags::Switch});
+        setProperty<pattr::Tag>({pattr::Tag::Tags::Switch});
     }
 };
 
@@ -51,10 +52,9 @@ struct LaserNodeVertex : public HWVertex_t
         auto bus2 = interconnectGraph->connect<2>(fsb, cpu2);
         auto bus3 = interconnectGraph->connect<2>(id, fsb);
 
-        bus1.setProperty<physical::attributes::Bandwidth>( {8500} );
-        bus2.setProperty<physical::attributes::Bandwidth>( {8500} );
-        bus3.setProperty<physical::attributes::Bandwidth>( {4000} );
-        bus3.getProperty<physical::attributes::Bandwidth>();
+        bus1.setProperty<pattr::Bandwidth>( {8500} );
+        bus2.setProperty<pattr::Bandwidth>( {8500} );
+        bus3.setProperty<pattr::Bandwidth>( {4000} );
     }
 };
 
@@ -64,7 +64,7 @@ struct EthernetSwitchVertex : public HWVertex_t
     EthernetSwitchVertex(utility::TreeID i, ICG a) :
         HardwareGraphVertex(i, a)
     {
-        setProperty<physical::attributes::Tag>({physical::attributes::Tag::Tags::Switch});
+        setProperty<pattr::Tag>({pattr::Tag::Tags::Switch});
     }
 };
 
@@ -84,8 +84,8 @@ struct HypnosClusterVertex : public HWVertex_t
         auto cable1 = interconnectGraph->connect<2>(node1, ethSwitch);
         auto cable2 = interconnectGraph->connect<2>(node2, ethSwitch);
 
-        cable1.setProperty<physical::attributes::Bandwidth>( {1000} );
-        cable2.setProperty<physical::attributes::Bandwidth>( {1000} );
+        cable1.setProperty<pattr::Bandwidth>( {1000} );
+        cable2.setProperty<pattr::Bandwidth>( {100} );
 
         printAllChildren();
 
