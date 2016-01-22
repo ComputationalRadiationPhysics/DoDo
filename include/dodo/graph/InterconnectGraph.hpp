@@ -44,7 +44,6 @@ public:
 
     Mapping mapping;
     StableMapping stableMapping;
-    EdgeHistoryMap edgeHistoryMap;
 
     VertexID add(const TreeID& tid)
     {
@@ -62,9 +61,8 @@ public:
         return connectImpl(hana::int_c<T_directions>, a, b);
     }
 
-    void mergeStarTopology(const VertexID v)
+    void mergeStarTopology(const VertexID v, EdgeHistoryMap& edgeHistoryMap)
     {
-        //dout::Dout& dout{ dout::Dout::getInstance()  };
 
         const auto inEdges  ( this->getInEdges(v) );
         const auto outEdges ( this->getOutEdges(v) );
@@ -73,31 +71,35 @@ public:
 
         for(auto inE(inEdges.first) ; inE != inEdges.second ; ++inE)
         {
-            const VertexID inVertex { this->getEdgeSource(*inE) };
+            const VertexID inV { this->getEdgeSource(*inE) };
             const Properties inP { this->getEdgeProperty(*inE).second };
-
             EdgeHistory inEHist{edgeHistoryMap[*inE]};
 
             for(auto outE(outEdges.first); outE != outEdges.second ; ++outE)
             {
-                const VertexID outVertex { this->getEdgeTarget(*outE) };
-
-                // discard circular edges
-                if(inVertex == outVertex)
-                    continue;
+                const VertexID outV { this->getEdgeTarget(*outE) };
+                if(inV == outV) continue; // discard circular edges
 
                 EdgeHistory newEHist{edgeHistoryMap[*outE]};
-                std::set_union(inEHist.begin(), inEHist.end(), newEHist.begin(), newEHist.end(), std::inserter(newEHist,newEHist.begin()));
+                std::set_union(
+                    inEHist.begin(), inEHist.end(),
+                    newEHist.begin(), newEHist.end(),
+                    std::inserter(newEHist,newEHist.begin())
+                );
 
-                // - get histories from all edges from InVertex to OutVertex
-                // - if there is a subset match between one of these histories and the newEHist, continue;
                 bool hasBetterPath{ false };
-                auto spanningEdges( this->edgeRange(inVertex, outVertex));
-                for(auto s(spanningEdges.first) ; s!=spanningEdges.second ; ++s)
+                auto oldEdges(this->edgeRange(inV, outV));
+                for(auto e(oldEdges.first) ; !hasBetterPath && e!=oldEdges.second ; ++e)
                 {
-                    EdgeHistory sh{ edgeHistoryMap[*s] };
+                    EdgeHistory eh{ edgeHistoryMap[*e] };
+                    hasBetterPath = std::includes(
+                        newEHist.begin(), newEHist.end(),
+                        eh.begin(), eh.end()
+                    );
+
+                    // dout::Dout& dout{ dout::Dout::getInstance()  };
                     // dout(dout::Flags::DEBUG) << "    spanningEdgeHistory: ";
-                    // for(auto shx : sh)
+                    // for(auto shx : eh)
                     // {
                     //     dout(dout::Flags::DEBUG, false) << "  " << shx;
                     // }
@@ -108,53 +110,45 @@ public:
                     //     dout(dout::Flags::DEBUG, false) << "  " << shx;
                     // }
                     // dout(dout::Flags::DEBUG, false) << std::endl;
-
-                    if(std::includes(newEHist.begin(), newEHist.end(), sh.begin(), sh.end()))
-                    {
-                        // dout(dout::Flags::DEBUG) << "    There was a better path " << std::endl;
-                        hasBetterPath = true;
-                        break;
-                    }
                 }
-                if(hasBetterPath)
-                    continue;
+                if(hasBetterPath) continue;
 
                 const Properties outP { this->getEdgeProperty(*outE).second };
-
                 newEdges.push_back(
-                    std::make_tuple(
-                        inVertex,
-                        outVertex,
-                        mergeProperties( inP, outP ),
-                        newEHist
-                    )
+                    std::make_tuple(inV, outV, mergeProperties(inP, outP), newEHist)
                 );
             }
         }
 
-        for(const auto& e : newEdges)
-        {
-            auto newid = this->addEdge(
-                std::get<0>(e),
-                std::get<1>(e),
-                std::get<2>(e)
-            );
+        addNewEdges(newEdges, edgeHistoryMap);
+        deleteOldEdges(inEdges, edgeHistoryMap);
+        deleteOldEdges(outEdges, edgeHistoryMap);
+        deleteOldVertex(v);
 
-            edgeHistoryMap[newid] = {std::get<3>(e)};
-        }
+    }
 
-        for(auto inE(inEdges.first) ; inE != inEdges.second ; ++inE)
-        {
-            this->removeEdge(*inE);
-            edgeHistoryMap.erase(*inE);
-        }
-        for(auto outE(outEdges.first); outE != outEdges.second ; ++outE)
-        {
-            this->removeEdge(*outE);
-            edgeHistoryMap.erase(*outE);
-        }
+    void deleteOldVertex(VertexID v)
+    {
         this->removeVertex(v);
+    }
 
+    void addNewEdges(std::list<std::tuple<VertexID, VertexID, Properties, EdgeHistory>> nEdges, EdgeHistoryMap& hMap)
+    {
+        for(const auto& e : nEdges)
+        {
+            auto newid = this->addEdge(std::get<0>(e), std::get<1>(e), std::get<2>(e));
+            hMap[newid] = {std::get<3>(e)};
+        }
+    }
+
+    template<typename T>
+    void deleteOldEdges(std::pair<T,T> iterators, EdgeHistoryMap& hMap)
+    {
+        for(auto e(iterators.first); e != iterators.second ; ++e)
+        {
+            this->removeEdge(*e);
+            hMap.erase(*e);
+        }
     }
 
 private:
@@ -219,34 +213,37 @@ private:
     }
 
 public:
-    void resetEdgeHistory()
-    {
 
-        edgeHistoryMap.clear();
-        auto allEdges = this->getEdges();
-        for(auto e(allEdges.first) ; e != allEdges.second; ++e )
-        {
-            edgeHistoryMap[*e] = {*e};
-        }
-    }
+    // void printEdgeHistory(std::string offset="")
+    // {
+    //     dout::Dout& dout{ dout::Dout::getInstance()  };
 
-    void printEdgeHistory(std::string offset="")
-    {
-        dout::Dout& dout{ dout::Dout::getInstance()  };
+    //     dout(dout::Flags::DEBUG) << offset << "HistoryMap:" <<  std::endl;
+    //     for(auto& histkey : edgeHistoryMap)
+    //     {
+    //         dout(dout::Flags::DEBUG) << offset << " " << histkey.first << ":";
+    //         for(auto& hist : histkey.second)
+    //             dout(dout::Flags::DEBUG, false) << " " << hist;
+    //         dout(dout::Flags::DEBUG, false) << std::endl;
 
-        dout(dout::Flags::DEBUG) << offset << "HistoryMap:" <<  std::endl;
-        for(auto& histkey : edgeHistoryMap)
-        {
-            dout(dout::Flags::DEBUG) << offset << " " << histkey.first << ":";
-            for(auto& hist : histkey.second)
-                dout(dout::Flags::DEBUG, false) << " " << hist;
-            dout(dout::Flags::DEBUG, false) << std::endl;
+    //     }
 
-        }
-
-    }
+    // }
 
 };
+
+template<typename T>
+typename InterconnectGraph<T>::EdgeHistoryMap
+initEdgeHistory(std::shared_ptr<InterconnectGraph<T>> g)
+{
+    typename InterconnectGraph<T>::EdgeHistoryMap edgeHistoryMap;
+    auto allEdges = g->getEdges();
+    for(auto e(allEdges.first) ; e != allEdges.second; ++e )
+    {
+        edgeHistoryMap[*e] = {*e};
+    }
+    return edgeHistoryMap;
+}
 
 
 

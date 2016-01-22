@@ -34,28 +34,23 @@ public:
     std::shared_ptr<Interconnect_t>
     getSubgraph(const Predicate& predicate)
     {
-        dout::Dout& dout{ dout::Dout::getInstance() };
         using InterconnectID = typename Vertex::InterconnectID;
         using IsoMap = std::map<InterconnectID, InterconnectID>;
         using VertexList = std::list<VertexBase_t>;
 
         VertexList openVertices;
         VertexList to_delete;
-
         IsoMap isoMap;
         boost::associative_property_map<IsoMap> mapWrapper{isoMap};
         auto reducedIGraph( std::make_shared<Interconnect_t>() );
 
         boost::copy_graph(*(interconnectGraph->graph), *(reducedIGraph->graph), boost::orig_to_copy(mapWrapper));
-        reducedIGraph->resetEdgeHistory();
-
         openVertices.push_back(rootVertex);
 
         while( ! openVertices.empty() )
         {
             VertexBase_t current{ openVertices.front() };
             openVertices.pop_front();
-
             openVertices.insert(openVertices.end(), current.children.begin(), current.children.end());
 
             if( predicate(current) )
@@ -69,22 +64,23 @@ public:
             }
         }
 
+        dout::Dout& dout{ dout::Dout::getInstance() };
         dout(dout::Flags::DEBUG) << "Processed consistsOf graph. Results for Interconnect graph:" << std::endl;
         dout(dout::Flags::DEBUG) << "Vertices:  " << std::distance(reducedIGraph->getVertices().first, reducedIGraph->getVertices().second) << std::endl;
         dout(dout::Flags::DEBUG) << "to_delete: " << to_delete.size() << std::endl;
         dout(dout::Flags::DEBUG) << "Edges:     " << std::distance(reducedIGraph->getEdges().first, reducedIGraph->getEdges().second) << std::endl;
 
+        typename Interconnect_t::EdgeHistoryMap edgeHistoryMap = initEdgeHistory(reducedIGraph);
+
 
         for(const VertexBase_t& v : to_delete)
         {
-            // id of interconnect node that corresponds to Vertex v in context of new interconnect graph
             const auto iid( isoMap[interconnectGraph->mapping[v.id]] );
-            // dout(dout::Flags::DEBUG) << "contracting Vertex " << iid << " (was: " << interconnectGraph->mapping[v.id] << " )"<< std::endl;
-            reducedIGraph->mergeStarTopology(iid);
-            // dout(dout::Flags::DEBUG) << "Interconnect graph was reduced:" << std::endl;
-            // dout(dout::Flags::DEBUG) << "Vertices:  " << std::distance(reducedIGraph->getVertices().first, reducedIGraph->getVertices().second) << std::endl;
-            // dout(dout::Flags::DEBUG) << "Edges:     " << std::distance(reducedIGraph->getEdges().first, reducedIGraph->getEdges().second) << std::endl;
+            reducedIGraph->mergeStarTopology(iid, edgeHistoryMap);
         }
+        dout(dout::Flags::DEBUG) << "Interconnect graph was reduced:" << std::endl;
+        dout(dout::Flags::DEBUG) << "Vertices:  " << std::distance(reducedIGraph->getVertices().first, reducedIGraph->getVertices().second) << std::endl;
+        dout(dout::Flags::DEBUG) << "Edges:     " << std::distance(reducedIGraph->getEdges().first, reducedIGraph->getEdges().second) << std::endl;
 
 
         return reducedIGraph;
