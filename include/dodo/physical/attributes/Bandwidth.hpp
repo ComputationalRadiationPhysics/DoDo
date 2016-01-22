@@ -10,7 +10,7 @@ namespace attributes
     {
         int value;
 
-        Bandwidth merge(const Bandwidth& b)
+        Bandwidth merge(const Bandwidth& b) const
         {
             return { std::min(value, b.value) };
         }

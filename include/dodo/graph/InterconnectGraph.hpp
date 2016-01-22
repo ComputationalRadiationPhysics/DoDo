@@ -97,19 +97,19 @@ public:
                         eh.begin(), eh.end()
                     );
 
-                    // dout::Dout& dout{ dout::Dout::getInstance()  };
-                    // dout(dout::Flags::DEBUG) << "    spanningEdgeHistory: ";
-                    // for(auto shx : eh)
-                    // {
-                    //     dout(dout::Flags::DEBUG, false) << "  " << shx;
-                    // }
-                    // dout(dout::Flags::DEBUG, false) << std::endl;
-                    // dout(dout::Flags::DEBUG) << "    newEdgeHistory:      ";
-                    // for(auto shx : newEHist)
-                    // {
-                    //     dout(dout::Flags::DEBUG, false) << "  " << shx;
-                    // }
-                    // dout(dout::Flags::DEBUG, false) << std::endl;
+                    dout::Dout& dout{ dout::Dout::getInstance()  };
+                    dout(dout::Flags::DEBUG) << "    spanningEdgeHistory: ";
+                    for(auto shx : eh)
+                    {
+                        dout(dout::Flags::DEBUG, false) << "  " << shx;
+                    }
+                    dout(dout::Flags::DEBUG, false) << std::endl;
+                    dout(dout::Flags::DEBUG) << "    newEdgeHistory:      ";
+                    for(auto shx : newEHist)
+                    {
+                        dout(dout::Flags::DEBUG, false) << "  " << shx;
+                    }
+                    dout(dout::Flags::DEBUG, false) << std::endl;
                 }
                 if(hasBetterPath) continue;
 
@@ -162,7 +162,7 @@ private:
     {
         constexpr size_t tupleIndex { utility::tuple_index<Properties, T>::value  };
         static_assert(static_cast<int>(tupleIndex) >= 0);
-        Properties properties = this->getEdgeProperty(e).second;
+        Properties& properties = this->getEdgeProperty(e).second;
         return std::get<tupleIndex>(properties);
     }
 
@@ -176,7 +176,7 @@ private:
         using namespace boost::hana;
         constexpr auto iter = make_range(
             int_c<0>,
-            int_c< std::tuple_size<Properties>::value - 1 >
+            int_c< std::tuple_size<Properties>::value >
         );
 
         for_each(
@@ -244,6 +244,28 @@ initEdgeHistory(std::shared_ptr<InterconnectGraph<T>> g)
     }
     return edgeHistoryMap;
 }
+
+// template<typename T>
+// struct InterconnectEdgeCopier
+// {
+//     using Graph = typename InterconnectGraph<T>::BGLGraph;
+//     using Edge = typename InterconnectGraph<T>::EdgeID;
+//             typename boost::property_map<Graph, boost::edge_bundle_t>::const_type edge_all_map1;
+//     mutable typename boost::property_map<Graph, boost::edge_bundle_t>::type       edge_all_map2;
+
+
+//     InterconnectEdgeCopier(const Graph& g1, Graph& g2) :
+//         edge_all_map1(boost::get(boost::edge_bundle, g1)),
+//         edge_all_map2(boost::get(boost::edge_bundle, g2))
+//     {}
+
+//     void operator()(const Edge& e1, Edge& e2)
+//     {
+//         put(edge_all_map2, e2, edge_all_map1[e1]);
+//     }
+
+
+// };
 
 
 

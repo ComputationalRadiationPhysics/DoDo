@@ -80,7 +80,15 @@ public:
         }
         dout(dout::Flags::DEBUG) << "Interconnect graph was reduced:" << std::endl;
         dout(dout::Flags::DEBUG) << "Vertices:  " << std::distance(reducedIGraph->getVertices().first, reducedIGraph->getVertices().second) << std::endl;
-        dout(dout::Flags::DEBUG) << "Edges:     " << std::distance(reducedIGraph->getEdges().first, reducedIGraph->getEdges().second) << std::endl;
+        auto allReducedEdges = reducedIGraph->getEdges();
+        dout(dout::Flags::DEBUG) << "Edges:     " << std::distance(allReducedEdges.first, allReducedEdges.second) << std::endl;
+
+        // for(auto e(allReducedEdges.first) ; e!=allReducedEdges.second ; ++e)
+        // {
+        //     typename Interconnect_t::Properties p = reducedIGraph->getEdgeProperty(*e).second;
+        //     typename dodo::physical::attributes::Bandwidth b = std::get<1>(p);
+        //     dout(dout::Flags::DEBUG) << "    " << *e << ": " << b.value << std::endl;
+        // }
 
 
         return reducedIGraph;

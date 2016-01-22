@@ -54,6 +54,7 @@ struct LaserNodeVertex : public HWVertex_t
         bus1.setProperty<physical::attributes::Bandwidth>( {8500} );
         bus2.setProperty<physical::attributes::Bandwidth>( {8500} );
         bus3.setProperty<physical::attributes::Bandwidth>( {4000} );
+        bus3.getProperty<physical::attributes::Bandwidth>();
     }
 };
 
