@@ -85,7 +85,7 @@ struct HypnosClusterVertex : public HWVertex_t
         auto cable2 = interconnectGraph->connect<2>(node2, ethSwitch);
 
         cable1.setProperty<pattr::Bandwidth>( {1000} );
-        cable2.setProperty<pattr::Bandwidth>( {100} );
+        cable2.setProperty<pattr::Bandwidth>( {1000} );
 
         printAllChildren();
 

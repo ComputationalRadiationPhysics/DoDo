@@ -94,7 +94,7 @@ public:
     T& getProperty()
     {
         constexpr size_t tupleIndex { utility::tuple_index<Properties, T>::value };
-        static_assert(static_cast<int>(tupleIndex) >= 0);
+        static_assert(static_cast<int>(tupleIndex) >= 0, "This property does not exist");
         return std::get<tupleIndex>(properties);
     }
 

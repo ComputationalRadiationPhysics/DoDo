@@ -6,6 +6,7 @@
 #include <map>
 
 #include <boost/hana.hpp>
+#include <boost/graph/graphml.hpp>
 
 #include <dout/dout.hpp>
 
@@ -39,6 +40,7 @@ public:
     using StableMapping = std::map<TreeID, StableVertexID>;
     using EdgeHistory = std::set<EdgeID>;
     using EdgeHistoryMap = std::map<EdgeID, EdgeHistory>;
+    using IndexMap = std::map<VertexID, size_t>;
 
     template<unsigned T, typename U> friend class InterconnectEdge;
 
@@ -151,7 +153,6 @@ public:
         }
     }
 
-private:
 
     /**
      * This method is not intended to be used directly.
@@ -161,12 +162,13 @@ private:
     T& getProperty(const EdgeID& e)
     {
         constexpr size_t tupleIndex { utility::tuple_index<Properties, T>::value  };
-        static_assert(static_cast<int>(tupleIndex) >= 0);
+        static_assert(static_cast<int>(tupleIndex) >= 0, "This property does not exist");
         Properties& properties = this->getEdgeProperty(e).second;
         return std::get<tupleIndex>(properties);
     }
 
 
+private:
     Properties mergeProperties(
         const Properties& a,
         const Properties& b
@@ -231,6 +233,42 @@ public:
     // }
 
 };
+
+
+template<typename T>
+void writeGraph(
+    std::shared_ptr<InterconnectGraph<T>> g,
+    std::ostream& stream = std::cout
+    ){
+
+
+    using IndexMap = typename InterconnectGraph<T>::IndexMap;
+    IndexMap im;
+    boost::associative_property_map<IndexMap> propmapIndex(im);
+    auto allV = g->getVertices();
+    int index=0;
+    for(auto i=allV.first ; i!=allV.second ; ++i)
+    {
+        propmapIndex[*i] = index++;
+    }
+
+    using BandwidthMap = std::map<typename InterconnectGraph<T>::EdgeID, size_t>;
+    BandwidthMap bm;
+    boost::associative_property_map<BandwidthMap> propmapBW(bm);
+    boost::dynamic_properties dp;
+    auto allE = g->getEdges();
+    for(auto i=allE.first ; i!=allE.second ; ++i)
+    {
+        propmapBW[*i] = g->template getProperty<physical::attributes::Bandwidth>(*i).value;
+    }
+
+    dp.property(
+        "bandwidth",
+        propmapBW
+    );
+
+    boost::write_graphml(stream, *(g->graph), propmapIndex, dp, false);
+}
 
 template<typename T>
 typename InterconnectGraph<T>::EdgeHistoryMap

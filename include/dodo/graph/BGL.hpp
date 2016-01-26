@@ -48,8 +48,11 @@ public:
     typedef boost::adjacency_list<boost::multisetS,
             boost::listS,
             boost::bidirectionalS,
+            // VertexPropertyBundle,
+            // EdgePropertyBundle
             boost::property<boost::vertex_index_t, size_t, VertexPropertyBundle >,
-            boost::property<boost::edge_index_t, size_t, EdgePropertyBundle > > BGLGraph;
+            boost::property<boost::edge_index_t, size_t, EdgePropertyBundle >
+    > BGLGraph;
 
     typedef typename BGLGraph::vertex_descriptor VertexID;
     typedef typename BGLGraph::edge_descriptor   EdgeID;
@@ -206,47 +209,47 @@ public:
 
 
 
-    // TODO: make polymorphic over input GraphType,
-    //       then make sure that input GraphType's Attributes are a subset of
-    //       this graph's attributes
-    void addGraph(const BGLGraph& inputGraph, VertexID newAnchor){
-        VertexID inputRoot = inputGraph.findRootVertexRecurse();
-        attachSubtree(graph, newAnchor, inputGraph, inputRoot);
-    }
+    // // TODO: make polymorphic over input GraphType,
+    // //       then make sure that input GraphType's Attributes are a subset of
+    // //       this graph's attributes
+    // void addGraph(const BGLGraph& inputGraph, VertexID newAnchor){
+    //     VertexID inputRoot = inputGraph.findRootVertexRecurse();
+    //     attachSubtree(graph, newAnchor, inputGraph, inputRoot);
+    // }
 
-    bool hasInEdges(VertexID v){
-        auto inEdgeIterators = getInEdges(v);
-        return inEdgeIterators.first != inEdgeIterators.second;
-    }
+    // bool hasInEdges(VertexID v){
+    //     auto inEdgeIterators = getInEdges(v);
+    //     return inEdgeIterators.first != inEdgeIterators.second;
+    // }
 
-    VertexID findRootVertexRecurse()
-    {
-        VertexID v = *(getVertices().first);
-        auto inEdgeIterators = getInEdges(v);
+    // VertexID findRootVertexRecurse()
+    // {
+    //     VertexID v = *(getVertices().first);
+    //     auto inEdgeIterators = getInEdges(v);
 
-        while(inEdgeIterators.first != inEdgeIterators.second)
-        {
-           v = getEdgeSource(*(inEdgeIterators.first));
-           inEdgeIterators = getInEdges(v);
-        }
-        return v;
-    }
+    //     while(inEdgeIterators.first != inEdgeIterators.second)
+    //     {
+    //        v = getEdgeSource(*(inEdgeIterators.first));
+    //        inEdgeIterators = getInEdges(v);
+    //     }
+    //     return v;
+    // }
 
-    VertexID findRootVertexIter()
-    {
-        auto vIterators = getVertices();
-        while(vIterators.first != vIterators.second)
-        {
-            if(hasInEdges(*(vIterators.first)))
-            {
-                ++(vIterators.first);
-            } else
-            {
-                return *(vIterators.first);
-            }
-        }
-        throw std::logic_error("Graph does not have an explicit root Node");
-    }
+    // VertexID findRootVertexIter()
+    // {
+    //     auto vIterators = getVertices();
+    //     while(vIterators.first != vIterators.second)
+    //     {
+    //         if(hasInEdges(*(vIterators.first)))
+    //         {
+    //             ++(vIterators.first);
+    //         } else
+    //         {
+    //             return *(vIterators.first);
+    //         }
+    //     }
+    //     throw std::logic_error("Graph does not have an explicit root Node");
+    // }
 
     EdgeID addEdge(const VertexID srcVertex, const VertexID targetVertex)
     {

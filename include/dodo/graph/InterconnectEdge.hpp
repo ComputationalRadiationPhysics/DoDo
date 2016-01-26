@@ -44,19 +44,19 @@ public:
     template<typename T>
     void setProperty(const T t)
     {
-        setPropertyImpl(hana::int_c<T_directions>, t);
+        setPropertyImpl(boost::hana::int_c<T_directions>, t);
     }
 
 private:
 
     template<typename T>
-    void setPropertyImpl(hana::int_<1>, const T t)
+    void setPropertyImpl(boost::hana::int_<1>, const T t)
     {
         this->graph->template getProperty<T>(id1) = t;
     }
 
     template<typename T>
-    void setPropertyImpl(hana::int_<2>, const T t)
+    void setPropertyImpl(boost::hana::int_<2>, const T t)
     {
         this->graph->template getProperty<T>(id1) = t;
         this->graph->template getProperty<T>(id2) = t;

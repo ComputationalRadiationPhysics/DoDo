@@ -26,6 +26,12 @@ int main( )
         }
     );
 
+    std::ofstream graphFile ("graph.graphml");
+
+
+    dodo::graph::writeGraph(subgraph, graphFile);
+    graphFile.close();
+
 
     return 0;
 }
