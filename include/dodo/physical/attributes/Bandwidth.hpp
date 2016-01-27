@@ -14,6 +14,11 @@ namespace attributes
         {
             return { std::min(value, b.value) };
         }
+
+        std::string toString() const
+        {
+            return std::to_string(value);
+        }
     };
 
 }

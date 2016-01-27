@@ -20,6 +20,19 @@ struct Tag
         return t;
     }
 
+    std::string toString()
+    {
+        switch(value)
+        {
+            case Tags::Unknown: return "Unknown";
+            case Tags::Switch: return "Switch";
+            case Tags::Compute: return "Compute";
+            case Tags::Memory: return "Memory";
+            default: return "default";
+        }
+
+    }
+
 };
 
 }

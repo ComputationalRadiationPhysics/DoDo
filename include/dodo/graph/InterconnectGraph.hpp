@@ -25,7 +25,7 @@ namespace hana = boost::hana;
 template<typename T_InterconnectProperties>
 class InterconnectGraph :
     public BGL<
-        SimpleProperty,
+        T_InterconnectProperties,
         T_InterconnectProperties
     >
 {
@@ -167,6 +167,14 @@ public:
         return std::get<tupleIndex>(properties);
     }
 
+    template<typename T>
+    T& getProperty(const VertexID& e)
+    {
+        constexpr size_t tupleIndex { utility::tuple_index<Properties, T>::value  };
+        static_assert(static_cast<int>(tupleIndex) >= 0, "This property does not exist");
+        Properties& properties = this->getVertexProperty(e).second;
+        return std::get<tupleIndex>(properties);
+    }
 
 private:
     Properties mergeProperties(
@@ -233,18 +241,114 @@ public:
     // }
 
 };
+template<typename T, typename T_Property>
+struct VertexPrinter
+{
+    using Graph = InterconnectGraph<T>;
+    std::shared_ptr<Graph> g;
+    using Map = std::map<typename Graph::VertexID, std::string>;
+    Map m;
+    boost::associative_property_map<Map> propMap;
 
+    VertexPrinter(std::shared_ptr<Graph> g) :
+        g(g),
+        propMap(m)
+    {
+        auto allE = g->getVertices();
+        for(auto i=allE.first ; i!=allE.second ; ++i)
+        {
+            m[*i] = g->template getProperty<T_Property>(*i).toString();
+        }
+
+    }
+};
+
+
+
+
+
+
+
+// template<typename T, typename T_Property>
+// struct EdgePrinter
+// {
+//     using Graph = InterconnectGraph<T>;
+//     std::shared_ptr<Graph> g;
+//     using Map = std::map<typename Graph::EdgeID, std::string>;
+//     Map m;
+//     boost::associative_property_map<Map> propMap;
+
+//     EdgePrinter(std::shared_ptr<Graph> g) :
+//         g(g)
+//         , propMap(m)
+//     {
+//         auto allE = g->getEdges();
+//         for(auto i=allE.first ; i!=allE.second ; ++i)
+//         {
+//             m[*i] = g->template getProperty<T_Property>(*i).toString();
+//         }
+
+//     }
+// };
+
+// template<typename T, typename T_Property>
+// auto
+// edgePrinter(std::shared_ptr<InterconnectGraph<T>> g)
+// {
+//     using Graph = InterconnectGraph<T>;
+//     using Map = std::map<typename Graph::EdgeID, std::string>;
+//     Map m;
+//     auto allE = g->getEdges();
+//     for(auto i=allE.first ; i!=allE.second ; ++i)
+//     {
+//         m[*i] = g->template getProperty<T_Property>(*i).toString();
+//     }
+//     return m;
+// }
+
+template<typename T, typename T_Property, typename V, typename X>
+auto
+genericPrinter(std::shared_ptr<InterconnectGraph<T>> g, X allEoV)
+{
+    using Graph = InterconnectGraph<T>;
+    using Map = std::map<V, std::string>;
+    Map m;
+    //auto allE = g->getVertices();
+    for(auto i=allEoV.first ; i!=allEoV.second ; ++i)
+    {
+        m[*i] = g->template getProperty<T_Property>(*i).toString();
+    }
+    return m;
+}
 
 template<typename T>
+void addToDynamicProperties(boost::dynamic_properties& dp, T& maps)
+{
+    for(unsigned i{0} ; i<maps.size() ; ++i)
+    {
+        dp.property(
+            maps[i].first,
+            boost::associative_property_map<decltype(maps[i].second)>(maps[i].second)
+        );
+    }
+}
+
+template<typename T, typename T_VertexLabelTuple, typename T_EdgeLabelTuple>
 void writeGraph(
-    std::shared_ptr<InterconnectGraph<T>> g,
+    std::shared_ptr<InterconnectGraph<T>>& g,
+    T_VertexLabelTuple vertexLabels,
+    T_EdgeLabelTuple edgeLabels,
     std::ostream& stream = std::cout
-    ){
+){
 
-
-    using IndexMap = typename InterconnectGraph<T>::IndexMap;
+    using namespace std;
+    using Graph = InterconnectGraph<T>;
+    auto& dout = dout::Dout::getInstance();
+    boost::dynamic_properties dp;
+    using IndexMap = typename Graph::IndexMap;
     IndexMap im;
     boost::associative_property_map<IndexMap> propmapIndex(im);
+
     auto allV = g->getVertices();
     int index=0;
     for(auto i=allV.first ; i!=allV.second ; ++i)
@@ -252,23 +356,37 @@ void writeGraph(
         propmapIndex[*i] = index++;
     }
 
-    using BandwidthMap = std::map<typename InterconnectGraph<T>::EdgeID, size_t>;
-    BandwidthMap bm;
-    boost::associative_property_map<BandwidthMap> propmapBW(bm);
-    boost::dynamic_properties dp;
-    auto allE = g->getEdges();
-    for(auto i=allE.first ; i!=allE.second ; ++i)
-    {
-        propmapBW[*i] = g->template getProperty<physical::attributes::Bandwidth>(*i).value;
-    }
-
-    dp.property(
-        "bandwidth",
-        propmapBW
+    vector<pair<string, map<typename Graph::EdgeID, string>>> edgeMaps(std::tuple_size<T_EdgeLabelTuple>::value);
+    index=0;
+    hana::for_each(
+        hana::to_tuple(edgeLabels),
+        [&index, g, &edgeMaps](auto label)
+        {
+            using LabelType = typename decay<decltype(get<1>(label))>::type;
+            auto currentMap = genericPrinter<T, LabelType, typename Graph::EdgeID>(g, g->getEdges());
+            edgeMaps[index++] = (make_pair(get<0>(label), currentMap));
+        }
     );
 
+    vector<pair<string, map<typename Graph::VertexID, string>>> vertexMaps(std::tuple_size<T_VertexLabelTuple>::value);
+    index=0;
+    hana::for_each(
+        hana::to_tuple(vertexLabels),
+        [&index, g, &vertexMaps](auto label)
+        {
+            using LabelType = typename decay<decltype(get<1>(label))>::type;
+            auto currentMap = genericPrinter<T, LabelType, typename Graph::VertexID>(g, g->getVertices());
+            vertexMaps[index++] = (make_pair(get<0>(label), currentMap));
+        }
+    );
+
+    addToDynamicProperties(dp, edgeMaps);
+    addToDynamicProperties(dp, vertexMaps);
+
     boost::write_graphml(stream, *(g->graph), propmapIndex, dp, false);
+
 }
+
 
 template<typename T>
 typename InterconnectGraph<T>::EdgeHistoryMap
@@ -282,30 +400,6 @@ initEdgeHistory(std::shared_ptr<InterconnectGraph<T>> g)
     }
     return edgeHistoryMap;
 }
-
-// template<typename T>
-// struct InterconnectEdgeCopier
-// {
-//     using Graph = typename InterconnectGraph<T>::BGLGraph;
-//     using Edge = typename InterconnectGraph<T>::EdgeID;
-//             typename boost::property_map<Graph, boost::edge_bundle_t>::const_type edge_all_map1;
-//     mutable typename boost::property_map<Graph, boost::edge_bundle_t>::type       edge_all_map2;
-
-
-//     InterconnectEdgeCopier(const Graph& g1, Graph& g2) :
-//         edge_all_map1(boost::get(boost::edge_bundle, g1)),
-//         edge_all_map2(boost::get(boost::edge_bundle, g2))
-//     {}
-
-//     void operator()(const Edge& e1, Edge& e2)
-//     {
-//         put(edge_all_map2, e2, edge_all_map1[e1]);
-//     }
-
-
-// };
-
-
 
 
 
