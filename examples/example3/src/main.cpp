@@ -28,14 +28,16 @@ int main( )
 
 
     constexpr auto edgeLabels = std::make_tuple(
-        std::make_tuple("Tag", dodo::physical::attributes::Tag()),
         std::make_tuple("Bandwidth", dodo::physical::attributes::Bandwidth())
+    );
+    constexpr auto vertexLabels = std::make_tuple(
+        std::make_tuple("Tag", dodo::physical::attributes::Tag())
     );
 
     std::ofstream graphFile ("graph.graphml");
     dodo::graph::writeGraph(
         combinedGraph,
-        std::tuple<>(),
+        vertexLabels,
         edgeLabels
         // , graphFile
     );

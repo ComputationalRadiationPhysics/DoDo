@@ -3,6 +3,7 @@
 #include "HardwareGraphVertex.hpp"
 #include "InterconnectGraph.hpp"
 #include "../utility/tree_id.hpp"
+#include "../utility/convert_tuple.hpp"
 
 namespace dodo
 {
@@ -32,21 +33,26 @@ public:
 
     auto extractData() { return extractData([](auto &i){return true;}); }
 
-    template<typename T>
-    std::shared_ptr<Interconnect_t>
-    extractData(const T predicate)
+
+    template<
+        typename T_NewVertexProperties = ConsistsOfPropertes,
+        typename T_NewEdgeProperties = InterconnectProperties,
+        typename T_Predicate
+    >
+    auto
+    extractData(const T_Predicate predicate)
     {
+        dout::Dout& dout{ dout::Dout::getInstance() };
         using InterconnectID = typename Vertex::InterconnectID;
         using IsoMap = std::map<InterconnectID, InterconnectID>;
         using VertexList = std::list<VertexBase_t>;
+        using NewInterconnect_t = InterconnectGraph<T_NewEdgeProperties, T_NewVertexProperties>;
 
         VertexList openVertices;
         VertexList to_delete;
+        VertexList to_keep;
         IsoMap isoMap;
-        boost::associative_property_map<IsoMap> mapWrapper{isoMap};
-        auto reducedIGraph( std::make_shared<Interconnect_t>() );
-
-        boost::copy_graph(*(interconnectGraph->graph), *(reducedIGraph->graph), boost::orig_to_copy(mapWrapper));
+        auto reducedIGraph = copyAndTransform<NewInterconnect_t>(interconnectGraph, isoMap);
         openVertices.push_back(rootVertex);
 
         while( ! openVertices.empty() )
@@ -60,43 +66,33 @@ public:
                 const auto pos( current.id );
                 reducedIGraph->mapping[pos] = isoMap[interconnectGraph->mapping[pos]];
                 reducedIGraph->stableMapping[pos] = interconnectGraph->stableMapping[pos];
+                to_keep.push_back(current);
             } else
             {
                 to_delete.push_back(current);
             }
         }
 
-        dout::Dout& dout{ dout::Dout::getInstance() };
-        dout(dout::Flags::DEBUG) << "Processed consistsOf graph. Results for Interconnect graph:" << std::endl;
-        dout(dout::Flags::DEBUG) << "Vertices:  " << std::distance(reducedIGraph->getVertices().first, reducedIGraph->getVertices().second) << std::endl;
-        dout(dout::Flags::DEBUG) << "to_delete: " << to_delete.size() << std::endl;
-        dout(dout::Flags::DEBUG) << "Edges:     " << std::distance(reducedIGraph->getEdges().first, reducedIGraph->getEdges().second) << std::endl;
-
-        typename Interconnect_t::EdgeHistoryMap edgeHistoryMap = initEdgeHistory(reducedIGraph);
-
-
+        typename NewInterconnect_t::EdgeHistoryMap edgeHistoryMap = initEdgeHistory(reducedIGraph);
         for(const VertexBase_t& v : to_delete)
         {
             const auto iid( isoMap[interconnectGraph->mapping[v.id]] );
             reducedIGraph->mergeStarTopology(iid, edgeHistoryMap);
         }
-        dout(dout::Flags::DEBUG) << "Interconnect graph was reduced:" << std::endl;
-        dout(dout::Flags::DEBUG) << "Vertices:  " << std::distance(reducedIGraph->getVertices().first, reducedIGraph->getVertices().second) << std::endl;
-        auto allReducedEdges = reducedIGraph->getEdges();
-        dout(dout::Flags::DEBUG) << "Edges:     " << std::distance(allReducedEdges.first, allReducedEdges.second) << std::endl;
 
-        // for(auto e(allReducedEdges.first) ; e!=allReducedEdges.second ; ++e)
-        // {
-        //     typename Interconnect_t::EdgeProperties p = reducedIGraph->getEdgeProperty(*e).second;
-        //     typename dodo::physical::attributes::Bandwidth b = std::get<1>(p);
-        //     dout(dout::Flags::DEBUG) << "    " << *e << ": " << b.value << std::endl;
-        // }
-
+        for(const VertexBase_t& v : to_keep)
+        {
+            const auto iid( reducedIGraph->mapping[v.id] );
+            utility::convertTuple(v.properties, reducedIGraph->getVertexProperty(iid).second);
+        }
 
         return reducedIGraph;
     }
 
 };
+
+
+
 
 
 } /* graph */
