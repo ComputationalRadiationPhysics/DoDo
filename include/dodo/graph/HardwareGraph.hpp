@@ -30,9 +30,11 @@ public:
       rootVertex{utility::TreeID(), interconnectGraph}
     {}
 
-    template<typename Predicate>
+    auto extractData() { return extractData([](auto &i){return true;}); }
+
+    template<typename T>
     std::shared_ptr<Interconnect_t>
-    getSubgraph(const Predicate& predicate)
+    extractData(const T predicate)
     {
         using InterconnectID = typename Vertex::InterconnectID;
         using IsoMap = std::map<InterconnectID, InterconnectID>;
@@ -85,7 +87,7 @@ public:
 
         // for(auto e(allReducedEdges.first) ; e!=allReducedEdges.second ; ++e)
         // {
-        //     typename Interconnect_t::Properties p = reducedIGraph->getEdgeProperty(*e).second;
+        //     typename Interconnect_t::EdgeProperties p = reducedIGraph->getEdgeProperty(*e).second;
         //     typename dodo::physical::attributes::Bandwidth b = std::get<1>(p);
         //     dout(dout::Flags::DEBUG) << "    " << *e << ": " << b.value << std::endl;
         // }

@@ -22,17 +22,18 @@ namespace graph
 
 namespace hana = boost::hana;
 
-template<typename T_InterconnectProperties>
+template<typename T_EdgeProperties, typename T_VertexProperties = std::tuple<>>
 class InterconnectGraph :
     public BGL<
-        T_InterconnectProperties,
-        T_InterconnectProperties
+        T_VertexProperties,
+        T_EdgeProperties
     >
 {
 public:
     using TreeID = utility::TreeID;
-    using Properties = T_InterconnectProperties;
-    using Graph =  BGL<SimpleProperty, Properties>;
+    using EdgeProperties = T_EdgeProperties;
+    using VertexProperties = T_VertexProperties;
+    using Graph =  BGL<VertexProperties, EdgeProperties>;
     using VertexID = typename Graph::VertexID;
     using EdgeID = typename Graph::EdgeID;
     using StableVertexID = typename Graph::VertexPropertyBundle::first_type;
@@ -69,12 +70,12 @@ public:
         const auto inEdges  ( this->getInEdges(v) );
         const auto outEdges ( this->getOutEdges(v) );
 
-        std::list<std::tuple<VertexID, VertexID, Properties, EdgeHistory>> newEdges;
+        std::list<std::tuple<VertexID, VertexID, EdgeProperties, EdgeHistory>> newEdges;
 
         for(auto inE(inEdges.first) ; inE != inEdges.second ; ++inE)
         {
             const VertexID inV { this->getEdgeSource(*inE) };
-            const Properties inP { this->getEdgeProperty(*inE).second };
+            const EdgeProperties inP { this->getEdgeProperty(*inE).second };
             EdgeHistory inEHist{edgeHistoryMap[*inE]};
 
             for(auto outE(outEdges.first); outE != outEdges.second ; ++outE)
@@ -115,7 +116,7 @@ public:
                 }
                 if(hasBetterPath) continue;
 
-                const Properties outP { this->getEdgeProperty(*outE).second };
+                const EdgeProperties outP { this->getEdgeProperty(*outE).second };
                 newEdges.push_back(
                     std::make_tuple(inV, outV, mergeProperties(inP, outP), newEHist)
                 );
@@ -134,7 +135,7 @@ public:
         this->removeVertex(v);
     }
 
-    void addNewEdges(std::list<std::tuple<VertexID, VertexID, Properties, EdgeHistory>> nEdges, EdgeHistoryMap& hMap)
+    void addNewEdges(std::list<std::tuple<VertexID, VertexID, EdgeProperties, EdgeHistory>> nEdges, EdgeHistoryMap& hMap)
     {
         for(const auto& e : nEdges)
         {
@@ -161,22 +162,23 @@ public:
     template<typename T>
     T& getProperty(const EdgeID& e)
     {
-        constexpr size_t tupleIndex { utility::tuple_index<Properties, T>::value  };
+        constexpr size_t tupleIndex { utility::tuple_index<EdgeProperties, T>::value  };
         static_assert(static_cast<int>(tupleIndex) >= 0, "This property does not exist");
-        Properties& properties = this->getEdgeProperty(e).second;
+        EdgeProperties& properties = this->getEdgeProperty(e).second;
         return std::get<tupleIndex>(properties);
     }
 
     template<typename T>
     T& getProperty(const VertexID& e)
     {
-        constexpr size_t tupleIndex { utility::tuple_index<Properties, T>::value  };
+        constexpr size_t tupleIndex { utility::tuple_index<VertexProperties, T>::value  };
         static_assert(static_cast<int>(tupleIndex) >= 0, "This property does not exist");
-        Properties& properties = this->getVertexProperty(e).second;
+        VertexProperties& properties = this->getVertexProperty(e).second;
         return std::get<tupleIndex>(properties);
     }
 
 private:
+    template<typename Properties>
     Properties mergeProperties(
         const Properties& a,
         const Properties& b

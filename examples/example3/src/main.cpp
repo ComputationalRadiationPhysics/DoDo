@@ -12,10 +12,10 @@ int main( )
     dout.setVerbosity(dout::Flags::WARN | dout::Flags::INFO | dout::Flags::STAT | dout::Flags::ERROR);
     dout.addVerbosity(dout::Flags::DEBUG);
 
-    HardwareGraph<HypnosClusterVertex> hgv;
+    HardwareGraph<HypnosClusterVertex> g;
 
 
-    auto subgraph = hgv.getSubgraph(
+    auto combinedGraph = g.extractData(
         [](auto& i)
         {
             using namespace dodo::physical::attributes;
@@ -25,39 +25,21 @@ int main( )
             return keep;
         }
     );
-    constexpr auto vertexLabels = std::make_tuple(
-        std::make_tuple("bandwidth2", dodo::physical::attributes::Bandwidth()),
-        std::make_tuple("Tag2", dodo::physical::attributes::Tag())
-    );
-
-
-
-
-
 
 
     constexpr auto edgeLabels = std::make_tuple(
         std::make_tuple("Tag", dodo::physical::attributes::Tag()),
-        std::make_tuple("bandwidth", dodo::physical::attributes::Bandwidth())
+        std::make_tuple("Bandwidth", dodo::physical::attributes::Bandwidth())
     );
 
     std::ofstream graphFile ("graph.graphml");
     dodo::graph::writeGraph(
-        subgraph,
-        vertexLabels,
-        edgeLabels,
-        graphFile
+        combinedGraph,
+        std::tuple<>(),
+        edgeLabels
+        // , graphFile
     );
     graphFile.close();
-
-    dodo::graph::writeGraph(
-        subgraph,
-        vertexLabels,
-        edgeLabels
-    );
-
-
-
 
     return 0;
 }
