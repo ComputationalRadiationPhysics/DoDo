@@ -250,7 +250,7 @@ struct VertexPrinter
 {
     using Graph = InterconnectGraph<T>;
     std::shared_ptr<Graph> g;
-    using Map = std::map<typename Graph::VertexID, std::string>;
+    using Map = std::map<typename Graph::VertexID, decltype(((T_Property*)nullptr)->toString())>;
     Map m;
     boost::associative_property_map<Map> propMap;
 
@@ -274,9 +274,9 @@ genericPrinter(std::shared_ptr<InterconnectGraph<T, U>> g, X allEoV)
 {
     using Graph = InterconnectGraph<T, U>;
     using Key = typename std::decay<decltype(*X::first)>::type;
+    //using Map = std::map<Key, decltype(((T_Property*)nullptr)->toString())>;
     using Map = std::map<Key, std::string>;
     Map m;
-    //auto allE = g->getVertices();
     for(auto i=allEoV.first ; i!=allEoV.second ; ++i)
     {
         m[*i] = g->template getProperty<T_Property>(*i).toString();
@@ -304,7 +304,7 @@ getMaps(std::shared_ptr<InterconnectGraph<T, U>> g, T_Labels labels, X vertexOrE
 {
     using Graph = InterconnectGraph<T, U>;
     using namespace std;
-    using Key = typename std::decay<decltype(*X::first)>::type;
+    using Key = typename decay<decltype(*X::first)>::type;
     vector<pair<string, map<Key, string>>> maps(tuple_size<T_Labels>::value);
     int index=0;
     hana::for_each(

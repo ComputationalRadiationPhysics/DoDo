@@ -15,8 +15,9 @@ namespace attributes
             return { std::min(value, b.value) };
         }
 
-        std::string toString() const
+        auto toString() const
         {
+            // return value;
             return std::to_string(value);
         }
     };

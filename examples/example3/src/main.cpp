@@ -22,7 +22,8 @@ int main( )
             bool keep = false;
             keep |= i.template getProperty<Tag>().value == Tag({Tag::Tags::Switch}).value;
             keep |= i.template getProperty<Tag>().value == Tag({Tag::Tags::Compute}).value;
-            return keep;
+        //    return keep;
+            return true;
         }
     );
 
@@ -39,7 +40,7 @@ int main( )
         combinedGraph,
         vertexLabels,
         edgeLabels
-        // , graphFile
+        , graphFile
     );
     graphFile.close();
 
