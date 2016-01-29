@@ -8,7 +8,7 @@ namespace attributes
 {
     struct Bandwidth
     {
-        int value;
+        size_t value;
 
         Bandwidth merge(const Bandwidth& b) const
         {

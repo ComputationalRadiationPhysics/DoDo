@@ -35,8 +35,8 @@ public:
     std::shared_ptr<InterconnectGraph_t> interconnectGraph;
     Properties properties;
     ConsistsOfStructure children;
-    static constexpr auto t1 = std::tuple_cat(std::tuple<>(), Properties());
-    static constexpr auto t2 = std::tuple_cat(Properties());
+    // static constexpr auto t1 = std::tuple_cat(std::tuple<>(), Properties());
+    // static constexpr auto t2 = std::tuple_cat(Properties());
 
     HardwareGraphVertex(
         TreeID i,
@@ -58,7 +58,7 @@ public:
         TreeID consistID { id.genChildID() };
         dout(dout::Flags::DEBUG) << "                consistId = " << consistID << std::endl;
 
-        T_Child child { consistID, interconnectGraph, std::forward(args)... };
+        T_Child child { consistID, interconnectGraph, std::forward<T_Args>(args)... };
         children.push_back(child);
 
         return consistID;

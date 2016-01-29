@@ -77,7 +77,8 @@ public:
         for(const VertexBase_t& v : to_delete)
         {
             const auto iid( isoMap[interconnectGraph->mapping[v.id]] );
-            reducedIGraph->mergeStarTopology(iid, edgeHistoryMap);
+            // reducedIGraph->mergeStarTopology(iid, edgeHistoryMap);
+            reducedIGraph->mergeStarTopologyUndirected(iid, edgeHistoryMap);
         }
 
         for(const VertexBase_t& v : to_keep)

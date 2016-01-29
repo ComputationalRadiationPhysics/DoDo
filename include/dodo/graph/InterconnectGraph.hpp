@@ -66,6 +66,89 @@ public:
         return connectImpl(hana::int_c<T_directions>, a, b);
     }
 
+    void mergeStarTopologyUndirected(const VertexID v, EdgeHistoryMap& edgeHistoryMap)
+    {
+        const auto adjacentVertices( this->getAdjacentVertices(v) );
+        std::vector<decltype(this->edgeRange(v,v))> oldEdgeRanges;
+
+        for(auto i=adjacentVertices.first ; i!=adjacentVertices.second ; ++i)
+        {
+            oldEdgeRanges.push_back(this->edgeRange(v, *i));
+        }
+
+        std::list<std::tuple<VertexID, VertexID, EdgeProperties, EdgeHistory>> newEdges;
+        unsigned pos{0u};
+        for(auto i=adjacentVertices.first ; i!=adjacentVertices.second ; ++i, ++pos)
+        {
+            const VertexID inV{*i};
+            const auto inEdges = oldEdgeRanges[pos];
+
+            auto j(i);
+            ++j;
+            for(auto pos2(pos+1); j!=adjacentVertices.second ; ++j, ++pos2)
+            {
+                const VertexID outV{*j};
+                const auto outEdges = oldEdgeRanges[pos2];
+                auto oldEdgesBetween(this->edgeRange(inV, outV));
+
+                for(auto inE(inEdges.first) ; inE != inEdges.second ; ++inE)
+                {
+                    const EdgeProperties inP { this->getEdgeProperty(*inE).second };
+                    EdgeHistory inEHist{edgeHistoryMap[*inE]};
+
+                    for(auto outE(outEdges.first); outE != outEdges.second ; ++outE)
+                    {
+                        EdgeHistory newEHist{edgeHistoryMap[*outE]};
+                        std::set_union(
+                            inEHist.begin(), inEHist.end(),
+                            newEHist.begin(), newEHist.end(),
+                            std::inserter(newEHist,newEHist.begin())
+                        );
+
+                        bool hasBetterPath{ false };
+                        for(auto e(oldEdgesBetween.first) ; !hasBetterPath && e!=oldEdgesBetween.second ; ++e)
+                        {
+                            EdgeHistory eh{ edgeHistoryMap[*e] };
+                            hasBetterPath = std::includes(
+                                newEHist.begin(), newEHist.end(),
+                                eh.begin(), eh.end()
+                            );
+
+                            // dout::Dout& dout{ dout::Dout::getInstance()  };
+                            // dout(dout::Flags::DEBUG) << "    spanningEdgeHistory: ";
+                            // for(auto shx : eh)
+                            // {
+                            //     dout(dout::Flags::DEBUG, false) << "  " << shx;
+                            // }
+                            // dout(dout::Flags::DEBUG, false) << std::endl;
+                            // dout(dout::Flags::DEBUG) << "    newEdgeHistory:      ";
+                            // for(auto shx : newEHist)
+                            // {
+                            //     dout(dout::Flags::DEBUG, false) << "  " << shx;
+                            // }
+                            // dout(dout::Flags::DEBUG, false) << std::endl;
+                        }
+                        if(hasBetterPath) continue;
+
+                        const EdgeProperties outP { this->getEdgeProperty(*outE).second };
+                        newEdges.push_back(
+                            std::make_tuple(inV, outV, mergeProperties(inP, outP), newEHist)
+                        );
+                    }
+                }
+
+
+            }
+        }
+
+        addNewEdges(newEdges, edgeHistoryMap);
+        // for(auto i(0u) ; i<oldEdgeRanges.size() ; ++i)
+        for(auto& i : oldEdgeRanges)
+            deleteOldEdges(i, edgeHistoryMap);
+        deleteOldVertex(v);
+    }
+
+    // For directed Graphs
     void mergeStarTopology(const VertexID v, EdgeHistoryMap& edgeHistoryMap)
     {
 
@@ -102,19 +185,19 @@ public:
                         eh.begin(), eh.end()
                     );
 
-                    dout::Dout& dout{ dout::Dout::getInstance()  };
-                    dout(dout::Flags::DEBUG) << "    spanningEdgeHistory: ";
-                    for(auto shx : eh)
-                    {
-                        dout(dout::Flags::DEBUG, false) << "  " << shx;
-                    }
-                    dout(dout::Flags::DEBUG, false) << std::endl;
-                    dout(dout::Flags::DEBUG) << "    newEdgeHistory:      ";
-                    for(auto shx : newEHist)
-                    {
-                        dout(dout::Flags::DEBUG, false) << "  " << shx;
-                    }
-                    dout(dout::Flags::DEBUG, false) << std::endl;
+                    // dout::Dout& dout{ dout::Dout::getInstance()  };
+                    // dout(dout::Flags::DEBUG) << "    spanningEdgeHistory: ";
+                    // for(auto shx : eh)
+                    // {
+                    //     dout(dout::Flags::DEBUG, false) << "  " << shx;
+                    // }
+                    // dout(dout::Flags::DEBUG, false) << std::endl;
+                    // dout(dout::Flags::DEBUG) << "    newEdgeHistory:      ";
+                    // for(auto shx : newEHist)
+                    // {
+                    //     dout(dout::Flags::DEBUG, false) << "  " << shx;
+                    // }
+                    // dout(dout::Flags::DEBUG, false) << std::endl;
                 }
                 if(hasBetterPath) continue;
 

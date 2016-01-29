@@ -47,7 +47,8 @@ public:
     // BGL typdefs
     typedef boost::adjacency_list<boost::multisetS,
             boost::listS,
-            boost::bidirectionalS,
+            boost::undirectedS,
+            //boost::bidirectionalS,
             // VertexPropertyBundle,
             // EdgePropertyBundle
             boost::property<boost::vertex_index_t, size_t, VertexPropertyBundle >,

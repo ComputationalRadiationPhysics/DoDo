@@ -10,7 +10,7 @@ namespace attributes
 
 struct Tag
 {
-    enum class Tags{ Unknown, Switch, Compute, Memory } value;
+    enum class Tags{ Unknown, Switch, Compute, Memory, Structural} value;
 
     Tag
     merge( const Tag& t )

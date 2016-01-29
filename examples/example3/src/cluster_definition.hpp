@@ -6,8 +6,8 @@ using namespace dodo::graph;
 namespace pattr = dodo::physical::attributes;
 namespace utility = dodo::utility;
 
-using ConsistsOfProperties = std::tuple<pattr::Tag, pattr::EnergyLevel>;
-using InterconnectProperties = std::tuple<pattr::Tag, pattr::Bandwidth>;
+using ConsistsOfProperties = std::tuple<pattr::Tag, pattr::EnergyLevel, pattr::Name, pattr::Memorysize>;
+using InterconnectProperties = std::tuple<pattr::Tag, pattr::Bandwidth, pattr::Name>;
 
 using HWVertex_t = HardwareGraphVertex<
     ConsistsOfProperties,
@@ -17,6 +17,30 @@ using HWVertex_t = HardwareGraphVertex<
 using ICG = std::shared_ptr< InterconnectGraph< InterconnectProperties > >;
 
 
+struct XeonCoreVertex : public HWVertex_t
+{
+    XeonCoreVertex(utility::TreeID i, ICG a) :
+        HardwareGraphVertex(i, a)
+    {
+        setProperty<pattr::Tag>({pattr::Tag::Tags::Compute});
+        setProperty<pattr::EnergyLevel>({40});
+        setProperty<pattr::Name>({"Core"});
+    }
+
+
+};
+
+struct L3CacheVertex : public HWVertex_t
+{
+    L3CacheVertex(utility::TreeID i, ICG a, size_t size = 4*1024) :
+        HardwareGraphVertex(i, a)
+    {
+        setProperty<pattr::Memorysize>({size});
+        setProperty<pattr::Tag>({pattr::Tag::Tags::Memory});
+        setProperty<pattr::Name>({"L3 Cache"});
+    }
+};
+
 struct CPUVertex : public HWVertex_t
 {
     CPUVertex(utility::TreeID i, ICG a) :
@@ -24,8 +48,32 @@ struct CPUVertex : public HWVertex_t
     {
         setProperty<pattr::EnergyLevel>({20});
         setProperty<pattr::Tag>({pattr::Tag::Tags::Compute});
+        setProperty<pattr::Name>({"Xeon E5-2609"});
+
+        auto cache = this->createChild<L3CacheVertex>(static_cast<size_t>(10 * 1024));
+        auto x = interconnectGraph->connect<1>(cache, id);
+        x.setProperty<pattr::Bandwidth>({static_cast<size_t>(34.1 * 1024 * 1024 * 1024)});
+
+        for(unsigned i=0 ; i<4 ; ++i)
+        {
+            auto core = this->createChild<XeonCoreVertex>();
+            auto x = interconnectGraph->connect<1>(core, id);
+            x.setProperty<pattr::Bandwidth>({static_cast<size_t>(34.1 * 1024 * 1024 * 1024)});
+        }
     }
 };
+
+struct RAMVertex : public HWVertex_t
+{
+    RAMVertex(utility::TreeID i, ICG a, size_t size = 4096*1024) :
+        HardwareGraphVertex(i, a)
+    {
+        setProperty<pattr::Memorysize>({size});
+        setProperty<pattr::Tag>({pattr::Tag::Tags::Memory});
+        setProperty<pattr::Name>({"DDR3 RAM"});
+    }
+};
+
 
 struct FSBVertex : public HWVertex_t
 {
@@ -33,28 +81,34 @@ struct FSBVertex : public HWVertex_t
         HardwareGraphVertex(i, a)
     {
         setProperty<pattr::Tag>({pattr::Tag::Tags::Switch});
+        setProperty<pattr::Name>({"FSB"});
     }
 };
 
 
 struct LaserNodeVertex : public HWVertex_t
 {
-    LaserNodeVertex(utility::TreeID i, ICG a) :
+    LaserNodeVertex(utility::TreeID i, ICG a, unsigned number=0) :
         HardwareGraphVertex(i, a)
     {
+        setProperty<pattr::Name>({"KeplerNode" + std::to_string(number)});
+        setProperty<pattr::Tag>({pattr::Tag::Tags::Structural});
+
         // consistsOf elements
-        auto cpu1 = this->createChild<CPUVertex>();
-        auto cpu2 = this->createChild<CPUVertex>();
         auto fsb = this->createChild<FSBVertex>();
-
-        // connection between the elements
-        auto bus1 = interconnectGraph->connect<2>(fsb, cpu1);
-        auto bus2 = interconnectGraph->connect<2>(fsb, cpu2);
-        auto bus3 = interconnectGraph->connect<2>(id, fsb);
-
-        bus1.setProperty<pattr::Bandwidth>( {8500} );
-        bus2.setProperty<pattr::Bandwidth>( {8500} );
+        auto bus3 = interconnectGraph->connect<1>(id, fsb);
         bus3.setProperty<pattr::Bandwidth>( {4000} );
+
+        for(unsigned i=0; i<2 ; ++i)
+        {
+            auto cpu1 = this->createChild<CPUVertex>();
+            auto bus1 = interconnectGraph->connect<1>(fsb, cpu1);
+            bus1.setProperty<pattr::Bandwidth>( {8500} );
+        }
+
+        auto ram = this->createChild<RAMVertex>(static_cast<size_t>(256u*1024u*1024u*1024u));
+        auto bus = interconnectGraph->connect<1>(fsb, ram);
+        bus.setProperty<pattr::Bandwidth>({static_cast<size_t>(20*1024*1024*1024)});
     }
 };
 
@@ -65,6 +119,7 @@ struct EthernetSwitchVertex : public HWVertex_t
         HardwareGraphVertex(i, a)
     {
         setProperty<pattr::Tag>({pattr::Tag::Tags::Switch});
+        setProperty<pattr::Name>({"Gigabit EthernetSwitch"});
     }
 };
 
@@ -75,17 +130,22 @@ struct HypnosClusterVertex : public HWVertex_t
         HardwareGraphVertex(i, a)
     {
 
-        // consistsOf elements
-        auto node1 = this->createChild<LaserNodeVertex>();
-        auto node2 = this->createChild<LaserNodeVertex>();
+        setProperty<pattr::Name>({"Cluster"});
+        setProperty<pattr::Tag>({pattr::Tag::Tags::Structural});
+
         auto ethSwitch = this->createChild<EthernetSwitchVertex>();
 
-        // connection between the elements
-        auto cable1 = interconnectGraph->connect<2>(node1, ethSwitch);
-        auto cable2 = interconnectGraph->connect<2>(node2, ethSwitch);
+        // consistsOf elements
+        for(unsigned i=1 ; i<=20 ; ++i)
+        {
+            auto node1 = this->createChild<LaserNodeVertex>(i);
 
-        cable1.setProperty<pattr::Bandwidth>( {1000} );
-        cable2.setProperty<pattr::Bandwidth>( {1000} );
+            // connection between the elements
+            auto cable1 = interconnectGraph->connect<1>(node1, ethSwitch);
+            cable1.setProperty<pattr::Bandwidth>( {1000} );
+        }
+
+
 
         printAllChildren();
 
