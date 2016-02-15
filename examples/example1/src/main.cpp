@@ -19,7 +19,6 @@ int main( )
     laserNodeElement.setEntry( Energy{ 200 } );
 
     // construct the actual graph
-    //
     auto hypnos = graph.add();
     auto laserQueue = graph.add();
 

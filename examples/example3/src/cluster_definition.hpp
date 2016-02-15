@@ -6,7 +6,7 @@ using namespace dodo::graph;
 namespace pattr = dodo::physical::attributes;
 namespace utility = dodo::utility;
 
-using ConsistsOfProperties = std::tuple<pattr::Tag, pattr::EnergyLevel, pattr::Name, pattr::Memorysize>;
+using ConsistsOfProperties = std::tuple<pattr::Tag, pattr::EnergyLevel, pattr::Name, pattr::Memorysize, pattr::Speed>;
 using InterconnectProperties = std::tuple<pattr::Tag, pattr::Bandwidth, pattr::Name>;
 
 using HWVertex_t = HardwareGraphVertex<
@@ -132,11 +132,12 @@ struct HypnosClusterVertex : public HWVertex_t
 
         setProperty<pattr::Name>({"Cluster"});
         setProperty<pattr::Tag>({pattr::Tag::Tags::Structural});
+        setProperty<pattr::Speed>({2000});
 
         auto ethSwitch = this->createChild<EthernetSwitchVertex>();
 
         // consistsOf elements
-        for(unsigned i=1 ; i<=20 ; ++i)
+        for(unsigned i=1 ; i<=2 ; ++i)
         {
             auto node1 = this->createChild<LaserNodeVertex>(i);
 

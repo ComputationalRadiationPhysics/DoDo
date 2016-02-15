@@ -34,7 +34,8 @@ int main( )
     );
     auto vertexLabels = std::make_tuple(
         std::make_tuple("Tag", dodo::physical::attributes::Tag()),
-        std::make_tuple("Name", dodo::physical::attributes::Name())
+        std::make_tuple("Name", dodo::physical::attributes::Name()),
+        std::make_tuple("Clock Frequency", dodo::physical::attributes::Speed())
     );
 
     std::ofstream graphFile ("graph.graphml");

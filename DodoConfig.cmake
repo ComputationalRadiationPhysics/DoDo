@@ -27,7 +27,7 @@ INCLUDE("${_DODO_COMMON_FILE}")
 #-------------------------------------------------------------------------------
 # Options.
 #-------------------------------------------------------------------------------
-OPTION(DODO_ACC_CPU_B_SEQ_T_SEQ_ENABLE "Enable the serial CPU accelerator" ON)
+#OPTION(DODO_ACC_CPU_B_SEQ_T_SEQ_ENABLE "Enable the serial CPU accelerator" ON)
 
 # Drop-down combo box in cmake-gui.
 set(DODO_DEBUG "0" CACHE STRING "Debug level")
@@ -115,6 +115,10 @@ if(dout_FOUND)
     LIST(APPEND _DODO_INCLUDE_DIRECTORIES_PUBLIC ${dout_INCLUDE_DIRS})
 endif()
 
+FIND_PACKAGE(graybat REQUIRED QUIET)
+    LIST(APPEND _DODO_INCLUDE_DIRECTORIES_PUBLIC ${graybat_INCLUDE_DIRS})
+    LIST(APPEND _DODO_LINK_LIBRARIES_PUBLIC ${graybat_LIBRARIES})
+
 
 #-------------------------------------------------------------------------------
 # Compiler settings.
@@ -125,6 +129,8 @@ if(MSVC)
 else()
     # Select C++ standard version.
     LIST(APPEND _DODO_COMPILE_OPTIONS_PUBLIC "-std=c++14")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+
 endif()
 
 

@@ -12,55 +12,27 @@ PROJECT("Dodo_examples")
 ################################################################################
 # Compiler Flags
 ################################################################################
-# GNU
-#if(CMAKE_COMPILER_IS_GNUCXX)
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wall")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wextra")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wpedantic")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wnarrowing")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Waddress")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Warray-bounds")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wchar-subscripts")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wcomment")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wformat")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wmain")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wmissing-braces")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wparentheses")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wreturn-type")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wsequence-point")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wsign-compare")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wstrict-aliasing")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wstrict-overflow=1")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wswitch")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wtrigraphs")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wuninitialized")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wunused-function")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wunused-label")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wunused-value")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wunused-variable")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wvolatile-register-var")
-    set(MY_WARN_FLAGS "${MY_WARN_FLAGS} -Wunused-local-typedefs")
 
-    set(MY_COMMON_FLAGS "${MY_COMMON_FLAGS} ${MY_WARN_FLAGS}")
-    set(MY_COMMON_FLAGS "${MY_COMMON_FLAGS} -std=c++1z")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpedantic")
 
-    unset(MY_WARN_FLAGS)
-    #endif(CMAKE_COMPILER_IS_GNUCXX)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_COMMON_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${MY_COMMON_FLAGS}")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MY_COMMON_FLAGS}")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Werror")
 
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${CMAKE_CXX_FLAGS_RELEASE}")
+#-------------------------------------------------------------------------------
+# Find Dodo.
+#-------------------------------------------------------------------------------
+SET(DODO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../" CACHE STRING  "The location of the Dodo library")
+LIST(APPEND CMAKE_PREFIX_PATH "${DODO_ROOT}")
 
-unset(MY_COMMON_FLAGS)
-
+FIND_PACKAGE("Dodo")
+ADD_DEFINITIONS(${Dodo_DEFINITIONS})
+INCLUDE_DIRECTORIES(${Dodo_INCLUDE_DIRS})
 
 
 ################################################################################
@@ -69,3 +41,5 @@ unset(MY_COMMON_FLAGS)
 ADD_SUBDIRECTORY("example1/")
 ADD_SUBDIRECTORY("example2/")
 ADD_SUBDIRECTORY("example3/")
+ADD_SUBDIRECTORY("example4/")
+ADD_SUBDIRECTORY("example5/")
