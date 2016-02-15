@@ -31,7 +31,7 @@ public:
       rootVertex{utility::TreeID(), interconnectGraph}
     {}
 
-    auto extractData() { return extractData([](auto &i){return true;}); }
+    auto extractData() { return extractData([](auto&){return true;}); }
 
 
     template<
@@ -42,7 +42,7 @@ public:
     auto
     extractData(const T_Predicate predicate)
     {
-        dout::Dout& dout{ dout::Dout::getInstance() };
+        // dout::Dout& dout{ dout::Dout::getInstance() };
         using InterconnectID = typename Vertex::InterconnectID;
         using IsoMap = std::map<InterconnectID, InterconnectID>;
         using VertexList = std::list<VertexBase_t>;

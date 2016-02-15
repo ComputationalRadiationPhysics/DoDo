@@ -24,3 +24,9 @@
 
 #pragma once
 
+#include <dodo/process/CommunicationMeta.hpp>
+#include <dodo/process/ComponentMeta.hpp>
+#include <dodo/process/DependencyBGL.hpp>
+#include <dodo/process/DependencyGraph.hpp>
+#include <dodo/process/metadata.hpp>
+#include <dodo/process/Ports.hpp>

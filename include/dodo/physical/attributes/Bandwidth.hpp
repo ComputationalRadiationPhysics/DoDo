@@ -10,6 +10,12 @@ namespace attributes
     {
         size_t value;
 
+        size_t dynamicValue(size_t chunksize)
+        {
+                        
+            return value;
+        }
+
         Bandwidth merge(const Bandwidth& b) const
         {
             return { std::min(value, b.value) };

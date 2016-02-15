@@ -355,7 +355,7 @@ template<typename T_Property, typename T, typename U, typename X>
 auto
 genericPrinter(std::shared_ptr<InterconnectGraph<T, U>> g, X allEoV)
 {
-    using Graph = InterconnectGraph<T, U>;
+    //using Graph = InterconnectGraph<T, U>;
     using Key = typename std::decay<decltype(*X::first)>::type;
     //using Map = std::map<Key, decltype(((T_Property*)nullptr)->toString())>;
     using Map = std::map<Key, std::string>;
@@ -385,7 +385,7 @@ template<typename T, typename U, typename T_Labels, typename X>
 auto
 getMaps(std::shared_ptr<InterconnectGraph<T, U>> g, T_Labels labels, X vertexOrEdgeIts)
 {
-    using Graph = InterconnectGraph<T, U>;
+    // using Graph = InterconnectGraph<T, U>;
     using namespace std;
     using Key = typename decay<decltype(*X::first)>::type;
     vector<pair<string, map<Key, string>>> maps(tuple_size<T_Labels>::value);
@@ -413,7 +413,7 @@ void writeGraph(
 
     using namespace std;
     using Graph = InterconnectGraph<T, U>;
-    auto& dout = dout::Dout::getInstance();
+    // auto& dout = dout::Dout::getInstance();
     boost::dynamic_properties dp;
     using IndexMap = typename Graph::IndexMap;
     IndexMap im;
@@ -482,7 +482,7 @@ struct TupleTransformCopier
 struct NonCopier
 {
     template<typename Elem>
-    void operator()(const Elem& e1, Elem& e2)
+    void operator()(const Elem&, Elem&)
     {}
 };
 
