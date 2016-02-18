@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <dodo/components.hpp>
 #include <dodo/graph.hpp>
 #include <dodo/physical.hpp>
 #include <dodo/process.hpp>

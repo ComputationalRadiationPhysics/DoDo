@@ -11,6 +11,7 @@
 #include <fstream> /* std::fstream */
 #include <utility> /* std::pair, std::make_pair */
 #include <stdexcept>
+#include <memory>
 
 
 namespace dodo{
