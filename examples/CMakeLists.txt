@@ -34,12 +34,18 @@ FIND_PACKAGE("Dodo")
 ADD_DEFINITIONS(${Dodo_DEFINITIONS})
 INCLUDE_DIRECTORIES(${Dodo_INCLUDE_DIRS})
 
-
 ################################################################################
 # Add subdirectories.
-################################################################################
-ADD_SUBDIRECTORY("example1/")
-ADD_SUBDIRECTORY("example2/")
-ADD_SUBDIRECTORY("example3/")
-ADD_SUBDIRECTORY("example4/")
-ADD_SUBDIRECTORY("example5/")
+###################################################################k#############
+file(GLOB EXAMPLES "." "*")
+foreach(EXAMPLE ${EXAMPLES})
+    if(IS_DIRECTORY ${EXAMPLE})
+        ADD_SUBDIRECTORY(${EXAMPLE})
+    endif()
+endforeach()
+
+#ADD_SUBDIRECTORY("example1/")
+#ADD_SUBDIRECTORY("example2/")
+#ADD_SUBDIRECTORY("example3/")
+#ADD_SUBDIRECTORY("example4/")
+#ADD_SUBDIRECTORY("example5/")

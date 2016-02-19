@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Port.hpp"
 
 namespace dodo
@@ -5,7 +7,7 @@ namespace dodo
 namespace components
 {
 
-    class OutPort : Port
+    class OutPort : public Port
     {
 
     };

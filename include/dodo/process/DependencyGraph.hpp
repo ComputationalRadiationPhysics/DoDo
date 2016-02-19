@@ -48,9 +48,13 @@ public:
     using VertexID = BGL::VertexID;
     using EdgeID = BGL::EdgeID;
 
-    template<typename T_Component>
+    template<typename T_Component, typename... Args>
     auto create(T_Component c)
     {
+//        T_Component(std::forward<Args...>(args)...) component;
+//        VertexID v = addVertex();
+//        component.vertexID = v;
+
         return ComponentMetaVertexWrapper<T_Component>{addVertex(c)};
     }
 
