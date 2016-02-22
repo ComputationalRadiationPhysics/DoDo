@@ -11,11 +11,11 @@ namespace components
     class InPort : public Port
     {
         // Adds a new connection
-        void dependsOn(OutPort* dependency);
+        void dependsOn(OutPort*);
     };
 
 
-    void InPort::dependsOn(OutPort *dependency)
+    void InPort::dependsOn(OutPort*)
     {
 
     }

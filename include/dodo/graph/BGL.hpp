@@ -33,13 +33,21 @@ struct SimpleProperty{
  * GraphPolicy on basis of the boost graph library.
  *
  ***************************************************************************/
-template <class T_VertexProperty = SimpleProperty, class T_EdgeProperty = SimpleProperty, class T_OutEdgeList = boost::multisetS, class VertexList = boost::listS, class T_Directed = boost::undirectedS>
+template<
+    class T_VertexProperty = SimpleProperty,
+    class T_EdgeProperty = SimpleProperty,
+    class T_OutEdgeList = boost::multisetS,
+    class T_VertexList = boost::listS,
+    class T_Directed = boost::undirectedS
+>
 class BGL {
 
 public:
     // Public typedefs
     typedef T_VertexProperty                                                VertexProperty;
     typedef T_EdgeProperty                                                  EdgeProperty;
+    typedef T_OutEdgeList                                                   OutEdgeList;
+    typedef T_VertexList                                                    VertexList;
 
     typedef std::pair<unsigned, VertexProperty>                             VertexPropertyBundle;
     typedef std::pair<unsigned, EdgeProperty>                               EdgePropertyBundle;

@@ -15,6 +15,8 @@ namespace components
     {
         std::map<std::string, OutPort> outPorts;
         std::map<std::string, InPort> inPorts;
+        // Pointer to the Graph that holds the dependency information
+        virtual void run() = 0;
     };
 
 }

@@ -13,7 +13,7 @@ namespace process
 template<typename T_ComponentMeta>
 struct ComponentMetaVertexWrapper
 {
-    using VertexID = DependencyBGL<ComponentMeta, CommunicationMeta>::VertexID;
+    using VertexID = SimpleBGL<ComponentMeta, CommunicationMeta>::VertexID;
     VertexID id;
 
     std::pair<VertexID, enum T_ComponentMeta::OutNames>
@@ -41,10 +41,10 @@ struct ComponentMetaVertexWrapper
 
 
 class DependencyGraph :
-    public DependencyBGL<ComponentMeta, CommunicationMeta>
+    public SimpleBGL<ComponentMeta, CommunicationMeta>
 {
 public:
-    using BGL = DependencyBGL<ComponentMeta, CommunicationMeta>;
+    using BGL = SimpleBGL<ComponentMeta, CommunicationMeta>;
     using VertexID = BGL::VertexID;
     using EdgeID = BGL::EdgeID;
 
