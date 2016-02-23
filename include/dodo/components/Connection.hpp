@@ -20,6 +20,8 @@ namespace components
         std::weak_ptr<InPort> to;
 
     public:
+        Connection(){}
+
         Connection(
             const std::weak_ptr<OutPort> &from,
             const std::weak_ptr<InPort> &to
