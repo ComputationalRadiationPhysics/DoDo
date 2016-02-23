@@ -24,9 +24,10 @@
 
 #pragma once
 
+#include <dodo/components/Chunk.hpp>
 #include <dodo/components/ComponentFactory.hpp>
+#include <dodo/components/ComponentHandle.hpp>
 #include <dodo/components/Component.hpp>
-#include <dodo/components/ComponentImpl.hpp>
 #include <dodo/components/Connection.hpp>
 #include <dodo/components/DependencyBGL.hpp>
 #include <dodo/components/dependency.hpp>
@@ -34,3 +35,6 @@
 #include <dodo/components/Network.hpp>
 #include <dodo/components/OutPort.hpp>
 #include <dodo/components/Port.hpp>
+#include <dodo/components/TestProcessing.hpp>
+#include <dodo/components/TestSink.hpp>
+#include <dodo/components/TestSource.hpp>

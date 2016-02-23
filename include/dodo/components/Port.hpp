@@ -10,6 +10,8 @@ namespace dodo
 {
 namespace components
 {
+    class Component;
+
     class Port
     {
     public:

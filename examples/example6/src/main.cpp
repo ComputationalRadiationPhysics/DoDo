@@ -10,7 +10,12 @@ int main( )
     using namespace dodo::components;
     Network net;
 
-//    auto compA = net.add<ComponentA>();
-//    net.addDependency(compA["A"], compB["B"]);
+    auto source = net.addComponent<TestSource>();
+    auto processing = net.addComponent<TestProcessing>();
+    auto sink = net.addComponent<TestSink>();
+
+    net.addDependency(source["A"], processing["in"]);
+    net.addDependency(processing["out"], sink["in"]);
+
     return 0;
 }
