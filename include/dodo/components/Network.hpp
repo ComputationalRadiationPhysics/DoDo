@@ -45,7 +45,6 @@ public:
     template<class T_Component>
     auto addComponent() -> ComponentHandle;
 
-    //void addDependency(std::weak_ptr<Port>, std::weak_ptr<Port>);
     void addDependency(
         std::pair<std::weak_ptr<Component>, Component::PortKey>,
         std::pair<std::weak_ptr<Component>, Component::PortKey>
@@ -53,6 +52,14 @@ public:
     Network()
     {
         dependencies = std::make_shared<DependencyBGL>();
+    }
+
+    void enable()
+    {
+        for (auto component : components)
+        {
+            component->enable();
+        }
     }
 
 };

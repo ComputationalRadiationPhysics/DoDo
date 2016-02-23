@@ -35,6 +35,3 @@
 #include <dodo/components/Network.hpp>
 #include <dodo/components/OutPort.hpp>
 #include <dodo/components/Port.hpp>
-#include <dodo/components/TestProcessing.hpp>
-#include <dodo/components/TestSink.hpp>
-#include <dodo/components/TestSource.hpp>

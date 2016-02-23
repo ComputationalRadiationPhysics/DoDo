@@ -9,6 +9,10 @@ namespace components
 
     class OutPort : public Port
     {
+    public:
+        template<typename Chunk>
+        void put(const Chunk&&)
+        {}
 
     };
 

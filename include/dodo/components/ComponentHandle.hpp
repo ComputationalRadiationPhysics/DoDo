@@ -10,9 +10,9 @@ namespace components
 
 class ComponentHandle
 {
+public:
     std::weak_ptr<Component> component;
 
-public:
     ComponentHandle(const std::weak_ptr<Component> &c) : component(c){}
 
     auto operator[](std::string portName) const
@@ -20,6 +20,7 @@ public:
         assert(component.lock()->hasPort(portName));
         return std::make_pair(component, portName);
     }
+
 
 
 };

@@ -3,6 +3,9 @@
 #include <dout/dout.hpp>
 
 #include <dodo.hpp>
+#include "TestProcessing.hpp"
+#include "TestSink.hpp"
+#include "TestSource.hpp"
 
 
 int main( )
@@ -16,6 +19,8 @@ int main( )
 
     net.addDependency(source["A"], processing["in"]);
     net.addDependency(processing["out"], sink["in"]);
+
+    net.enable();
 
     return 0;
 }

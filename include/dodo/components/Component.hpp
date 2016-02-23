@@ -17,10 +17,15 @@ namespace components
     public:
         using PortKey = std::string;
     private:
-//        friend class ComponentHandle;
         // Invariant: Input Ports and output ports may not have overlapping namespaces!
         std::map<PortKey, std::shared_ptr<OutPort>> outPorts;
         std::map<PortKey, std::shared_ptr<InPort>> inPorts;
+
+        void enableBase()
+        {
+            // spawn a thread that loops over the ports and checks for input
+        }
+
 
     protected:
 
@@ -34,6 +39,18 @@ namespace components
             inPorts[k] = std::make_shared<InPort>();
         }
 
+        template<typename Chunk>
+        void putInto(Component::PortKey&& k, const Chunk&& c)
+        {
+            outPorts.at(k)->put(std::forward<const Chunk>(c));
+        }
+
+        auto takeFrom(Component::PortKey&& k)
+        {
+            return inPorts.at(k)->get();
+        }
+
+
     public:
 
         bool hasPort(std::string portName)
@@ -44,7 +61,15 @@ namespace components
             return hasKey(inPorts) || hasKey(outPorts);
         }
 
-        virtual void run() = 0;
+        void enable()
+        {
+            enableBase();
+            enableHook();
+        }
+
+        // step() is triggered whenever all inputPorts have a chunk ready
+        virtual void step() = 0;
+        virtual void enableHook(){};
         virtual ~Component(){}
 
     };
