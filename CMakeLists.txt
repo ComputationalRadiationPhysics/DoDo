@@ -7,6 +7,7 @@ LIST(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}")
 FIND_PACKAGE(Dodo REQUIRED)
 INCLUDE_DIRECTORIES(${Dodo_INCLUDE_DIRS})
 
+
 #-------------------------------------------------------------------------------
 # Add Dodo files (so the IDE considers the files part of the project)
 #-------------------------------------------------------------------------------

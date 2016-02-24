@@ -129,8 +129,6 @@ if(MSVC)
 else()
     # Select C++ standard version.
     LIST(APPEND _DODO_COMPILE_OPTIONS_PUBLIC "-std=c++14")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-
 endif()
 
 
@@ -156,6 +154,11 @@ set(Dodo_INCLUDE_DIRS ${_DODO_INCLUDE_DIRECTORIES_PUBLIC})
 set(Dodo_LIBRARY ${_DODO_LINK_LIBRARY})
 set(Dodo_LIBRARIES ${_DODO_LINK_FLAGS_PUBLIC})
 LIST(APPEND Dodo_LIBRARIES ${_DODO_LINK_LIBRARIES_PUBLIC})
+
+LIST(REMOVE_DUPLICATES Dodo_INCLUDE_DIRS)
+LIST(REMOVE_DUPLICATES Dodo_LIBRARIES)
+LIST(REMOVE_DUPLICATES Dodo_COMPILE_OPTIONS)
+LIST(REVERSE Dodo_INCLUDE_DIRS)
 
 #-------------------------------------------------------------------------------
 # Print the return values.
