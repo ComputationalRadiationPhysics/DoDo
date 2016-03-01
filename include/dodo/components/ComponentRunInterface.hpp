@@ -35,12 +35,12 @@ namespace components
 
 
         template<typename Chunk>
-        void putInto(ComponentRunInterface::PortKey&& k, const Chunk&& c)
+        void putInto(ComponentRunInterface::PortKey&& , const Chunk&& )
         {
 //            outBuffers.at(k)->put(std::forward<const Chunk>(c));
         }
 
-        auto takeFrom(ComponentRunInterface::PortKey&& k)
+        auto takeFrom(ComponentRunInterface::PortKey&& )
         {
 //            return inPorts.at(k)->get();
         }

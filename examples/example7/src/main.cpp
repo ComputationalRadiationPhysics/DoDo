@@ -10,12 +10,34 @@ int main()
     using namespace dodo::components;
     MetadataNetwork meta;
 
+    // Create Components
     auto source = meta.addComponent<TestSourceMeta>();
     auto processing = meta.addComponent<TestProcessingMeta>();
     auto sink = meta.addComponent<TestSinkMeta>();
 
+    // Build dependency network
     meta.addDependency(source["out"], processing["in"]);
     meta.addDependency(processing["out"], sink["in"]);
 
+    // Do the mapping based on Metadata+Hardware-graph alone.
+    // Do not look at the actual implementation of the components.
+    // They might be templates that are not instantiated before the
+    // mapping is done!
+
+    // Find out where you are with respect to HardwareGraph
+
+    // Get the correct metadata-nodes from the mapping
+
+    // Do the graybat-magic necessary to get N edges (only a single
+    // cage-type for now...)
+
+    // Find out what actual components are necessary to fit HW-Graph
+    // based on found metadata-nodes
+
+    // Instantiate all the right components as threads, collect them somewhere
+
+    // ???
+
+    // Profit!
     return 0;
 }

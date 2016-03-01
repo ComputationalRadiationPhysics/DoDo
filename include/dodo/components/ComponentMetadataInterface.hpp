@@ -5,6 +5,8 @@
 #include <map>
 #include <set>
 #include <exception>
+
+#include "types.hpp"
 #include "InPort.hpp"
 #include "OutPort.hpp"
 #include "RingBuffer.hpp"
@@ -17,7 +19,7 @@ namespace components
     class ComponentMetadataInterface
     {
     public:
-        using PortKey = std::string;
+        using PortKey = types::PortKey;
     private:
         // Invariant: Input Ports and output ports may not have overlapping namespaces!
         std::set<PortKey> outPorts;
