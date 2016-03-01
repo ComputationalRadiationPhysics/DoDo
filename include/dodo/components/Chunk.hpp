@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdlib>
+
 namespace dodo
 {
 namespace components

@@ -10,7 +10,7 @@ namespace dodo
 namespace components
 {
 
-class TestSource : public Component
+class TestSource : public ComponentRunInterface
 {
     std::thread sourceThread;
 public:

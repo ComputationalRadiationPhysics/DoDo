@@ -11,7 +11,7 @@
 int main( )
 {
     using namespace dodo::components;
-    Network net;
+    MetadataNetwork net;
 
     auto source = net.addComponent<TestSource>();
     auto processing = net.addComponent<TestProcessing>();

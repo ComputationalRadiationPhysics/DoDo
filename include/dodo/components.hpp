@@ -27,11 +27,13 @@
 #include <dodo/components/Chunk.hpp>
 #include <dodo/components/ComponentFactory.hpp>
 #include <dodo/components/ComponentHandle.hpp>
-#include <dodo/components/Component.hpp>
+#include <dodo/components/ComponentMetadataInterface.hpp>
+#include <dodo/components/ComponentRunInterface.hpp>
 #include <dodo/components/Connection.hpp>
 #include <dodo/components/DependencyBGL.hpp>
 #include <dodo/components/dependency.hpp>
 #include <dodo/components/InPort.hpp>
-#include <dodo/components/Network.hpp>
+#include <dodo/components/MetadataNetwork.hpp>
 #include <dodo/components/OutPort.hpp>
 #include <dodo/components/Port.hpp>
+#include <dodo/components/RingBuffer.hpp>

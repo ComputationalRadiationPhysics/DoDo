@@ -3,19 +3,19 @@
 
 #include <vector>
 #include "Connection.hpp"
-#include "Component.hpp"
+#include "ComponentMetadataInterface.hpp"
 
 
 namespace dodo
 {
 namespace components
 {
-    class Component;
+    class ComponentMetadataInterface;
 
     class Port
     {
     public:
-        std::weak_ptr<Component> component;
+        std::weak_ptr<ComponentMetadataInterface> component;
     protected:
         //currently unused
         std::vector<Connection> connections;

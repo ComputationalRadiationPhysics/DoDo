@@ -2,22 +2,23 @@
 
 
 #include "../graph/SimpleBGL.hpp"
-#include "Component.hpp"
+#include "ComponentMetadataInterface.hpp"
 
 namespace dodo
 {
 namespace components
 {
 
+
 struct DependencyEdge
 {
-    Component::PortKey from;
-    Component::PortKey to;
+    ComponentMetadataInterface::PortKey from;
+    ComponentMetadataInterface::PortKey to;
 };
 
 class DependencyBGL :
     public graph::SimpleBGL<
-        boost::no_property,
+        std::string,
         DependencyEdge,
         boost::vecS,
         boost::listS
