@@ -20,6 +20,12 @@ namespace dodo
 namespace graph
 {
 
+namespace detail
+{
+    class SimpleBGLBase
+    {};
+}
+
 
 template<
     typename T_VertexProperty = boost::no_property,
@@ -28,7 +34,7 @@ template<
     typename T_VertexList = boost::vecS,
     typename T_Directed = boost::directedS
 >
-class SimpleBGL
+class SimpleBGL : detail::SimpleBGLBase
 {
 
 public:
@@ -69,7 +75,7 @@ public:
      * @brief Returns all vertices of the graph
      *
      */
-    std::pair<AllVertexIter, AllVertexIter> getVertices()
+    std::pair<AllVertexIter, AllVertexIter> getVertices() const
     {
         return boost::vertices((*graph));
     }
@@ -228,6 +234,72 @@ public:
 
 
 };
+
+
+/**
+ * Generic Printer for SimpleBGL-Based Graphs
+ *
+ * Does only print the structural graph without any properties
+ *
+ * @param os    an output stream to write to
+ * @param graph
+ *
+ */
+template<
+    typename T_Graph,
+    typename T_SFINAE = typename std::enable_if<
+    std::is_base_of<
+        detail::SimpleBGLBase, T_Graph
+        >::value
+    >::type
+>
+std::ostream& operator<<(std::ostream& os, const T_Graph& graph)
+{
+    using IndexMap = std::map<typename T_Graph::VertexID , std::size_t>;
+    IndexMap im;
+    boost::associative_property_map<IndexMap> propMapIndex(im);
+    auto allV = graph.getVertices();
+    int index=0;
+
+    // ensure monotone values for the node-IDs (necessary when using listS)
+    for(auto i=allV.first ; i!=allV.second ; ++i)
+    {
+        propMapIndex[*i] = index++;
+    }
+
+    boost::dynamic_properties dp;
+    boost::write_graphml(os, *(graph.graph), propMapIndex, dp);
+    return os;
+}
+
+
+template<
+    typename T_Graph,
+    typename T_SFINAE = typename std::enable_if<
+        std::is_base_of<
+            detail::SimpleBGLBase, T_Graph
+        >::value
+    >::type
+>
+std::ostream& operator<<(std::ostream& os, const std::weak_ptr<T_Graph> graph)
+{
+    return os << *(graph.lock());
+}
+
+
+template<
+    typename T_Graph,
+    typename T_SFINAE = typename std::enable_if<
+        std::is_base_of<
+            detail::SimpleBGLBase, T_Graph
+        >::value
+    >::type
+>
+std::ostream& operator<<(std::ostream& os, const std::shared_ptr<T_Graph> graph)
+{
+    return os << *graph;
+}
+
 
 }
 }

@@ -31,6 +31,7 @@ class InterconnectGraph :
         T_EdgeProperties
     >
 {
+
 public:
     using TreeID = utility::TreeID;
     using EdgeProperties = T_EdgeProperties;
@@ -328,28 +329,32 @@ public:
     // }
 
 };
-template<typename T, typename T_Property>
-struct VertexPrinter
+
+
+//template<typename T, typename T_Property>
+//struct VertexPrinter
+//{
+//    using Graph = InterconnectGraph<T>;
+//    std::shared_ptr<Graph> g;
+//    using Map = std::map<typename Graph::VertexID, decltype(((T_Property*)nullptr)->toString())>;
+//    Map m;
+//    boost::associative_property_map<Map> propMap;
+//
+//    VertexPrinter(std::shared_ptr<Graph> g) :
+//        g(g),
+//        propMap(m)
+//    {
+//        auto allE = g->getVertices();
+//        for(auto i=allE.first ; i!=allE.second ; ++i)
+//        {
+//            m[*i] = g->template getProperty<T_Property>(*i).toString();
+//        }
+//
+//    }
+//};
+
+namespace detail
 {
-    using Graph = InterconnectGraph<T>;
-    std::shared_ptr<Graph> g;
-    using Map = std::map<typename Graph::VertexID, decltype(((T_Property*)nullptr)->toString())>;
-    Map m;
-    boost::associative_property_map<Map> propMap;
-
-    VertexPrinter(std::shared_ptr<Graph> g) :
-        g(g),
-        propMap(m)
-    {
-        auto allE = g->getVertices();
-        for(auto i=allE.first ; i!=allE.second ; ++i)
-        {
-            m[*i] = g->template getProperty<T_Property>(*i).toString();
-        }
-
-    }
-};
-
 
 template<typename T_Property, typename T, typename U, typename X>
 auto
@@ -360,7 +365,7 @@ genericPrinter(std::shared_ptr<InterconnectGraph<T, U>> g, X allEoV)
     //using Map = std::map<Key, decltype(((T_Property*)nullptr)->toString())>;
     using Map = std::map<Key, std::string>;
     Map m;
-    for(auto i=allEoV.first ; i!=allEoV.second ; ++i)
+    for (auto i = allEoV.first; i != allEoV.second; ++i)
     {
         m[*i] = g->template getProperty<T_Property>(*i).toString();
     }
@@ -369,9 +374,9 @@ genericPrinter(std::shared_ptr<InterconnectGraph<T, U>> g, X allEoV)
 
 
 template<typename T>
-void addToDynamicProperties(boost::dynamic_properties& dp, T& maps)
+void addToDynamicProperties(boost::dynamic_properties &dp, T &maps)
 {
-    for(unsigned i{0} ; i<maps.size() ; ++i)
+    for (unsigned i{0}; i < maps.size(); ++i)
     {
         dp.property(
             maps[i].first,
@@ -389,7 +394,7 @@ getMaps(std::shared_ptr<InterconnectGraph<T, U>> g, T_Labels labels, X vertexOrE
     using namespace std;
     using Key = typename decay<decltype(*X::first)>::type;
     vector<pair<string, map<Key, string>>> maps(tuple_size<T_Labels>::value);
-    int index=0;
+    int index = 0;
     hana::for_each(
         hana::to_tuple(labels),
         [&index, g, &maps, vertexOrEdgeIts](auto label)
@@ -402,6 +407,7 @@ getMaps(std::shared_ptr<InterconnectGraph<T, U>> g, T_Labels labels, X vertexOrE
     return maps;
 }
 
+} /* namespace detail */
 
 template<typename T, typename U, typename T_VertexLabelTuple, typename T_EdgeLabelTuple>
 void writeGraph(
@@ -426,11 +432,11 @@ void writeGraph(
         propmapIndex[*i] = index++;
     }
 
-    auto edgeMaps = getMaps(g, edgeLabels, g->getEdges());
-    auto vertexMaps = getMaps(g, vertexLabels, g->getVertices());
+    auto edgeMaps = detail::getMaps(g, edgeLabels, g->getEdges());
+    auto vertexMaps = detail::getMaps(g, vertexLabels, g->getVertices());
 
-    addToDynamicProperties(dp, edgeMaps);
-    addToDynamicProperties(dp, vertexMaps);
+    detail::addToDynamicProperties(dp, edgeMaps);
+    detail::addToDynamicProperties(dp, vertexMaps);
 
     boost::write_graphml(stream, *(g->graph), propmapIndex, dp, false);
 }

@@ -19,6 +19,10 @@ int main()
     meta.addDependency(source["out"], processing["in"]);
     meta.addDependency(processing["out"], sink["in"]);
 
+    auto dependencyGraph = meta.extractDependencyGraph();
+
+    std::cout << dependencyGraph << std::endl;
+
     // Do the mapping based on Metadata+Hardware-graph alone.
     // Do not look at the actual implementation of the components.
     // They might be templates that are not instantiated before the

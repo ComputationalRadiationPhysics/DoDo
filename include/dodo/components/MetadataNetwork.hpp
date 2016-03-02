@@ -34,6 +34,11 @@ public:
         return impl->addDependency(portA, portB);
     }
 
+    std::weak_ptr<DependencyBGL> extractDependencyGraph()
+    {
+        return impl->getDependencies();
+    }
+
 };
 
 }

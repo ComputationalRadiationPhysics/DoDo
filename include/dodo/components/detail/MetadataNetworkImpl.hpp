@@ -64,6 +64,13 @@ public:
         > portB
     );
 
+    std::weak_ptr<DependencyBGL> getDependencies()
+    {
+        return std::weak_ptr<DependencyBGL>(dependencies);
+    }
+
+
+
 };
 
 
@@ -123,7 +130,7 @@ template<class T_Component> auto MetadataNetworkImpl::addComponent()
     std::shared_ptr<ComponentMetadataInterface> comp = std::make_shared<T_Component>();
     std::string myKey = std::to_string( reinterpret_cast<size_t>(comp.get()));
     components[myKey] = comp;
-    DependencyBGL::VertexID depVertex = dependencies->addVertex();
+    DependencyBGL::VertexID depVertex = dependencies->addVertex({myKey});
     dependencyMap[myKey] = depVertex;
     return ComponentHandle( shared_from_this(), myKey );
 }

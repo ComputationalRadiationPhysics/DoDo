@@ -15,7 +15,7 @@ file(GLOB_RECURSE _SOURCES_PRE "*")
 foreach(P ${_SOURCES_PRE})
     # Remove dot-directories and the build directory
     if(NOT ${P} MATCHES  "${CMAKE_CURRENT_LIST_DIR}/([.].*/.*|build/.*)")
-        set(_SOURCES ${_SOURCES} ${P} include/dodo/components/types.hpp)
+        set(_SOURCES ${_SOURCES} ${P})
     endif()
 endforeach()
 ADD_LIBRARY(CLION_DUMMY_TARGET EXCLUDE_FROM_ALL ${_SOURCES})
