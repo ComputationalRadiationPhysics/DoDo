@@ -4,7 +4,7 @@
 
 
 class TestSink :
-    public dodo::components::ComponentRunInterface
+    public dodo::components::Interface
 {
 
     TestSourceMeta metadata;

@@ -8,7 +8,7 @@ namespace components
 {
 
 class TestProcessing :
-    public ComponentRunInterface
+    public Interface
 {
 public:
 

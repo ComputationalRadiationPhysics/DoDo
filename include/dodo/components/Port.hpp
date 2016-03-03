@@ -3,16 +3,13 @@
 
 #include <vector>
 #include "Connection.hpp"
-#include "dodo/components/meta/Interface.hpp"
+#include "meta/Interface.hpp"
 
 
 namespace dodo
 {
 namespace components
 {
-namespace meta{
-    class Interface;
-}
 
     class Port
     {

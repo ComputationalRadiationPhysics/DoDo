@@ -7,9 +7,6 @@
 #include <exception>
 
 #include "dodo/components/types.hpp"
-#include "dodo/components/InPort.hpp"
-#include "dodo/components/OutPort.hpp"
-#include "dodo/utility/RingBuffer.hpp"
 
 
 namespace dodo

@@ -4,7 +4,7 @@
 
 
 class TestProcessing :
-    public dodo::components::ComponentRunInterface
+    public dodo::components::Interface
 {
     TestSourceMeta metadata;
 public:

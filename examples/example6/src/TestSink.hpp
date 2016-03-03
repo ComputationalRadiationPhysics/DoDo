@@ -7,7 +7,7 @@ namespace dodo
 namespace components
 {
 
-class TestSink : public ComponentRunInterface
+class TestSink : public Interface
 {
 public:
 

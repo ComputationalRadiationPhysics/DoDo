@@ -25,7 +25,7 @@
 #pragma once
 
 #include <dodo/components/Chunk.hpp>
-#include <dodo/components/ComponentRunInterface.hpp>
+#include <dodo/components/run/Interface.hpp>
 #include <dodo/components/Connection.hpp>
 #include <dodo/components/dependency.hpp>
 #include <dodo/components/InPort.hpp>
