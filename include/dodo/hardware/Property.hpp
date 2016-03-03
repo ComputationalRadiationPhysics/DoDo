@@ -6,17 +6,17 @@
 #include <boost/hana.hpp>
 
 #include <dodo/graph/AttributeMapStore.hpp>
-#include <dodo/graph/TagInfo.hpp>
+#include <dodo/hardware/TagInfo.hpp>
 
 namespace dodo
 {
-namespace graph
+namespace hardware
 {
 
 template<typename... AttributeTypes>
 class Property
 {
-    using StoreType = AttributeMapStore<AttributeTypes...>;
+    using StoreType = graph::AttributeMapStore<AttributeTypes...>;
     using Handle = typename StoreType::Handle;
     std::weak_ptr<StoreType> attributeMapStore;
     std::vector<Handle> handles;
@@ -54,13 +54,13 @@ public:
     template<typename T>
     T getEntry()
     {
-        auto mapID = getMapID<T>(attributeMapStore);
+        auto mapID = graph::getMapID<T>(attributeMapStore);
         return boost::get<T>(attributeMapStore.lock()->getEntry(handles[mapID]));
     }
     template<typename T>
     bool hasEntry()
     {
-        auto mapID = getMapID<T>(attributeMapStore);
+        auto mapID = graph::getMapID<T>(attributeMapStore);
         return nullptr != (attributeMapStore.lock()->getEntry(handles[mapID]));
     }
 
@@ -100,7 +100,7 @@ public:
 
                 if( !attributeMapStore.expired() )
                 {
-                    if(handles[getMapID<T>(attributeMapStore)] != nullptr)
+                    if(handles[graph::getMapID<T>(attributeMapStore)] != nullptr)
                     {
                         T entry = this->getEntry<T>();
                         destination.setEntry(entry);

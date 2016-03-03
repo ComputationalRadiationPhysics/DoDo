@@ -4,8 +4,8 @@
 
 int main( )
 {
-    using Speed = dodo::physical::attributes::Speed;
-    using Energy = dodo::physical::attributes::EnergyLevel;
+    using Speed = dodo::hardware::attributes::Speed;
+    using Energy = dodo::hardware::attributes::EnergyLevel;
     using SEGraph = dodo::graph::AttributeGraph< Speed, Energy >;
     SEGraph graph;
 

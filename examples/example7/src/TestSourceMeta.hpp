@@ -4,7 +4,7 @@
 
 
 class TestSourceMeta :
-    public dodo::components::ComponentMetadataInterface
+    public dodo::components::meta::Interface
 {
 public:
     TestSourceMeta()

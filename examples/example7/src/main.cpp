@@ -8,7 +8,7 @@
 int main()
 {
     using namespace dodo::components;
-    MetadataNetwork meta;
+    meta::Network meta;
 
     // Create Components
     auto source = meta.addComponent<TestSourceMeta>();

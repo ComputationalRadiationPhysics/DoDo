@@ -2,12 +2,12 @@
 
 #include "HardwareGraphVertex.hpp"
 #include "InterconnectGraph.hpp"
-#include "../utility/tree_id.hpp"
-#include "../utility/convert_tuple.hpp"
+#include "dodo/utility/tree_id.hpp"
+#include "dodo/utility/convert_tuple.hpp"
 
 namespace dodo
 {
-namespace graph
+namespace hardware
 {
 
 template<typename T_Vertex>

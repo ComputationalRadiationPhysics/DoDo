@@ -24,4 +24,4 @@
 
 #pragma once
 
-#include <dodo/physical/attributes.hpp>
+#include <dodo/components/meta/detail/NetworkImpl.hpp>

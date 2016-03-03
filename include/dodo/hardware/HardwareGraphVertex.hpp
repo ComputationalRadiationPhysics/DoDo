@@ -1,17 +1,19 @@
 #pragma once
 
+#include <memory>
+
 #include <boost/hana/ext/std/tuple.hpp>
 
 #include <dout/dout.hpp>
 
-#include "../utility/tree_id.hpp"
-#include "../physical/attributes.hpp"
+#include "dodo/utility/tree_id.hpp"
+#include "attributes.hpp"
 #include "InterconnectGraph.hpp"
 
 
 namespace dodo
 {
-namespace graph
+namespace hardware
 {
 
 template<

@@ -3,7 +3,7 @@
 #include <dodo.hpp>
 
 class TestProcessingMeta :
-    public dodo::components::ComponentMetadataInterface
+    public dodo::components::meta::Interface
 {
 public:
     TestProcessingMeta()

@@ -4,7 +4,7 @@
 #include <dodo.hpp>
 
 class TestSinkMeta :
-    public dodo::components::ComponentMetadataInterface
+    public dodo::components::meta::Interface
 {
 public:
     TestSinkMeta()

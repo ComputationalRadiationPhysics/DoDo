@@ -2,7 +2,7 @@
 
 namespace dodo
 {
-namespace graph
+namespace hardware
 {
 
 enum class NodeType

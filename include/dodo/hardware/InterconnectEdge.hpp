@@ -5,7 +5,7 @@
 
 namespace dodo
 {
-namespace graph
+namespace hardware
 {
 
 template<unsigned T_directions, typename T_Graph>

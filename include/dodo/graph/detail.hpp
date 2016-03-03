@@ -24,12 +24,4 @@
 
 #pragma once
 
-#include <dodo/components/Chunk.hpp>
-#include <dodo/components/ComponentRunInterface.hpp>
-#include <dodo/components/Connection.hpp>
-#include <dodo/components/dependency.hpp>
-#include <dodo/components/InPort.hpp>
-#include <dodo/components/meta.hpp>
-#include <dodo/components/OutPort.hpp>
-#include <dodo/components/Port.hpp>
-#include <dodo/components/types.hpp>
+#include <dodo/graph/detail/SimpleBGLBase.hpp>

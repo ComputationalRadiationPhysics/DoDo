@@ -18,7 +18,7 @@ int main( )
     auto combinedGraph = g.extractData(
         [](auto& i)
         {
-            using namespace dodo::physical::attributes;
+            using namespace dodo::hardware::attributes;
             bool keep = false;
             // keep |= i.template getProperty<Tag>().value == Tag({Tag::Tags::Switch}).value;
             keep |= i.template getProperty<Tag>().value == Tag({Tag::Tags::Compute}).value;
@@ -30,16 +30,16 @@ int main( )
 
 
     constexpr auto edgeLabels = std::make_tuple(
-        std::make_tuple("Bandwidth", dodo::physical::attributes::Bandwidth())
+        std::make_tuple("Bandwidth", dodo::hardware::attributes::Bandwidth())
     );
     auto vertexLabels = std::make_tuple(
-        std::make_tuple("Tag", dodo::physical::attributes::Tag()),
-        std::make_tuple("Name", dodo::physical::attributes::Name()),
-        std::make_tuple("Clock Frequency", dodo::physical::attributes::Speed())
+        std::make_tuple("Tag", dodo::hardware::attributes::Tag()),
+        std::make_tuple("Name", dodo::hardware::attributes::Name()),
+        std::make_tuple("Clock Frequency", dodo::hardware::attributes::Speed())
     );
 
     std::ofstream graphFile ("graph.graphml");
-    dodo::graph::writeGraph(
+    dodo::hardware::writeGraph(
         combinedGraph,
         vertexLabels,
         edgeLabels

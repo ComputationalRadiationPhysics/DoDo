@@ -11,22 +11,22 @@
 
 #include <dout/dout.hpp>
 
-#include "BGL.hpp"
+#include "dodo/graph/PairBGL.hpp"
 #include "InterconnectEdge.hpp"
-#include "../utility/tree_id.hpp"
-#include "../utility/convert_tuple.hpp"
+#include "dodo/utility/tree_id.hpp"
+#include "dodo/utility/convert_tuple.hpp"
 
 
 namespace dodo
 {
-namespace graph
+namespace hardware
 {
 
 namespace hana = boost::hana;
 
 template<typename T_EdgeProperties, typename T_VertexProperties = std::tuple<>>
 class InterconnectGraph :
-    public BGL<
+    public graph::PairBGL<
         T_VertexProperties,
         T_EdgeProperties
     >
@@ -36,7 +36,7 @@ public:
     using TreeID = utility::TreeID;
     using EdgeProperties = T_EdgeProperties;
     using VertexProperties = T_VertexProperties;
-    using Graph =  BGL<VertexProperties, EdgeProperties>;
+    using Graph =  graph::PairBGL<VertexProperties, EdgeProperties>;
     using VertexID = typename Graph::VertexID;
     using EdgeID = typename Graph::EdgeID;
     using StableVertexID = typename Graph::VertexPropertyBundle::first_type;
@@ -330,28 +330,6 @@ public:
 
 };
 
-
-//template<typename T, typename T_Property>
-//struct VertexPrinter
-//{
-//    using Graph = InterconnectGraph<T>;
-//    std::shared_ptr<Graph> g;
-//    using Map = std::map<typename Graph::VertexID, decltype(((T_Property*)nullptr)->toString())>;
-//    Map m;
-//    boost::associative_property_map<Map> propMap;
-//
-//    VertexPrinter(std::shared_ptr<Graph> g) :
-//        g(g),
-//        propMap(m)
-//    {
-//        auto allE = g->getVertices();
-//        for(auto i=allE.first ; i!=allE.second ; ++i)
-//        {
-//            m[*i] = g->template getProperty<T_Property>(*i).toString();
-//        }
-//
-//    }
-//};
 
 namespace detail
 {

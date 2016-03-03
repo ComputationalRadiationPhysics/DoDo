@@ -1,8 +1,8 @@
 #include <dodo.hpp>
 
-using Energy = dodo::physical::attributes::EnergyLevel;
-using Speed = dodo::physical::attributes::Speed;
-using Memorysize = dodo::physical::attributes::Memorysize;
+using Energy = dodo::hardware::attributes::EnergyLevel;
+using Speed = dodo::hardware::attributes::Speed;
+using Memorysize = dodo::hardware::attributes::Memorysize;
 
 struct LaserCore
     :

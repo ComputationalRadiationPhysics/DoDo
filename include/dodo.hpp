@@ -26,7 +26,7 @@
 
 #include <dodo/components.hpp>
 #include <dodo/graph.hpp>
-#include <dodo/physical.hpp>
+#include <dodo/hardware.hpp>
 #include <dodo/process.hpp>
 #include <dodo/utility.hpp>
 #include <dodo/version.hpp>

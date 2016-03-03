@@ -2,7 +2,7 @@
 
 namespace dodo
 {
-namespace physical
+namespace hardware
 {
 namespace attributes
 {

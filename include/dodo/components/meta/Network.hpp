@@ -4,43 +4,51 @@
 #include <string>
 #include <memory>
 
-#include "types.hpp"
-#include "detail/MetadataNetworkImpl.hpp"
+#include "../types.hpp"
+#include "dodo/components/meta/detail/NetworkImpl.hpp"
 
 
 namespace dodo
 {
 namespace components
 {
-
-class MetadataNetwork
+namespace meta
 {
-    std::shared_ptr<detail::MetadataNetworkImpl> impl;
-public:
-    MetadataNetwork() :
-        impl( std::make_shared<detail::MetadataNetworkImpl>() )
-    { }
 
-    template <typename T_Component>
+class Network
+{
+    std::shared_ptr<detail::NetworkImpl> impl;
+public:
+    Network() :
+        impl(std::make_shared<detail::NetworkImpl>())
+    {
+    }
+
+
+    template<typename T_Component>
     auto addComponent()
     {
         return impl->addComponent<T_Component>();
     }
 
+
     void addDependency(
         std::pair<types::ResourceID, types::PortKey> portA,
         std::pair<types::ResourceID, types::PortKey> portB
-    ){
+    )
+    {
         return impl->addDependency(portA, portB);
     }
 
-    std::weak_ptr<DependencyBGL> extractDependencyGraph()
+
+    std::weak_ptr<dependency::BGL> extractDependencyGraph()
     {
         return impl->getDependencies();
     }
 
 };
 
+}
 }
 }
 

@@ -5,10 +5,10 @@
 #include <map>
 #include <memory>
 #include <exception>
-#include "ComponentMetadataInterface.hpp"
+#include "dodo/components/meta/Interface.hpp"
 #include "InPort.hpp"
 #include "OutPort.hpp"
-#include "RingBuffer.hpp"
+#include "dodo/utility/RingBuffer.hpp"
 
 
 namespace dodo
@@ -18,11 +18,11 @@ namespace components
 
     class ComponentRunInterface
     {
-        using PortKey = ComponentMetadataInterface::PortKey;
+        using PortKey = meta::Interface::PortKey;
     private:
-        std::shared_ptr<ComponentMetadataInterface> metadata;
-        std::map<PortKey, std::shared_ptr<RingBuffer>> outBuffers;
-        std::map<PortKey, std::shared_ptr<RingBuffer>> inBuffers;
+        std::shared_ptr<meta::Interface> metadata;
+        std::map<PortKey, std::shared_ptr<utility::RingBuffer>> outBuffers;
+        std::map<PortKey, std::shared_ptr<utility::RingBuffer>> inBuffers;
 
         void enableBase()
         {
@@ -49,7 +49,7 @@ namespace components
     public:
         // Force initialization of metadata in derived class
         ComponentRunInterface() = delete;
-        ComponentRunInterface(std::shared_ptr<ComponentMetadataInterface> meta) :
+        ComponentRunInterface(std::shared_ptr<meta::Interface> meta) :
             metadata(meta)
         {}
 

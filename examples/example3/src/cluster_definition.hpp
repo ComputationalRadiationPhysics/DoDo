@@ -3,7 +3,8 @@
 #include <dodo.hpp>
 
 using namespace dodo::graph;
-namespace pattr = dodo::physical::attributes;
+using namespace dodo::hardware;
+namespace pattr = dodo::hardware::attributes;
 namespace utility = dodo::utility;
 
 using ConsistsOfProperties = std::tuple<pattr::Tag, pattr::EnergyLevel, pattr::Name, pattr::Memorysize, pattr::Speed>;

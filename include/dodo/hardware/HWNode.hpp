@@ -7,7 +7,7 @@
 
 namespace dodo
 {
-namespace graph
+namespace hardware
 {
 
 template<typename... AttributeTypes>

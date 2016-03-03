@@ -2,12 +2,12 @@
 
 #include <vector>
 
-#include <dodo/graph/NodeType.hpp>
+#include <dodo/hardware/NodeType.hpp>
 
 
 namespace dodo
 {
-namespace graph
+namespace hardware
 {
 
 class TagInfo
