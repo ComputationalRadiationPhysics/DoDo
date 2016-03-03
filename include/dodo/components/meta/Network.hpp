@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <memory>
+#include <utility>
 
 #include "../types.hpp"
 #include "dodo/components/meta/detail/NetworkImpl.hpp"
@@ -45,8 +46,13 @@ public:
     {
         return impl->getDependencies();
     }
+    void test();
 
 };
+
+
+
+
 
 }
 }

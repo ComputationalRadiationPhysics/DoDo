@@ -4,6 +4,15 @@
 #include "TestProcessingMeta.hpp"
 #include "TestSinkMeta.hpp"
 
+template <typename T>
+void printAndWriteToFile(T& graph)
+{
+    std::cout << graph << std::endl;
+    std::ofstream file;
+    file.open("/tmp/example7.graphml");
+    file << graph << std::endl;
+    file.close();
+}
 
 int main()
 {
@@ -20,8 +29,7 @@ int main()
     meta.addDependency(processing["out"], sink["in"]);
 
     auto dependencyGraph = meta.extractDependencyGraph();
-
-    std::cout << dependencyGraph << std::endl;
+    printAndWriteToFile(dependencyGraph);
 
     // Do the mapping based on Metadata+Hardware-graph alone.
     // Do not look at the actual implementation of the components.

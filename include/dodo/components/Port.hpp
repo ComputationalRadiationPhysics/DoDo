@@ -1,7 +1,8 @@
 #pragma once
 
-
 #include <vector>
+#include <memory>
+
 #include "Connection.hpp"
 #include "meta/Interface.hpp"
 
