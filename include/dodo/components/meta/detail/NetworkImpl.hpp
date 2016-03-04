@@ -1,12 +1,14 @@
 #pragma once
 
-#include <map>
-#include <string>
-#include <memory>
+//#include <map>
+//#include <string>
+//
+//#include "dodo/components/types.hpp"
+//#include "dodo/components/meta/Interface.hpp"
+//#include "dodo/components/dependency/BGL.hpp"
 
-#include "dodo/components/types.hpp"
-#include "dodo/components/meta/Interface.hpp"
-#include "dodo/components/dependency/BGL.hpp"
+
+#include <bits/shared_ptr.h>
 
 
 namespace dodo

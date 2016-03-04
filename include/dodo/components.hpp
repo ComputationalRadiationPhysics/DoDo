@@ -25,11 +25,11 @@
 #pragma once
 
 #include <dodo/components/Chunk.hpp>
-#include <dodo/components/run/Interface.hpp>
 #include <dodo/components/Connection.hpp>
 #include <dodo/components/dependency.hpp>
 #include <dodo/components/InPort.hpp>
 #include <dodo/components/meta.hpp>
 #include <dodo/components/OutPort.hpp>
 #include <dodo/components/Port.hpp>
+#include <dodo/components/run.hpp>
 #include <dodo/components/types.hpp>

@@ -46,7 +46,6 @@ public:
     {
         return impl->getDependencies();
     }
-    void test();
 
 };
 

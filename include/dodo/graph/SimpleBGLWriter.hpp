@@ -10,6 +10,45 @@ namespace graph
 {
 
 
+/** Generic printer for SimpleBGL-Based Graphs with custom Properties
+ *
+ * When no dynamic properties are given, writes only the structural information
+ * of the Graph.
+ * Custom dynamic properties can be submitted to improve the readability of the
+ * output.
+ *
+ *
+ *
+ *
+ */
+template<
+    typename T_Graph,
+    typename T_SFINAE = typename std::enable_if<
+        std::is_base_of<
+            detail::SimpleBGLBase, T_Graph
+        >::value
+    >::type
+>
+void simpleBGLWriter(
+    std::ostream& os,
+    const T_Graph& graph,
+    boost::dynamic_properties dp = boost::dynamic_properties()
+){
+    using IndexMap = std::map<typename T_Graph::VertexID , std::size_t>;
+    IndexMap im;
+    boost::associative_property_map<IndexMap> propMapIndex(im);
+    auto allV = graph.getVertices();
+    int index=0;
+
+    // ensure monotone values for the node-IDs (necessary when using listS)
+    for(auto i=allV.first ; i!=allV.second ; ++i)
+    {
+        propMapIndex[*i] = index++;
+    }
+
+    boost::write_graphml(os, *(graph.graph), propMapIndex, dp);
+}
+
 /**
  * Generic Printer for SimpleBGL-Based Graphs
  *
@@ -30,22 +69,10 @@ template<
 >
 std::ostream& operator<<(std::ostream& os, const T_Graph& graph)
 {
-    using IndexMap = std::map<typename T_Graph::VertexID , std::size_t>;
-    IndexMap im;
-    boost::associative_property_map<IndexMap> propMapIndex(im);
-    auto allV = graph.getVertices();
-    int index=0;
-
-    // ensure monotone values for the node-IDs (necessary when using listS)
-    for(auto i=allV.first ; i!=allV.second ; ++i)
-    {
-        propMapIndex[*i] = index++;
-    }
-
-    boost::dynamic_properties dp;
-    boost::write_graphml(os, *(graph.graph), propMapIndex, dp);
+    simpleBGLWriter(os, graph);
     return os;
 }
+
 
 
 

@@ -5,6 +5,8 @@
 #include <boost/hana/ext/std/tuple.hpp>
 
 #include <dout/dout.hpp>
+#include <utility>
+#include <tuple>
 
 #include "dodo/utility/tree_id.hpp"
 #include "attributes.hpp"
@@ -22,7 +24,7 @@ template<
 >
 class HardwareGraphVertex
 {
-    dout::Dout& dout { dout::Dout::getInstance() };
+    dout::Dout& dout;
     using TreeID = utility::TreeID;
 
 public:
@@ -44,6 +46,7 @@ public:
         TreeID i,
         std::shared_ptr<InterconnectGraph_t> a
     ) :
+        dout{ dout::Dout::getInstance() },
         id{i},
         interconnectGraph{a}
     {
