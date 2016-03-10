@@ -1,9 +1,6 @@
 #pragma once
 
-#include <boost/graph/graphml.hpp>
-
 #include "dodo/graph/SimpleBGL.hpp"
-#include "dodo/components/types.hpp"
 #include "Edge.hpp"
 #include "Vertex.hpp"
 

@@ -26,6 +26,7 @@ std::string prettyPrinter(components::types::ResourceID &id)
     oss << "ResourceID: " << id;
     return oss.str();
 };
+
 template<>
 std::string prettyPrinter(components::types::PortKey &id)
 {

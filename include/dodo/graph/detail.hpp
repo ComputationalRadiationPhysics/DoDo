@@ -24,5 +24,6 @@
 
 #pragma once
 
+#include <dodo/graph/detail/MemberIterator.hpp>
 #include <dodo/graph/detail/PrettyPrinter.hpp>
 #include <dodo/graph/detail/SimpleBGLBase.hpp>

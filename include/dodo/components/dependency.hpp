@@ -25,7 +25,6 @@
 #pragma once
 
 #include <dodo/components/dependency/BGL.hpp>
-#include <dodo/components/dependency/BGLWriter.hpp>
 #include <dodo/components/dependency/Edge.hpp>
 #include <dodo/components/dependency/ResourceGraph.hpp>
 #include <dodo/components/dependency/Vertex.hpp>

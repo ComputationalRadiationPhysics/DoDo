@@ -1,7 +1,11 @@
 #pragma once
 
 #include <map>
+
+#include <boost/graph/graphml.hpp>
+
 #include "detail/SimpleBGLBase.hpp"
+#include "detail/MemberIterator.hpp"
 
 
 namespace dodo
@@ -49,6 +53,43 @@ void simpleBGLWriter(
     boost::write_graphml(os, *(graph.graph), propMapIndex, dp);
 }
 
+
+
+
+/**
+ * Printer for BGL graph
+ *
+ * Prints the whole BGL graph including the necessary properties
+ * for vertices and edges. The function writes to an output stream the
+ * graph in the .graphml format.
+ *
+ * @param os    an output stream to write to
+ * @param graph the BGL graph
+ */
+template<
+    typename T_Graph,
+    typename T_SFINAE = typename std::enable_if<
+        std::is_base_of<
+            detail::SimpleBGLBase, T_Graph
+        >::value
+    >::type
+>
+void defaultBGLWriter(
+    std::ostream& os,
+    const T_Graph& graph
+){
+    auto &g = *(graph.graph);
+    boost::dynamic_properties dp;
+
+    // extract all interesting properties
+    detail::member_iterator<boost::vertex_bundle_t>(dp, g);
+    detail::member_iterator<boost::edge_bundle_t>(dp, g);
+
+    graph::simpleBGLWriter(os, graph, dp);
+}
+
+
+
 /**
  * Generic Printer for SimpleBGL-Based Graphs
  *
@@ -69,7 +110,7 @@ template<
 >
 std::ostream& operator<<(std::ostream& os, const T_Graph& graph)
 {
-    simpleBGLWriter(os, graph);
+    defaultBGLWriter(os, graph);
     return os;
 }
 

@@ -27,21 +27,21 @@ private:
 
 protected:
 
-    void defineOutPort(Interface::PortKey &&k)
+    void defineOutPort(Interface::PortKey::value_type &&k)
     {
-        outPorts.insert(k);
+        outPorts.insert(PortKey{k});
     }
 
 
-    void defineInPort(Interface::PortKey &&k)
+    void defineInPort(Interface::PortKey::value_type &&k)
     {
-        inPorts[k] = 1;
+        inPorts[PortKey{k}] = 1;
     }
 
 
-    void defineInPort(Interface::PortKey &&k, const size_t chunksBeforeReady)
+    void defineInPort(Interface::PortKey::value_type &&k, const size_t chunksBeforeReady)
     {
-        inPorts[k] = chunksBeforeReady;
+        inPorts[PortKey{k}] = chunksBeforeReady;
     }
 
 
@@ -50,7 +50,7 @@ public:
     bool hasPort(std::string portName)
     {
         auto hasKey = [&portName](auto &m)
-        { return m.find(PortKey{portName}) != m.end(); };
+        { return m.find({portName}) != m.end(); };
 
         return hasKey(inPorts) || hasKey(outPorts);
     }
