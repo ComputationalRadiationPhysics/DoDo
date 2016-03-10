@@ -8,8 +8,8 @@ class TestProcessingMeta :
 public:
     TestProcessingMeta()
     {
-        defineInPort("in");
-        defineOutPort("out");
+        defineInPort({"in"});
+        defineOutPort({"out"});
     }
 
 };

@@ -106,7 +106,7 @@ public:
     }
 
 
-    auto  operator[](std::string portName) const;
+    auto  operator[](types::PortKey portName) const;
 
 };
 
@@ -135,15 +135,16 @@ void NetworkImpl::addDependency(
 template<class T_Component> auto NetworkImpl::addComponent()
 {
     std::shared_ptr<meta::Interface> comp = std::make_shared<T_Component>();
-    std::string myKey = std::to_string(reinterpret_cast<size_t>(comp.get()));
+    types::ResourceID myKey {std::to_string(reinterpret_cast<size_t>(comp.get()))};
     components[myKey] = comp;
+    //dependency::Vertex v{myKey};
     dependency::BGL::VertexID depVertex = dependencies->addVertex({myKey});
     dependencyMap[myKey] = depVertex;
     return ComponentHandle(shared_from_this(), myKey);
 }
 
 
-auto  NetworkImpl::ComponentHandle::operator[](std::string portName) const
+auto  NetworkImpl::ComponentHandle::operator[](types::PortKey portName) const
 {
     auto component = net.lock()->getComponent(componentID);
     if (!component.lock()->hasPort(portName))
@@ -152,7 +153,7 @@ auto  NetworkImpl::ComponentHandle::operator[](std::string portName) const
             std::string("Component ")
             + typeid(*component.lock()).name()
             + " does not have a Port named '"
-            + portName
+            + portName.value
             + "'."
         );
     }

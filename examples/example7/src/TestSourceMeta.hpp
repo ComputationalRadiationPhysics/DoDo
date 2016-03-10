@@ -9,7 +9,7 @@ class TestSourceMeta :
 public:
     TestSourceMeta()
     {
-        defineOutPort("out");
+        defineOutPort({"out"});
     }
 
 };

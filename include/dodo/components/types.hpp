@@ -10,8 +10,37 @@ namespace components
 namespace types
 {
 
-using ResourceID = std::string;
-using PortKey = std::string;
+template<typename T>
+struct Base
+{
+    using type = T;
+    type value;
+
+    Base() = default;
+    Base(T t) : value(t){};
+    operator type() const { return value; };
+    operator type*() { return &value; };
+    virtual bool operator<(const Base& other) const
+    {
+        return value<other.value;
+    }
+    virtual ~Base() = default;
+
+};
+
+struct ResourceID : public Base<std::string>
+{
+    ResourceID() = default;
+    ResourceID(std::string s) : Base(s){};
+};
+
+struct PortKey : public Base<std::string>
+{
+    PortKey() = default;
+    PortKey(std::string s) : Base(s){};
+};
+//using ResourceID = std::string;
+//using PortKey = std::string;
 
 }
 }

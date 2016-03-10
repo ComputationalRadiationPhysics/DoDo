@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <sstream>
+
 namespace dodo
 {
 namespace graph
@@ -8,22 +11,28 @@ namespace detail
 {
 
 template<typename T>
-struct PrettyPrinter
+std::string prettyPrinter(T &t)
 {
+    std::ostringstream oss;
+    oss << t;
+    return oss.str();
 };
 
 
 template<>
-struct PrettyPrinter<components::types::ResourceID>
+std::string prettyPrinter(components::types::ResourceID &id)
 {
-    static std::string f(const components::types::ResourceID& id)
-    {
-        std::ostringstream oss;
-        oss << "prettyID:" << id;
-        return oss.str();
-    }
+    std::ostringstream oss;
+    oss << "ResourceID: " << id;
+    return oss.str();
 };
-
+template<>
+std::string prettyPrinter(components::types::PortKey &id)
+{
+    std::ostringstream oss;
+    oss << "Port: " << id.value;
+    return oss.str();
+};
 
 }
 }

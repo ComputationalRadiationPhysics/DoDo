@@ -50,7 +50,7 @@ public:
     bool hasPort(std::string portName)
     {
         auto hasKey = [&portName](auto &m)
-        { return m.find(portName) != m.end(); };
+        { return m.find(PortKey{portName}) != m.end(); };
 
         return hasKey(inPorts) || hasKey(outPorts);
     }

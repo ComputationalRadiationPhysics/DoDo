@@ -9,7 +9,7 @@ class TestSinkMeta :
 public:
     TestSinkMeta()
     {
-        defineInPort("in");
+        defineInPort({"in"});
     }
 
 };

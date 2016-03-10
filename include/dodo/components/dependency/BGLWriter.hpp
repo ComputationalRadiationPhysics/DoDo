@@ -1,7 +1,12 @@
 #pragma once
 
 
+#include <boost/fusion/include/at.hpp>
+#include <boost/fusion/include/for_each.hpp>
+#include <boost/mpl/range_c.hpp>
+
 #include <dodo.hpp>
+
 #include "BGL.hpp"
 #include "../../graph/SimpleBGLWriter.hpp"
 #include "../../graph/detail/PrettyPrinter.hpp"
@@ -14,6 +19,32 @@ namespace components
 {
 namespace dependency
 {
+
+template <typename T_Seq, typename T_Graph>
+void member_iterator(boost::dynamic_properties& dp, T_Graph& g)
+{
+    using namespace boost;
+    using Indices = mpl::range_c<unsigned, 0, fusion::result_of::size<T_Seq>::value>;
+    fusion::for_each(
+        Indices(),
+        [ & ](auto i)
+        {
+            using I = decltype(i);
+            dp.property(
+                fusion::extension::struct_member_name<T_Seq, i>::call(),
+                make_transform_value_property_map(
+                    &graph::detail::prettyPrinter<
+                        typename fusion::result_of::value_at<T_Seq, I>::type
+                    >,
+                    get(
+                        dodo::utility::pointer_to_member_N<T_Seq, i>::value,
+                        g
+                    )
+                )
+            );
+        }
+    );
+}
 
 
 
@@ -52,14 +83,18 @@ std::ostream &operator<<(std::ostream &os, const BGL &graph)
     auto &g = *(graph.graph);
     boost::dynamic_properties dp;
     // extract all interesting properties
-    dp.property("id",
-        boost::make_transform_value_property_map(
-            &graph::detail::PrettyPrinter<decltype(Vertex::id)>::f,
-            boost::get(&Vertex::id, g)
-        )
-    );
-    dp.property("from_Port", boost::get(&Edge::from, g));
-    dp.property("to_Port", boost::get(&Edge::to, g));
+
+    member_iterator<Vertex>(dp, g);
+    member_iterator<Edge>(dp, g);
+
+//    dp.property("id",
+//        boost::make_transform_value_property_map(
+//            &graph::detail::prettyPrinter<decltype(Vertex::id)>,
+//            boost::get(&Vertex::id, g)
+//        )
+//    );
+//    dp.property("from_Port", boost::get(&Edge::from, g));
+//    dp.property("to_Port", boost::get(&Edge::to, g));
 
 //    write_graphml(os, g, propMapIndex, dp);
     graph::simpleBGLWriter(os, graph, dp);
