@@ -4,8 +4,8 @@
 #include <boost/fusion/include/at.hpp>
 #include <boost/fusion/include/for_each.hpp>
 #include <boost/mpl/range_c.hpp>
-#include <boost/phoenix/bind.hpp>
 #include <boost/phoenix/fusion/at.hpp>
+#include <boost/phoenix/function.hpp>
 #include <boost/phoenix/core/argument.hpp>
 
 #include "PrettyPrinter.hpp"
@@ -44,18 +44,15 @@ member_iterator(
         Indices{},
         [&](auto i)
         {
-            using I = decltype(i);
-            using MemberType = typename fusion::result_of::value_at<MemberSeq, I>::type;
-            auto name = fusion::extension::struct_member_name<MemberSeq, i>::call();
-            auto valueActor = phoenix::at_c<i>( phoenix::arg_names::arg1 );
+            const auto name = fusion::extension::struct_member_name<MemberSeq, i>::call();
+            phoenix::function<PrettyPrinter> prettyPrinter;
 
             PropMap propMap = get( T_Tag{}, g );
             dp.property(
                 name,
                 make_transform_value_property_map(
-                    phoenix::bind(
-                        prettyPrinter<MemberType>,
-                        valueActor
+                    prettyPrinter(
+                        phoenix::at_c<i>( phoenix::arg_names::arg1 )
                     ),
                     propMap
                 )

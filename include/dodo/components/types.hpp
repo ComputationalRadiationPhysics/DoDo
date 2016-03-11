@@ -10,8 +10,6 @@ namespace components
 namespace types
 {
 
-//using ResourceID = std::string;
-//using PortKey = std::string;
 
 template<typename T>
 struct Base
@@ -23,9 +21,22 @@ struct Base
     Base(T t) : value(t){};
     operator value_type() const { return value; };
 //    operator value_type*() { return &value; };
-    virtual bool operator<(const Base& other) const
+    bool operator<(const Base& other) const
     {
         return value<other.value;
+    }
+
+    friend std::ostream& operator<<(std::ostream& stream, const Base& base)
+    {
+        stream << base.value;
+        return stream;
+    }
+
+    friend std::string toString(const Base& b)
+    {
+        std::ostringstream oss;
+        oss << b;
+        return oss.str();
     }
 
     virtual ~Base() = default;
@@ -37,33 +48,30 @@ struct Base
 struct ResourceID : public Base<std::string>
 {
     ResourceID() = default;
-    ResourceID(std::string s) : Base(s){};
+    ResourceID(Base::value_type s) : Base(s){};
+    friend std::string toString(const ResourceID& id)
+    {
+        std::ostringstream oss;
+        oss << "ResourceID: " << id;
+        return oss.str();
+    }
 };
 
 struct PortKey : public Base<std::string>
 {
     PortKey() = default;
-    PortKey(std::string s) : Base(s){};
+    PortKey(Base::value_type s) : Base(s){};
+
+    friend std::string toString(const PortKey &id) {
+        std::ostringstream oss;
+        oss << "Port: " << id;
+        return oss.str();
+    }
 };
 
-template <typename T>
-std::ostream& operator<<(std::ostream& stream, const Base<T>& base)
-{
-    stream << base.value;
-    return stream;
-}
 
 
 }
 }
 }
 
-//namespace boost {
-//
-//template<>
-//std::string lexical_cast(const dodo::components::types::ResourceID& arg) { return arg.value; }
-//
-//template<>
-//std::string lexical_cast(const dodo::components::types::PortKey& arg) { return arg.value; }
-//
-//}
