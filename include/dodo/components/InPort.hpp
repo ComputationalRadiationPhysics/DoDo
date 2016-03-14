@@ -11,11 +11,9 @@ namespace components
 
     class InPort : public Port
     {
-        const size_t chunksBeforeReady;
     public:
         //InPort() = default;
-        InPort(const size_t chunks = 1) :
-            chunksBeforeReady(chunks)
+        InPort()
         {}
 
         /**

@@ -26,4 +26,6 @@
 
 #include <dodo/components/meta/detail.hpp>
 #include <dodo/components/meta/Interface.hpp>
+#include <dodo/components/meta/InterfaceStatic.hpp>
 #include <dodo/components/meta/Network.hpp>
+#include <dodo/components/meta/traits.hpp>

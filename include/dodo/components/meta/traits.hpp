@@ -24,5 +24,5 @@
 
 #pragma once
 
-#include <dodo/components/meta/detail/InitRuntimeMap.hpp>
-#include <dodo/components/meta/detail/NetworkImpl.hpp>
+#include <dodo/components/meta/traits/InPortMap.hpp>
+#include <dodo/components/meta/traits/OutPortMap.hpp>

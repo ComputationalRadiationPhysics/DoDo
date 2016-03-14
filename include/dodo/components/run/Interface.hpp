@@ -6,6 +6,7 @@
 #include <memory>
 #include <exception>
 #include "dodo/components/meta/Interface.hpp"
+#include "dodo/components/meta/InterfaceStatic.hpp"
 #include "dodo/components/InPort.hpp"
 #include "dodo/components/OutPort.hpp"
 #include "dodo/utility/RingBuffer.hpp"

@@ -10,6 +10,7 @@
 
 #include <bits/shared_ptr.h>
 
+#include "../InterfaceStatic.hpp"
 
 namespace dodo
 {

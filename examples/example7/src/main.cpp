@@ -25,8 +25,8 @@ int main()
     auto sink = meta.addComponent<TestSinkMeta>();
 
     // Build dependency network
-    meta.addDependency(source[{"out"}], processing[{"in"}]);
-    meta.addDependency(processing[{"out"}], sink[{"in"}]);
+    meta.addDependency(source["out"], processing["in"]);
+    meta.addDependency(processing["out"], sink["in"]);
 
     auto dependencyGraph = meta.extractDependencyGraph();
     printAndWriteToFile(dependencyGraph);

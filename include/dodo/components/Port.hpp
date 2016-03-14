@@ -5,6 +5,7 @@
 
 #include "Connection.hpp"
 #include "meta/Interface.hpp"
+#include "meta/InterfaceStatic.hpp"
 
 
 namespace dodo
