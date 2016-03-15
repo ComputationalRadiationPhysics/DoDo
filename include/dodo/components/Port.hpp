@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include <vector>
 #include <memory>
 
@@ -10,17 +11,17 @@
 
 namespace dodo
 {
-namespace components
-{
-
-    class Port
+    namespace components
     {
-    public:
-        std::weak_ptr<meta::Interface> component;
-    protected:
-        //currently unused
-        std::vector<Connection> connections;
-    };
 
-}
+        class Port
+        {
+        public:
+            std::weak_ptr<meta::Interface> component;
+        protected:
+            //currently unused
+            std::vector<Connection> connections;
+        };
+
+    }
 }

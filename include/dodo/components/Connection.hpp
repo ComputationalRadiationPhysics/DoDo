@@ -3,33 +3,39 @@
 
 #include <memory>
 
+
 namespace dodo
 {
-namespace components
-{
-
-    class OutPort;
-    class InPort;
-
-    class Connection
+    namespace components
     {
-        std::weak_ptr<OutPort> from;
-        std::weak_ptr<InPort> to;
 
-    public:
-        Connection(){}
+        class OutPort;
 
-        Connection(
-            const std::weak_ptr<OutPort> &from,
-            const std::weak_ptr<InPort> &to
-        ) :
-            from(from),
-            to(to)
+
+        class InPort;
+
+
+        class Connection
         {
-        }
-    };
+            std::weak_ptr<OutPort> from;
+            std::weak_ptr<InPort> to;
 
-}
+        public:
+            Connection()
+            {}
+
+
+            Connection(
+                const std::weak_ptr<OutPort> &from,
+                const std::weak_ptr<InPort> &to
+            ) :
+                from(from),
+                to(to)
+            {
+            }
+        };
+
+    }
 }
 
 

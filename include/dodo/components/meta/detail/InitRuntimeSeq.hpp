@@ -21,21 +21,18 @@ namespace dodo
  * Helper function to convert a boost::fusion compile-time map
  * into a runtime-map.
  *
- * @tparam CompileTimeMap should have types similar to
+ * @tparam CompileTimeSeq should have types similar to
  *         boost::mpl::int_<T> as keys, so that the keys can
  *         be properly generated
  */
-                template<typename CompileTimeMap>
-                void initRuntimeMap(std::map<types::Base::value_type, int> &m)
+                template<typename CompileTimeSeq, typename T_Seq>
+                void initRuntimeSeq(T_Seq &s)
                 {
                     boost::fusion::for_each(
-                        CompileTimeMap{},
+                        CompileTimeSeq{},
                         [&](auto i)
                         {
-                            using Elem = decltype(i);
-                            using KeyType = typename Elem::first;
-                            using ValueType = typename Elem::second;
-                            m[boost::mpl::c_str<KeyType>::value] = ValueType().value;
+                            s.push_back(i);
                         }
                     );
                 }

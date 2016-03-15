@@ -1,13 +1,15 @@
 #pragma once
 
-namespace dodo{
-namespace utility
+namespace dodo
 {
+    namespace utility
+    {
 
-class RingBuffer
-{};
+        class RingBuffer
+        {
+        };
 
-}
+    }
 }
 
 

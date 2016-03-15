@@ -25,4 +25,5 @@
 #pragma once
 
 #include <dodo/components/meta/detail/InitRuntimeMap.hpp>
+#include <dodo/components/meta/detail/InitRuntimeSeq.hpp>
 #include <dodo/components/meta/detail/NetworkImpl.hpp>

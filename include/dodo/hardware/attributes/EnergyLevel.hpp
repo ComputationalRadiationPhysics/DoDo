@@ -2,23 +2,24 @@
 
 namespace dodo
 {
-namespace hardware
-{
-namespace attributes
-{
-
-struct EnergyLevel
-{
-    int value;
-
-    EnergyLevel
-    merge( const EnergyLevel& other )
+    namespace hardware
     {
-        return {value + other.value};
+        namespace attributes
+        {
+
+            struct EnergyLevel
+            {
+                int value;
+
+
+                EnergyLevel
+                merge(const EnergyLevel &other)
+                {
+                    return {value + other.value};
+                }
+            };
+
+
+        }
     }
-};
-
-
-}
-}
 }

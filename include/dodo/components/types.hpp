@@ -1,77 +1,29 @@
+/**
+ * Copyright 2015-2016 Carlchristian Eckert
+ *
+ * This file is part of Dodo.
+ *
+ * Dodo is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Dodo is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Dodo.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * This is an auto-generated file
+ */
+
 #pragma once
 
-#include <type_traits>
-#include <string>
-
-namespace dodo
-{
-namespace components
-{
-namespace types
-{
-
-
-template<typename T>
-struct Base
-{
-    using value_type = T;
-    value_type value;
-
-    Base() = default;
-    Base(T t) : value(t){};
-    operator value_type() const { return value; };
-//    operator value_type*() { return &value; };
-    bool operator<(const Base& other) const
-    {
-        return value<other.value;
-    }
-
-    friend std::ostream& operator<<(std::ostream& stream, const Base& base)
-    {
-        stream << base.value;
-        return stream;
-    }
-
-    friend std::string toString(const Base& b)
-    {
-        std::ostringstream oss;
-        oss << b;
-        return oss.str();
-    }
-
-    virtual ~Base() = default;
-
-
-};
-
-
-struct ResourceID : public Base<std::string>
-{
-    ResourceID() = default;
-    ResourceID(Base::value_type s) : Base(s){};
-    friend std::string toString(const ResourceID& id)
-    {
-        std::ostringstream oss;
-        oss << "ResourceID: " << id;
-        return oss.str();
-    }
-};
-
-struct PortKey : public Base<std::string>
-{
-    PortKey() = default;
-    PortKey(Base::value_type s) : Base(s){};
-
-    friend std::string toString(const PortKey &id) {
-        std::ostringstream oss;
-        oss << "Port: " << id;
-        return oss.str();
-    }
-};
-
-
-
-}
-}
-}
-
+#include <dodo/components/types/Base.hpp>
+#include <dodo/components/types/PortKey.hpp>
+#include <dodo/components/types/ResourceID.hpp>

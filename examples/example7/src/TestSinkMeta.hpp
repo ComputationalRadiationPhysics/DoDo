@@ -31,6 +31,14 @@ struct InPortMap<TestSinkMeta>
     >;
 };
 
+template<>
+struct Role<TestSinkMeta>
+{
+    using value = mpl::vector<
+        decltype(Roles::Filter)
+    >;
+};
+
 }}}}
 
 

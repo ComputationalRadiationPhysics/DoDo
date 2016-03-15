@@ -20,12 +20,14 @@ int main()
     meta::Network meta;
 
     // Create Components
-    auto source = meta.addComponent<TestSourceMeta>();
+    auto source1 = meta.addComponent<TestSourceMeta>();
+    auto source2 = meta.addComponent<TestSourceMeta>();
     auto processing = meta.addComponent<TestProcessingMeta>();
     auto sink = meta.addComponent<TestSinkMeta>();
 
     // Build dependency network
-    meta.addDependency(source["out"], processing["in"]);
+    meta.addDependency(source1["out"], processing["in1"]);
+    meta.addDependency(source2["out"], processing["in2"]);
     meta.addDependency(processing["out"], sink["in"]);
 
     auto dependencyGraph = meta.extractDependencyGraph();
@@ -48,8 +50,5 @@ int main()
 
     // Instantiate all the right components as threads, collect them somewhere
 
-    // ???
-
-    // Profit!
     return 0;
 }

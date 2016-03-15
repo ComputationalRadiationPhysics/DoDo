@@ -2,37 +2,42 @@
 
 namespace dodo
 {
-namespace hardware
-{
-
-    class HWPropertyInterface
+    namespace hardware
     {
-    public:
-        std::string name;
 
-        HWPropertyInterface() = delete;
-
-    protected:
-        HWPropertyInterface(std::string name) : name(name){};
-    public:
-
-        virtual std::string toString() = 0;
-    };
-
-
-    class PolyProperty : public HWPropertyInterface
-    {
-    public:
-        using HWPropertyInterface::name;
-
-        PolyProperty() :
-            HWPropertyInterface("Compute")
-        {}
-
-        virtual std::string toString() override
+        class HWPropertyInterface
         {
-            return name;
-        }
-    };
-}
+        public:
+            std::string name;
+
+            HWPropertyInterface() = delete;
+
+        protected:
+            HWPropertyInterface(std::string name) :
+                name(name)
+            {};
+        public:
+
+            virtual std::string toString() = 0;
+        };
+
+
+        class PolyProperty :
+            public HWPropertyInterface
+        {
+        public:
+            using HWPropertyInterface::name;
+
+
+            PolyProperty() :
+                HWPropertyInterface("Compute")
+            {}
+
+
+            virtual std::string toString() override
+            {
+                return name;
+            }
+        };
+    }
 }

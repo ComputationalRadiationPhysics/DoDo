@@ -2,14 +2,14 @@
 
 namespace dodo
 {
-namespace process
-{
+    namespace process
+    {
 
-struct CommunicationMeta
-{
-    unsigned sourcePort = 0;
-    unsigned destinationPort = 0;
-};
+        struct CommunicationMeta
+        {
+            unsigned sourcePort = 0;
+            unsigned destinationPort = 0;
+        };
 
-} /* process */
+    } /* process */
 } /* dodo */

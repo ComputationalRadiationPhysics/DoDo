@@ -1,14 +1,18 @@
 #pragma once
 
-namespace dodo{
-namespace graph{
-namespace detail{
+namespace dodo
+{
+    namespace graph
+    {
+        namespace detail
+        {
 
-class SimpleBGLBase
-{};
+            class SimpleBGLBase
+            {
+            };
 
 
-}
-} /* graph */
+        }
+    } /* graph */
 } /* dodo */
 

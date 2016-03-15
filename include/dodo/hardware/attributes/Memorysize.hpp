@@ -2,22 +2,23 @@
 
 namespace dodo
 {
-namespace hardware
-{
-namespace attributes
-{
-
-struct Memorysize
-{
-    size_t value;
-
-    Memorysize
-    merge( const Memorysize& other )
+    namespace hardware
     {
-        return {value + other.value};
-    }
-};
+        namespace attributes
+        {
 
-}
-}
+            struct Memorysize
+            {
+                size_t value;
+
+
+                Memorysize
+                merge(const Memorysize &other)
+                {
+                    return {value + other.value};
+                }
+            };
+
+        }
+    }
 }

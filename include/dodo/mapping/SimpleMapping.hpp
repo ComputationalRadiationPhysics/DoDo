@@ -3,18 +3,18 @@
 
 namespace dodo
 {
-namespace mapping
-{
+    namespace mapping
+    {
 
-class SimpleMapping
-{
+        class SimpleMapping
+        {
 
-    // use 2 boost graphs and create a 1:1 mapping
+            // use 2 boost graphs and create a 1:1 mapping
 
-};
+        };
 
 
-}
+    }
 }
 
 

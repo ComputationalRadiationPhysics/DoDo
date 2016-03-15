@@ -1,18 +1,20 @@
 #pragma once
 
+
 #include <cstdlib>
+
 
 namespace dodo
 {
-namespace components
-{
+    namespace components
+    {
 
 
-template<size_t sizeInByte>
-struct Chunk
-{
-};
+        template<size_t sizeInByte>
+        struct Chunk
+        {
+        };
 
 
-}
+    }
 }

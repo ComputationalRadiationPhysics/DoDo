@@ -24,5 +24,7 @@
 
 #pragma once
 
+#include <dodo/components/meta/traits/Complexity.hpp>
 #include <dodo/components/meta/traits/InPortMap.hpp>
 #include <dodo/components/meta/traits/OutPortMap.hpp>
+#include <dodo/components/meta/traits/Role.hpp>

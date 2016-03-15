@@ -12,157 +12,160 @@
 
 #include "../InterfaceStatic.hpp"
 
+
 namespace dodo
 {
-namespace components
-{
-namespace meta
-{
-namespace detail
-{
+    namespace components
+    {
+        namespace meta
+        {
+            namespace detail
+            {
 
 /**
  * This class is not intended to be instantiated manually.
  * Instead, use the Network class to wrap access.
  */
-class NetworkImpl :
-    public std::enable_shared_from_this<NetworkImpl>
-{
-    /**
-     * Holds all the Graphs that describe dependencies etc.
-     *
-     * Is used to connect existing components (do they need to be wrapped once more?)
-     *
-     * Can also be used to query information and to insert constructs like farms?
-     *
-     */
+                class NetworkImpl :
+                    public std::enable_shared_from_this<NetworkImpl>
+                {
+                    /**
+                     * Holds all the Graphs that describe dependencies etc.
+                     *
+                     * Is used to connect existing components (do they need to be wrapped once more?)
+                     *
+                     * Can also be used to query information and to insert constructs like farms?
+                     *
+                     */
 
-private:
-    class ComponentHandle;
-
-
-    using ResourceID = types::ResourceID;
-    using DependencyGraph = std::shared_ptr<dependency::BGL>;
-    using Components = std::map<ResourceID, std::shared_ptr<meta::Interface>>;
-    using DependencyMap = std::map<
-        ResourceID,
-        dependency::BGL::VertexID
-    >;
-    DependencyGraph dependencies;
-    DependencyMap dependencyMap;
-    Components components;
-
-public:
-    NetworkImpl();
-
-    template<class T_Component>
-    auto addComponent();
-
-    std::weak_ptr<meta::Interface> getComponent(ResourceID id);
-
-    void addDependency(
-        std::pair<
-            ResourceID,
-            types::PortKey
-        > portA,
-        std::pair<
-            ResourceID,
-            types::PortKey
-        > portB
-    );
+                private:
+                    class ComponentHandle;
 
 
-    std::weak_ptr<dependency::BGL> getDependencies()
-    {
-        return std::weak_ptr<dependency::BGL>(dependencies);
-    }
+                    using ResourceID = types::ResourceID;
+                    using DependencyGraph = std::shared_ptr<dependency::BGL>;
+                    using Components = std::map<ResourceID, std::shared_ptr<meta::Interface>>;
+                    using DependencyMap = std::map<
+                        ResourceID,
+                        dependency::BGL::VertexID
+                    >;
+                    DependencyGraph dependencies;
+                    DependencyMap dependencyMap;
+                    Components components;
+
+                public:
+                    NetworkImpl();
+
+                    template<class T_Component>
+                    auto addComponent();
+
+                    std::weak_ptr<meta::Interface> getComponent(ResourceID id);
+
+                    void addDependency(
+                        std::pair<
+                            ResourceID,
+                            types::Base
+                        > portA,
+                        std::pair<
+                            ResourceID,
+                            types::Base
+                        > portB
+                    );
 
 
-};
+                    std::weak_ptr<dependency::BGL> getDependencies()
+                    {
+                        return std::weak_ptr<dependency::BGL>(dependencies);
+                    }
 
 
-std::weak_ptr<Interface> NetworkImpl::getComponent(ResourceID id)
-{
-    return components.at(id);
-}
+                };
 
 
-NetworkImpl::NetworkImpl()
-{
-    dependencies = std::make_shared<dependency::BGL>();
-}
+                std::weak_ptr<Interface> NetworkImpl::getComponent(ResourceID id)
+                {
+                    return components.at(id);
+                }
 
 
-class NetworkImpl::ComponentHandle
-{
-public:
-    std::weak_ptr<NetworkImpl> net;
-    ResourceID componentID;
+                NetworkImpl::NetworkImpl()
+                {
+                    dependencies = std::make_shared<dependency::BGL>();
+                }
 
 
-    ComponentHandle(std::weak_ptr<NetworkImpl> net, const ResourceID c) :
-        net(net),
-        componentID(c)
-    {
-    }
+                class NetworkImpl::ComponentHandle
+                {
+                public:
+                    std::weak_ptr<NetworkImpl> net;
+                    ResourceID componentID;
 
 
-    auto  operator[](types::PortKey::value_type portName) const;
+                    ComponentHandle(std::weak_ptr<NetworkImpl> net, const ResourceID c) :
+                        net(net),
+                        componentID(c)
+                    {
+                    }
 
-};
+
+                    auto  operator[](types::Base::value_type portName) const;
+
+                };
 
 
-void NetworkImpl::addDependency(
-    std::pair<ResourceID, types::PortKey> portA,
-    std::pair<ResourceID, types::PortKey> portB
-)
-{
-    using VertexID = dependency::BGL::VertexID;
-    auto compA = portA.first;
-    auto compB = portB.first;
-    VertexID dvA = dependencyMap.at(compA);
-    VertexID dvB = dependencyMap.at(compB);
-    dependencies->addEdge(
-        dvA,
-        dvB,
-        {
-            portA.second,
-            portB.second
+                void NetworkImpl::addDependency(
+                    std::pair<ResourceID, types::Base> portA,
+                    std::pair<ResourceID, types::Base> portB
+                )
+                {
+                    using VertexID = dependency::BGL::VertexID;
+                    auto compA = portA.first;
+                    auto compB = portB.first;
+                    VertexID dvA = dependencyMap.at(compA);
+                    VertexID dvB = dependencyMap.at(compB);
+                    dependencies->addEdge(
+                        dvA,
+                        dvB,
+                        {
+                            portA.second,
+                            portB.second
+                        }
+                    );
+                }
+
+
+                template<class T_Component> auto NetworkImpl::addComponent()
+                {
+                    std::shared_ptr<meta::Interface> comp = std::make_shared<T_Component>();
+                    types::ResourceID myKey{std::to_string(reinterpret_cast<size_t>(comp.get()))};
+                    components[myKey] = comp;
+                    dependency::BGL::VertexID depVertex = dependencies->addVertex(
+                        dependency::Vertex{myKey}
+                    );
+                    dependencyMap[myKey] = depVertex;
+                    return ComponentHandle(shared_from_this(), myKey);
+                }
+
+
+                auto  NetworkImpl::ComponentHandle::operator[](types::Base::value_type portName) const
+                {
+                    auto component = net.lock()->getComponent(componentID);
+                    if (!component.lock()->hasPort(portName))
+                    {
+                        throw std::runtime_error(
+                            "Component "
+                            + std::string(typeid(*component.lock()).name())
+                            + " does not have a Port named '"
+                            + portName
+                            + "'."
+                        );
+                    }
+                    return std::make_pair(componentID, types::Base{portName});
+                }
+
+
+            }
         }
-    );
-}
-
-
-template<class T_Component> auto NetworkImpl::addComponent()
-{
-    std::shared_ptr<meta::Interface> comp = std::make_shared<T_Component>();
-    types::ResourceID myKey {std::to_string(reinterpret_cast<size_t>(comp.get()))};
-    components[myKey] = comp;
-    dependency::BGL::VertexID depVertex = dependencies->addVertex(dependency::Vertex{myKey});
-    dependencyMap[myKey] = depVertex;
-    return ComponentHandle(shared_from_this(), myKey);
-}
-
-
-auto  NetworkImpl::ComponentHandle::operator[](types::PortKey::value_type portName) const
-{
-    auto component = net.lock()->getComponent(componentID);
-    if (!component.lock()->hasPort(portName))
-    {
-        throw std::runtime_error(
-            "Component "
-            + std::string(typeid(*component.lock()).name())
-            + " does not have a Port named '"
-            + portName
-            + "'."
-        );
     }
-    return std::make_pair(componentID, types::PortKey{portName});
-}
-
-
-}
-}
-}
 }
 

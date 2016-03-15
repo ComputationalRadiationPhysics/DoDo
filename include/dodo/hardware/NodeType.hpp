@@ -2,18 +2,18 @@
 
 namespace dodo
 {
-namespace hardware
-{
+    namespace hardware
+    {
 
-enum class NodeType
-{
-    COMPUTE,
-    MEMORY,
-    STRUCTURAL,
-    INTERCONNECT,
-    _count
-};
+        enum class NodeType
+        {
+            COMPUTE,
+            MEMORY,
+            STRUCTURAL,
+            INTERCONNECT,
+            _count
+        };
 
 
-} /* graph */
+    } /* graph */
 } /* dodo */

@@ -2,25 +2,27 @@
 
 namespace dodo
 {
-namespace hardware
-{
-namespace attributes
-{
-    struct Name
+    namespace hardware
     {
-         std::string value;
-
-        Name merge(const Name& b) const
+        namespace attributes
         {
-            return { b.value + value };
-        }
+            struct Name
+            {
+                std::string value;
 
-        auto toString() const
-        {
-            return value;
-        }
-    };
 
-}
-}
+                Name merge(const Name &b) const
+                {
+                    return {b.value + value};
+                }
+
+
+                auto toString() const
+                {
+                    return value;
+                }
+            };
+
+        }
+    }
 }
