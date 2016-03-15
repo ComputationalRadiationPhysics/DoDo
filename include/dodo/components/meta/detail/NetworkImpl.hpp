@@ -64,11 +64,11 @@ namespace dodo
                     void addDependency(
                         std::pair<
                             ResourceID,
-                            types::Base
+                            types::PortKey
                         > portA,
                         std::pair<
                             ResourceID,
-                            types::Base
+                            types::PortKey
                         > portB
                     );
 
@@ -108,14 +108,14 @@ namespace dodo
                     }
 
 
-                    auto  operator[](types::Base::value_type portName) const;
+                    auto  operator[](types::PortKey::value_type portName) const;
 
                 };
 
 
                 void NetworkImpl::addDependency(
-                    std::pair<ResourceID, types::Base> portA,
-                    std::pair<ResourceID, types::Base> portB
+                    std::pair<ResourceID, types::PortKey> portA,
+                    std::pair<ResourceID, types::PortKey> portB
                 )
                 {
                     using VertexID = dependency::BGL::VertexID;
@@ -147,7 +147,7 @@ namespace dodo
                 }
 
 
-                auto  NetworkImpl::ComponentHandle::operator[](types::Base::value_type portName) const
+                auto  NetworkImpl::ComponentHandle::operator[](types::PortKey::value_type portName) const
                 {
                     auto component = net.lock()->getComponent(componentID);
                     if (!component.lock()->hasPort(portName))
@@ -160,7 +160,7 @@ namespace dodo
                             + "'."
                         );
                     }
-                    return std::make_pair(componentID, types::Base{portName});
+                    return std::make_pair(componentID, types::PortKey{portName});
                 }
 
 

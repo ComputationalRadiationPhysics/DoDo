@@ -20,7 +20,7 @@ namespace dodo
             class Interface
             {
             public:
-                using PortKey = types::Base;
+                using PortKey = types::PortKey;
 
                 std::map<PortKey::value_type, int> inPortMap;
                 std::map<PortKey::value_type, int> outPortMap;

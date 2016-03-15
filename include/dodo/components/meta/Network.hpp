@@ -35,8 +35,8 @@ namespace dodo
 
 
                 void addDependency(
-                    std::pair<types::ResourceID, types::Base> portA,
-                    std::pair<types::ResourceID, types::Base> portB
+                    std::pair<types::ResourceID, types::PortKey> portA,
+                    std::pair<types::ResourceID, types::PortKey> portB
                 )
                 {
                     return impl->addDependency(portA, portB);

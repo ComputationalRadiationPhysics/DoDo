@@ -26,7 +26,7 @@ namespace dodo
  *         be properly generated
  */
                 template<typename CompileTimeMap>
-                void initRuntimeMap(std::map<types::Base::value_type, int> &m)
+                void initRuntimeMap(std::map<types::PortKey::value_type, int> &m)
                 {
                     boost::fusion::for_each(
                         CompileTimeMap{},
