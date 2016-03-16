@@ -24,6 +24,6 @@
 
 #pragma once
 
-#include <dodo/components/types/Base.hpp>
+#include <dodo/types/Base.hpp>
 #include <dodo/components/types/PortKey.hpp>
 #include <dodo/components/types/ResourceID.hpp>

@@ -15,36 +15,40 @@ namespace dodo
         template<typename T_Vertex>
         class HardwareGraph
         {
-            using ConsistsOfPropertes = typename T_Vertex::Properties;
+            using ConsistsOfProperties = typename T_Vertex::Properties;
             using InterconnectProperties = typename T_Vertex::InterconnectProperties;
             using VertexBase_t = typename T_Vertex::ConsistsOfStructure::value_type;
 
         public:
             using Vertex = T_Vertex;
             using Interconnect_t = InterconnectGraph<InterconnectProperties>;
+            using ConsistsOf_t = ConsistsOfGraph;
 
-        private:
             std::shared_ptr<Interconnect_t> interconnectGraph;
+            std::shared_ptr<ConsistsOf_t> consistsOfGraph;
             Vertex rootVertex;
 
         public:
             HardwareGraph() :
                 interconnectGraph{std::make_shared<Interconnect_t>()},
+                consistsOfGraph{std::make_shared<ConsistsOf_t >()},
                 rootVertex{utility::TreeID(), interconnectGraph}
-            {}
+            {
+                fillConsistsOfGraph(rootVertex);
+            }
 
 
+
+            /** overload to get ALL the data
+             */
             auto extractData()
             {
-                return extractData(
-                    [](auto &)
-                    {return true;}
-                );
+                return extractData([](auto &){return true;});
             }
 
 
             template<
-                typename T_NewVertexProperties = ConsistsOfPropertes,
+                typename T_NewVertexProperties = ConsistsOfProperties,
                 typename T_NewEdgeProperties = InterconnectProperties,
                 typename T_Predicate
             >
@@ -108,6 +112,18 @@ namespace dodo
                 }
 
                 return reducedIGraph;
+            }
+
+        private:
+            ConsistsOfGraph::VertexID fillConsistsOfGraph(VertexBase_t current)
+            {
+                auto v = consistsOfGraph->addVertex(current.id);
+                for(auto i : current.children)
+                {
+                    auto u = fillConsistsOfGraph(i);
+                    consistsOfGraph->addEdge(v,u);
+                }
+                return v;
             }
 
         };

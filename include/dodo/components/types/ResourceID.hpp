@@ -3,7 +3,7 @@
 
 #include <string>
 #include <sstream>
-#include "Base.hpp"
+#include "dodo/types/Base.hpp"
 
 
 namespace dodo
@@ -14,7 +14,7 @@ namespace dodo
         {
 
             struct ResourceID :
-                public Base<std::string>
+                public dodo::types::Base<std::string>
             {
                 ResourceID() = default;
 

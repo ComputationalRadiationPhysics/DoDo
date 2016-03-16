@@ -18,18 +18,29 @@ namespace dodo
         namespace detail
         {
 
-/**
- * Iterate put the members of a struct into a boost::dynamic_properties object
- *
- * Takes a graph and tansforms all members of a specified tag into a printable
- * property map. Each member type must have an overload for the
- * dodo::graph::detail::prettyPrinter<T> function
- *
- * @tparam T_Tag the tag where to collect the member from. Can be vertex_bundle_t or edge_bundle_t
- * @param dp the dynamic_properties which will be filled
- * @param g the BGL graph where the properties come from
- */
-            template<typename T_Tag, typename T_Graph>
+            /**
+             * Iterate put the members of a struct into a boost::dynamic_properties object
+             *
+             * Takes a graph and tansforms all members of a specified tag into a printable
+             * property map. Each member type must have an overload for the
+             * dodo::graph::detail::prettyPrinter<T> function
+             *
+             * @tparam T_Tag the tag where to collect the member from. Can be vertex_bundle_t or edge_bundle_t
+             * @param dp the dynamic_properties which will be filled
+             * @param g the BGL graph where the properties come from
+             */
+            template<
+                typename T_Tag,
+                typename T_Graph,
+                typename PropMap = typename boost::property_map<T_Graph, T_Tag>::type,
+                typename MemberSeq = typename boost::property_traits<PropMap>::value_type,
+                typename = typename std::enable_if<
+                    ! std::is_same<
+                        MemberSeq,
+                        boost::no_property
+                    >::value
+                >::type
+            >
             void
             member_iterator(
                 boost::dynamic_properties &dp,
@@ -38,8 +49,6 @@ namespace dodo
             {
                 using namespace boost;
 
-                using PropMap = typename property_map<T_Graph, T_Tag>::type;
-                using MemberSeq = typename property_traits<PropMap>::value_type;
                 using Indices = mpl::range_c<
                     unsigned,
                     0,
@@ -69,6 +78,19 @@ namespace dodo
                     }
                 );
             }
+
+
+            /**
+             * Generic overload in case
+             */
+            template<
+                typename T,
+                typename T_Graph
+            >
+            void member_iterator(
+                const boost::dynamic_properties&,
+                const T_Graph&
+            ){}
 
         }
     }

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <boost/fusion/include/adapt_struct.hpp>
+#include "dodo/types/StringLike.hpp"
+
 namespace dodo
 {
     namespace utility
@@ -8,10 +11,15 @@ namespace dodo
 
         class TreeID
         {
-            unsigned children{0};
-            const std::string id;
-
         public:
+            unsigned children{0};
+            types::StringLike id;
+            TreeID(const TreeID&) = default;
+            TreeID(TreeID&&) = default;
+            TreeID& operator=(const TreeID&) = default;
+            TreeID& operator=(TreeID&&) = default;
+            ~TreeID() = default;
+
 
             TreeID() :
                 id{std::to_string(children)}
@@ -23,17 +31,18 @@ namespace dodo
             {}
 
 
+
             TreeID
             genChildID()
             {
-                return {id + "." + std::to_string(children++)};
+                return {id.value + "." + std::to_string(children++)};
             }
 
 
             size_t
             getLevel() const
             {
-                return std::count(id.begin(), id.end(), '.');
+                return std::count(id.value.begin(), id.value.end(), '.');
             }
 
 
@@ -65,6 +74,7 @@ namespace dodo
                 return lhs.id < rhs.id;
             }
 
+
         };
 
 // struct TreeIDLess :
@@ -89,3 +99,9 @@ namespace dodo
 
     } /* utility */
 } /* dodo */
+
+BOOST_FUSION_ADAPT_STRUCT(
+    dodo::utility::TreeID,
+    id
+)
+

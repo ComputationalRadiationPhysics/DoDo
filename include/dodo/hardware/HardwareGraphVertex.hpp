@@ -12,6 +12,7 @@
 #include "dodo/utility/tree_id.hpp"
 #include "attributes.hpp"
 #include "InterconnectGraph.hpp"
+#include "ConsistsOfGraph.hpp"
 
 
 namespace dodo
@@ -37,7 +38,7 @@ namespace dodo
             using Mapping = std::map<TreeID, InterconnectID>;
 
             TreeID id;
-            std::shared_ptr<InterconnectGraph_t> interconnectGraph;
+            std::weak_ptr<InterconnectGraph_t> interconnectGraph;
             Properties properties;
             ConsistsOfStructure children;
             // static constexpr auto t1 = std::tuple_cat(std::tuple<>(), Properties());
@@ -45,13 +46,13 @@ namespace dodo
 
             HardwareGraphVertex(
                 TreeID i,
-                std::shared_ptr<InterconnectGraph_t> a
+                std::weak_ptr<InterconnectGraph_t> a
             ) :
                 dout{dout::Dout::getInstance()},
                 id{i},
                 interconnectGraph{a}
             {
-                interconnectGraph->add(id);
+                interconnectGraph.lock()->add(id);
             }
 
 
@@ -90,7 +91,7 @@ namespace dodo
                     indent << " ";
                 }
 
-                dout(dout::Flags::INFO, offset == 0) << id << " ---> " << interconnectGraph->mapping
+                dout(dout::Flags::INFO, offset == 0) << id << " ---> " << interconnectGraph.lock()->mapping
                     .at(id) << std::endl;
                 for (auto i(0u); i < children.size(); ++i)
                 {

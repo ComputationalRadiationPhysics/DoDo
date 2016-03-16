@@ -15,7 +15,7 @@ using HWVertex_t = HardwareGraphVertex<
     InterconnectProperties
 >;
 
-using ICG = std::shared_ptr< InterconnectGraph< InterconnectProperties > >;
+using ICG = std::weak_ptr< InterconnectGraph< InterconnectProperties > >;
 
 
 struct XeonCoreVertex : public HWVertex_t
@@ -52,13 +52,13 @@ struct CPUVertex : public HWVertex_t
         setProperty<pattr::Name>({"Xeon E5-2609"});
 
         auto cache = this->createChild<L3CacheVertex>(static_cast<size_t>(10 * 1024));
-        auto x = interconnectGraph->connect<1>(cache, id);
+        auto x = interconnectGraph.lock()->connect<1>(cache, id);
         x.setProperty<pattr::Bandwidth>({static_cast<size_t>(34.1 * 1024 * 1024 * 1024)});
 
         for(unsigned i=0 ; i<4 ; ++i)
         {
             auto core = this->createChild<XeonCoreVertex>();
-            auto x = interconnectGraph->connect<1>(core, id);
+            auto x = interconnectGraph.lock()->connect<1>(core, id);
             x.setProperty<pattr::Bandwidth>({static_cast<size_t>(34.1 * 1024 * 1024 * 1024)});
         }
     }
@@ -97,18 +97,18 @@ struct LaserNodeVertex : public HWVertex_t
 
         // consistsOf elements
         auto fsb = this->createChild<FSBVertex>();
-        auto bus3 = interconnectGraph->connect<1>(id, fsb);
+        auto bus3 = interconnectGraph.lock()->connect<1>(id, fsb);
         bus3.setProperty<pattr::Bandwidth>( {4000} );
 
         for(unsigned i=0; i<2 ; ++i)
         {
             auto cpu1 = this->createChild<CPUVertex>();
-            auto bus1 = interconnectGraph->connect<1>(fsb, cpu1);
+            auto bus1 = interconnectGraph.lock()->connect<1>(fsb, cpu1);
             bus1.setProperty<pattr::Bandwidth>( {8500} );
         }
 
         auto ram = this->createChild<RAMVertex>(static_cast<size_t>(256u*1024u*1024u*1024u));
-        auto bus = interconnectGraph->connect<1>(fsb, ram);
+        auto bus = interconnectGraph.lock()->connect<1>(fsb, ram);
         bus.setProperty<pattr::Bandwidth>({static_cast<size_t>(20*1024*1024*1024)});
     }
 };
@@ -143,7 +143,7 @@ struct HypnosClusterVertex : public HWVertex_t
             auto node1 = this->createChild<LaserNodeVertex>(i);
 
             // connection between the elements
-            auto cable1 = interconnectGraph->connect<1>(node1, ethSwitch);
+            auto cable1 = interconnectGraph.lock()->connect<1>(node1, ethSwitch);
             cable1.setProperty<pattr::Bandwidth>( {1000} );
         }
 

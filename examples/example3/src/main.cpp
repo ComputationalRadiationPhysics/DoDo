@@ -47,5 +47,7 @@ int main( )
     );
     graphFile.close();
 
+    std::cout << g.consistsOfGraph << std::endl;
+
     return 0;
 }

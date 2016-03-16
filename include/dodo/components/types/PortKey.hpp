@@ -2,7 +2,7 @@
 
 #include <sstream>
 #include <string>
-#include "Base.hpp"
+#include "dodo/types/Base.hpp"
 
 
 namespace dodo
@@ -13,13 +13,13 @@ namespace dodo
         {
 
             struct PortKey :
-                public Base<std::string>
+                public dodo::types::Base<std::string>
             {
                 PortKey() = default;
 
 
-                PortKey(Base::value_type s) :
-                    Base(s)
+                PortKey(PortKey::value_type s) :
+                   Base(s)
                 {};
 
 
