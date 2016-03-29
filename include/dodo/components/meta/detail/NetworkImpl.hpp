@@ -136,7 +136,8 @@ namespace dodo
 
                 template<class T_Component> auto NetworkImpl::addComponent()
                 {
-                    std::shared_ptr<meta::Interface> comp = std::make_shared<T_Component>();
+                    std::shared_ptr<meta::Interface> comp = std::make_shared<meta::InterfaceStatic<T_Component>>();
+                    //TODO: find a more consistent way of generating the ResourceID (maybe counter?)
                     types::ResourceID myKey{std::to_string(reinterpret_cast<size_t>(comp.get()))};
                     components[myKey] = comp;
                     dependency::BGL::VertexID depVertex = dependencies->addVertex(

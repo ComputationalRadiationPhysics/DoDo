@@ -44,17 +44,20 @@ namespace dodo
                 public Interface
             {
             public:
-                using InPorts = typename traits::InPortMap<T_Derived>::value;
+                using InPorts = traits::InPortMap<T_Derived>;
                 using OutPorts = typename traits::OutPortMap<T_Derived>::value;
                 using Role = typename traits::Role<T_Derived>::value;
                 using Complexity = typename traits::Complexity<T_Derived>::value;
 
+                decltype(InPorts::init()) inPortM;
+
 
                 InterfaceStatic()
                 {
-                    testCorrectMapNablas();
-                    testNoIdenticalPorts();
-                    detail::initRuntimeMap<InPorts>(inPortMap);
+                    inPortM = InPorts::init();
+//                    testCorrectMapNablas();
+//                    testNoIdenticalPorts();
+                    detail::initRuntimeMap<typename InPorts::value>(inPortMap);
                     detail::initRuntimeMap<OutPorts>(outPortMap);
                     detail::initRuntimeSeq<Role>(roles);
                 }

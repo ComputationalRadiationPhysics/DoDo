@@ -19,6 +19,11 @@ namespace dodo
                 struct InPortMap
                 {
                     using value = boost::mpl::map<>;
+                    static auto init()
+                    {
+                        std::cout << "in default portmap operator" << std::endl;
+                        return std::map<int,int>();
+                    }
                 };
 
 
