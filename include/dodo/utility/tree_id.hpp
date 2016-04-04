@@ -46,11 +46,20 @@ namespace dodo
             }
 
 
-            std::string
+            types::StringLike
             get() const
             {
-                return id;
+                return id.value;
             }
+
+            TreeID
+            getParentID() const
+            {
+                auto lastDot = id.value.rfind('.');
+                if(lastDot == std::string::npos) throw std::runtime_error("Root has no parent node");
+                return { id.value.substr(0,lastDot) };
+            }
+
 
 
             friend
