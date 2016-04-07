@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2016 Carlchristian Eckert
+ * Copyright 2016 Carlchristian Eckert
  *
  * This file is part of Dodo.
  *
@@ -24,6 +24,5 @@
 
 #pragma once
 
-#include <dodo/types/Base.hpp>
 #include <dodo/components/types/PortKey.hpp>
 #include <dodo/components/types/ResourceID.hpp>

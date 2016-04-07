@@ -7,9 +7,9 @@ namespace dodo
 
 
         template<
-            typename T,
-            typename S,
-            int i = std::tuple_size<T>::value - 1
+            typename Tuple,
+            typename Elem,
+            int i = std::tuple_size<Tuple>::value - 1
         >
         struct tuple_index
         {
@@ -18,12 +18,12 @@ namespace dodo
                 value = std::is_same<
                     typename std::tuple_element<
                         i,
-                        T
+                        Tuple
                     >::type,
-                    S
+                    Elem
                 >::value ? i : tuple_index<
-                    T,
-                    S,
+                    Tuple,
+                    Elem,
                     i - 1
                 >::value
             };
@@ -32,12 +32,12 @@ namespace dodo
         };
 
         template<
-            typename T,
-            typename S
+            typename Tuple,
+            typename Elem
         >
         struct tuple_index<
-            T,
-            S,
+            Tuple,
+            Elem,
             -1
         >
         {
@@ -50,12 +50,12 @@ namespace dodo
 
 
         template<
-            typename T,
-            typename S
+            typename Tuple,
+            typename Elem
         >
         constexpr int getTupleIndex()
         {
-            constexpr int x{tuple_index<T, S>::value};
+            constexpr int x{tuple_index<Tuple, Elem>::value};
             static_assert(x >= 0, "Type Mismatch: The tuple does not contain the type");
             return x;
         }

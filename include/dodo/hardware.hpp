@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2016 Carlchristian Eckert
+ * Copyright 2016 Carlchristian Eckert
  *
  * This file is part of Dodo.
  *
@@ -25,6 +25,8 @@
 #pragma once
 
 #include <dodo/hardware/attributes.hpp>
+#include <dodo/hardware/ConsistsOfGraph.hpp>
+#include <dodo/hardware/hardware2.hpp>
 #include <dodo/hardware/HardwareGraph.hpp>
 #include <dodo/hardware/HardwareGraphVertex.hpp>
 #include <dodo/hardware/HWNode.hpp>
@@ -34,3 +36,4 @@
 #include <dodo/hardware/NodeType.hpp>
 #include <dodo/hardware/Property.hpp>
 #include <dodo/hardware/TagInfo.hpp>
+#include <dodo/hardware/types.hpp>

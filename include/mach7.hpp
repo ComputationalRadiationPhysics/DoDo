@@ -24,9 +24,12 @@
 
 #pragma once
 
-#include <dodo/utility/convert_tuple.hpp>
-#include <dodo/utility/RingBuffer.hpp>
-#include <dodo/utility/tree_id.hpp>
-#include <dodo/utility/tuple_index.hpp>
-#include <dodo/utility/type_reflection.hpp>
-#include <dodo/utility/uniqueID.hpp>
+#include <mach7/bindings.hpp>
+#include <mach7/config.hpp>
+#include <mach7/doxygen.hpp>
+#include <mach7/has_member.hpp>
+#include <mach7/match.hpp>
+#include <mach7/metatools.hpp>
+#include <mach7/ptrtools.hpp>
+#include <mach7/unisyn.hpp>
+#include <mach7/vtblmap.hpp>

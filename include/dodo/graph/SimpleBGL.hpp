@@ -174,11 +174,14 @@ namespace dodo
                 return boost::source(edge, (*graph));
             }
 
+            virtual void addVertexHook(const VertexProperty&, const VertexID&)
+            {}
 
             VertexID addVertex(const VertexProperty &vp)
             {
                 auto v = addVertex();
                 (*graph)[v] = vp;
+                addVertexHook(vp, v);
                 return v;
             }
 

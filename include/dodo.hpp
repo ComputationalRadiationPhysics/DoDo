@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2016 Carlchristian Eckert
+ * Copyright 2016 Carlchristian Eckert
  *
  * This file is part of Dodo.
  *
@@ -29,5 +29,6 @@
 #include <dodo/hardware.hpp>
 #include <dodo/mapping.hpp>
 #include <dodo/process.hpp>
+#include <dodo/types.hpp>
 #include <dodo/utility.hpp>
 #include <dodo/version.hpp>
