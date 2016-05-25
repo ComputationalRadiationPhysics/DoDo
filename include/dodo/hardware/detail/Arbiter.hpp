@@ -1,9 +1,9 @@
+#pragma once
 #include <vector>
+#include <memory>
 
 #include <boost/fusion/include/for_each.hpp>
 
-#include <dodo/hardware/HWNode.hpp>
-#include <memory>
 
 
 namespace dodo

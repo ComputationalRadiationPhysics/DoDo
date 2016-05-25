@@ -24,11 +24,4 @@
 
 #pragma once
 
-#include <dodo/components/dependency/AtomicComponent.hpp>
-#include <dodo/components/dependency/BGL.hpp>
-#include <dodo/components/dependency/ComponentBase.hpp>
-#include <dodo/components/dependency/Edge.hpp>
-#include <dodo/components/dependency/HierarchicalComponent.hpp>
-#include <dodo/components/dependency/ResourceGraph.hpp>
-#include <dodo/components/dependency/TemplatePipe.hpp>
-#include <dodo/components/dependency/Vertex.hpp>
+#include <dodo/hardware/detail/Arbiter.hpp>

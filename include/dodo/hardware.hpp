@@ -26,6 +26,7 @@
 
 #include <dodo/hardware/attributes.hpp>
 #include <dodo/hardware/ConsistsOfGraph.hpp>
+#include <dodo/hardware/detail.hpp>
 #include <dodo/hardware/hardware2.hpp>
 #include <dodo/hardware/HardwareGraph.hpp>
 #include <dodo/hardware/HardwareGraphVertex.hpp>
