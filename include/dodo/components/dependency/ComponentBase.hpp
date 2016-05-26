@@ -24,65 +24,70 @@ namespace dodo
 
             struct ComponentBase
             {
-//                // use this typedef when writing graphviz (dot) files
-//                using GraphvizAttributes = std::map<std::string, std::string>;
-//                using Graph = boost::adjacency_list<
-//                    boost::vecS,
-//                    boost::vecS,
-//                    boost::directedS,
-//                    boost::property<
-//                        boost::vertex_attribute_t,
-//                        GraphvizAttributes,
-//                        types::PortVertexContainer
-//                    >,
-//                    boost::property<
-//                        boost::edge_index_t,
-//                        size_t,
-//                        boost::property<
-//                            boost::edge_attribute_t,
-//                            GraphvizAttributes
-//                        >
-//                    >,
-//                    boost::property<
-//                        boost::graph_name_t,
-//                        std::string,
-//                        boost::property<
-//                            boost::graph_graph_attribute_t,
-//                            GraphvizAttributes,
-//                            boost::property<
-//                                boost::graph_vertex_attribute_t,
-//                                GraphvizAttributes,
-//                                boost::property<
-//                                    boost::graph_edge_attribute_t,
-//                                    GraphvizAttributes
-//                                >
-//                            >
-//                        >
-//                    >
-//                >;
-
-                // use this typedef when writing graphml files (for yEd)
-                using Graph = boost::adjacency_list<
+                // use this typedef when writing graphviz (dot) files
+                using GraphvizAttributes = std::map<std::string, std::string>;
+                using DotGraph = boost::adjacency_list<
                     boost::vecS,
                     boost::vecS,
                     boost::directedS,
                     boost::property<
-                        boost::vertex_attribute_t,
+                        boost::vertex_index_t,
                         size_t,
-                        types::PortVertexContainer
+                         boost::property<
+                            boost::vertex_attribute_t,
+                            GraphvizAttributes,
+                            types::PortVertexContainer
+                        >
                     >,
                     boost::property<
                         boost::edge_index_t,
-                        size_t
+                        size_t,
+                        boost::property<
+                            boost::edge_attribute_t,
+                            GraphvizAttributes
+                        >
+                    >,
+                    boost::property<
+                        boost::graph_name_t,
+                        std::string,
+                        boost::property<
+                            boost::graph_graph_attribute_t,
+                            GraphvizAttributes,
+                            boost::property<
+                                boost::graph_vertex_attribute_t,
+                                GraphvizAttributes,
+                                boost::property<
+                                    boost::graph_edge_attribute_t,
+                                    GraphvizAttributes
+                                >
+                            >
+                        >
                     >
                 >;
-                using Subgraph = boost::subgraph< Graph >;
+
+//                // use this typedef when writing graphml files (for yEd)
+//                using XMLGraph = boost::adjacency_list<
+//                    boost::vecS,
+//                    boost::vecS,
+//                    boost::directedS,
+//                    boost::property<
+//                        boost::vertex_index_t,
+//                        size_t,
+//                        types::PortVertexContainer
+//                    >,
+//                    boost::property<
+//                        boost::edge_index_t,
+//                        size_t
+//                    >
+//                >;
+                using Subgraph = boost::subgraph< DotGraph >;
                 Subgraph & sg;
 
-                // fully qqua
+                // fully qualified name
                 std::string fullName;
 
                 // Stored Vertex descriptors are local wrt the subgraph sg
+                // port names are stored as local names
                 std::map< std::string, Subgraph::vertex_descriptor> inPorts;
                 std::map< std::string, Subgraph::vertex_descriptor> outPorts;
                 std::string name;

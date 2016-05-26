@@ -57,13 +57,28 @@ int main( )
     TemplatePipe<AtomicProcessing, AtomicDuplicate, AtomicCombine> hc (sg, "TempPipe");
     std::stringstream ss;
     boost::dynamic_properties dp;
-   dp.property("PortType", get(&types::PortVertexContainer::t , sg));
-    boost::write_graphml(
-        ss,
-        sg
-        ,dp
-    );
+
+    std::set<SG::vertex_descriptor> hidden_vertices;
+    using Filtered = boost::filtered_graph<SG, boost::keep_all, std::function<bool(SG::vertex_descriptor)> >;
+    Filtered f(sg, boost::keep_all{}, [&](auto v){ return hidden_vertices.find(v)==hidden_vertices.end();});
+
+
+
+    // Access like this if it is a BundledProperty!
+    dp.property("PortType", get(&types::PortVertexContainer::t , sg));
+    // Access like this if it is an InternalProperty
+    dp.property("VertexIndex", get(boost::vertex_index, sg));
+
+    boost::write_graphml( ss, f,dp );
+    //    boost::write_graphviz(ss, sg);
     std::cout << ss.str( ) << std::endl;
+    std::cout << boost::distance(boost::vertices(f)) << std::endl;
+    std::stringstream().swap(ss);
+
+    hidden_vertices.insert(12);
+    boost::write_graphml( ss, f,dp );
+    std::cout << ss.str( ) << std::endl;
+    std::cout << boost::distance(boost::vertices(f)) << std::endl;
 
     return 0;
 }

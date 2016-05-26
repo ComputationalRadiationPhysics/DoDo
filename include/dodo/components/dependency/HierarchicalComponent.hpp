@@ -35,13 +35,16 @@ namespace dependency{
                 outNames
             )
         {
+//            auto pm = get(boost::vertex_color, sg);
             for( auto i : inPorts )
             {
                 sg[i.second] = types::PortVertexTypes::HIERARCHICAL_IN;
+//                pm[i.second] = types::PortVertexTypes::HIERARCHICAL_IN;
             }
             for( auto i : outPorts )
             {
                 sg[i.second] = types::PortVertexTypes::HIERARCHICAL_OUT;
+//                pm[i.second] = types::PortVertexTypes::HIERARCHICAL_OUT;
             }
         }
 
@@ -86,6 +89,31 @@ namespace dependency{
                 return subcomponents[sub] -> findVertexFromString(v);
             }
 
+        }
+
+
+        template<typename T_NewSub>
+        void replaceSubcomponentWith(
+            std::string subName,
+            std::map< std::string, std::string > InPortMapping,
+            std::map< std::string, std::string > OutPortMapping
+        )
+        {
+            auto oldComp = subcomponents.at(subName);
+            auto newComp = createSubcomponent<T_NewSub>(subName);
+
+            // TODO
+            // Find all edges in the current component that lead to
+            // inPorts of oldComp
+
+            // For each of these edges, reconnect them to the InPorts of newComp
+            // according to the portMapping
+
+            // Repeat for OutPortMapping
+
+            throw std::runtime_error( "Method not finished!" );
+
+            delete oldComp;
         }
 
 
