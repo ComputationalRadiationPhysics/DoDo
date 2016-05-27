@@ -35,16 +35,14 @@ namespace dependency{
                 outNames
             )
         {
-//            auto pm = get(boost::vertex_color, sg);
+            boost::get_property(sg, boost::graph_graph_attribute)["style"] = "dotted";
             for( auto i : inPorts )
             {
                 sg[i.second] = types::PortVertexTypes::HIERARCHICAL_IN;
-//                pm[i.second] = types::PortVertexTypes::HIERARCHICAL_IN;
             }
             for( auto i : outPorts )
             {
                 sg[i.second] = types::PortVertexTypes::HIERARCHICAL_OUT;
-//                pm[i.second] = types::PortVertexTypes::HIERARCHICAL_OUT;
             }
         }
 

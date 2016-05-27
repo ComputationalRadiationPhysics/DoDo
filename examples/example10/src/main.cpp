@@ -75,6 +75,12 @@ int main( )
     std::cout << boost::distance(boost::vertices(f)) << std::endl;
     std::stringstream().swap(ss);
 
+    std::ofstream ofs;
+    ofs.open("/tmp/g.dot");
+    boost::write_graphviz(ofs, sg);
+    ofs.close();
+
+
     hidden_vertices.insert(12);
     boost::write_graphml( ss, f,dp );
     std::cout << ss.str( ) << std::endl;

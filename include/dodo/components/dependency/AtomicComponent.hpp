@@ -34,21 +34,26 @@ namespace dependency{
             ),
             step { std::make_pair( "step", add_vertex( sg ) ) }
         {
-//            auto pm = get(boost::vertex_color, sg);
-//            pm[step.second] = types::PortVertexTypes::ATOMIC_STEP;
+            boost::get_property(sg, boost::graph_graph_attribute)["style"] = "filled";
+
+            auto pm = get(boost::vertex_attribute, sg);
+            pm[step.second]["shape"] = "square";
+            pm[step.second]["label"] = step.first;
             sg[step.second] = types::PortVertexTypes::ATOMIC_STEP;
+
             for( auto i : inPorts )
             {
-//                pm[i.second] = types::PortVertexTypes::ATOMIC_IN;
                 sg[i.second] = types::PortVertexTypes::ATOMIC_IN;
                 add_edge( i.second, step.second, sg );
             }
+
             for( auto i : outPorts )
             {
-//                pm[i.second] = types::PortVertexTypes::ATOMIC_OUT;
                 sg[i.second] = types::PortVertexTypes::ATOMIC_OUT;
                 add_edge( step.second, i.second, sg );
             }
+
+
         }
     };
 
