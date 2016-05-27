@@ -1,7 +1,7 @@
 #pragma once
 
-#import <boost/bimap.hpp>
-#import <boost/bimap/unordered_multiset_of.hpp>
+#include <boost/bimap.hpp>
+#include <boost/bimap/unordered_multiset_of.hpp>
 
 
 namespace dodo

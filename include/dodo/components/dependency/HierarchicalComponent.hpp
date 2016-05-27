@@ -100,10 +100,10 @@ namespace dependency{
             auto oldComp = subcomponents.at(subName);
             auto newComp = createSubcomponent<T_NewSub>(subName);
 
-            // TODO
-            // Find all edges in the current component that lead to
-            // inPorts of oldComp
-
+            // TODO Find all edges in the current component that lead to inPorts of oldComp
+            // casts to prevent unused parameter warning
+            (void) InPortMapping;
+            (void) OutPortMapping;
             // For each of these edges, reconnect them to the InPorts of newComp
             // according to the portMapping
 
