@@ -27,7 +27,6 @@
 #include <dodo/hardware/attributes.hpp>
 #include <dodo/hardware/ConsistsOfGraph.hpp>
 #include <dodo/hardware/detail.hpp>
-#include <dodo/hardware/hardware2.hpp>
 #include <dodo/hardware/HardwareGraph.hpp>
 #include <dodo/hardware/HardwareGraphVertex.hpp>
 #include <dodo/hardware/HWNode.hpp>
@@ -37,4 +36,3 @@
 #include <dodo/hardware/NodeType.hpp>
 #include <dodo/hardware/Property.hpp>
 #include <dodo/hardware/TagInfo.hpp>
-#include <dodo/hardware/types.hpp>

@@ -38,6 +38,18 @@ namespace dodo
 
             SBGL::EdgeID
             addEdge(
+                const VertexID & srcVertex,
+                const VertexID & targetVertex
+            )
+            {
+                return SBGL::addEdge(
+                    srcVertex,
+                    targetVertex
+                );
+            }
+
+            SBGL::EdgeID
+            addEdge(
                 const TreeID & srcVertex,
                 const TreeID & targetVertex
             )

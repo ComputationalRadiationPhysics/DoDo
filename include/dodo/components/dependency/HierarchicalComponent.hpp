@@ -38,11 +38,11 @@ namespace dependency{
             boost::get_property(sg, boost::graph_graph_attribute)["style"] = "dotted";
             for( auto i : inPorts )
             {
-                sg[i.second] = types::PortVertexTypes::HIERARCHICAL_IN;
+                sg[i.second] = ::types::PortVertexTypes::HIERARCHICAL_IN;
             }
             for( auto i : outPorts )
             {
-                sg[i.second] = types::PortVertexTypes::HIERARCHICAL_OUT;
+                sg[i.second] = ::types::PortVertexTypes::HIERARCHICAL_OUT;
             }
         }
 

@@ -16,6 +16,11 @@ namespace dodo
         {
             StringLike() = default;
 
+            inline auto size()
+            {
+                return this->value.size();
+            }
+
 
             StringLike(Base::value_type s) :
                 Base(s)

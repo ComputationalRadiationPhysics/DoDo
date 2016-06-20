@@ -37,6 +37,7 @@ namespace dodo
                 fillConsistsOfGraph(rootVertex);
             }
 
+            getHandle()
 
 
             /** overload to get ALL the data
