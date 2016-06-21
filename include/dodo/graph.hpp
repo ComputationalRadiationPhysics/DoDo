@@ -30,3 +30,4 @@
 #include <dodo/graph/PairBGL.hpp>
 #include <dodo/graph/SimpleBGL.hpp>
 #include <dodo/graph/SimpleBGLWriter.hpp>
+#include <dodo/graph/TreeIDGraph.hpp>

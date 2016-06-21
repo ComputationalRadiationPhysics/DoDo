@@ -25,14 +25,17 @@
 #pragma once
 
 #include <dodo/hardware/attributes.hpp>
-#include <dodo/hardware/ConsistsOfGraph.hpp>
 #include <dodo/hardware/detail.hpp>
+#include <dodo/hardware/elements.hpp>
+#include <dodo/hardware/HardwareAbstraction.hpp>
 #include <dodo/hardware/HardwareGraph.hpp>
 #include <dodo/hardware/HardwareGraphVertex.hpp>
 #include <dodo/hardware/HWNode.hpp>
 #include <dodo/hardware/HWPropertyInterface.hpp>
 #include <dodo/hardware/InterconnectEdge.hpp>
 #include <dodo/hardware/InterconnectGraph.hpp>
+#include <dodo/hardware/MemoryCapacity.hpp>
 #include <dodo/hardware/NodeType.hpp>
 #include <dodo/hardware/Property.hpp>
 #include <dodo/hardware/TagInfo.hpp>
+#include <dodo/hardware/TransferGraph.hpp>

@@ -22,7 +22,7 @@ namespace dodo
         public:
             using Vertex = T_Vertex;
             using Interconnect_t = InterconnectGraph<InterconnectProperties>;
-            using ConsistsOf_t = ConsistsOfGraph;
+            using ConsistsOf_t = TreeIDGraph;
 
             std::shared_ptr<Interconnect_t> interconnectGraph;
             std::shared_ptr<ConsistsOf_t> consistsOfGraph;
@@ -36,8 +36,6 @@ namespace dodo
             {
                 fillConsistsOfGraph(rootVertex);
             }
-
-            getHandle()
 
 
             /** overload to get ALL the data
@@ -116,7 +114,7 @@ namespace dodo
             }
 
         private:
-            ConsistsOfGraph::VertexID fillConsistsOfGraph(VertexBase_t current)
+            TreeIDGraph::VertexID fillConsistsOfGraph(VertexBase_t current)
             {
                 auto v = consistsOfGraph->addVertex(current.id);
                 for(auto i : current.children)

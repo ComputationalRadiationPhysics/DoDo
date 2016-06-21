@@ -10,19 +10,21 @@ namespace dodo
     namespace hardware
     {
 
-        class ConsistsOfGraph :
-            public graph::SimpleBGL< utility::TreeID >
+        class TransferGraph :
+            public graph::SimpleBGL< utility::TreeID, size_t, boost::multisetS >
         {
         public:
             using TreeID = utility::TreeID;
-            using SBGL = graph::SimpleBGL< TreeID >;
+            using SBGL = graph::SimpleBGL< TreeID, size_t, boost::multisetS >;
             using VertexID = SBGL::VertexID;
+            using EdgeID = SBGL::EdgeID;
 
         private:
             std::map<
                 TreeID,
                 VertexID
             > idmap;
+
 
         public:
 
@@ -34,7 +36,6 @@ namespace dodo
             {
                 idmap[tid] = v;
             }
-
 
             SBGL::EdgeID
             addEdge(
@@ -54,16 +55,38 @@ namespace dodo
                 const TreeID & targetVertex
             )
             {
-//                return boost::add_edge(
-//                    idmap[srcVertex],
-//                    idmap[targetVertex],
-//                    ( *graph )
-//                ).first;
                 return SBGL::addEdge(
                     idmap[srcVertex],
                     idmap[targetVertex]
                 );
             }
+
+            auto
+            getAdjacentVertices( const TreeID & v )
+            {
+                return SBGL::getAdjacentVertices(idmap[v]);
+            }
+
+            auto
+            getOutEdges( const TreeID & v )
+            {
+                return SBGL::getOutEdges(idmap[v]);
+            }
+
+
+            auto
+            operator[]( const VertexID & v)
+            {
+                return (*graph)[v];
+            }
+
+            auto
+            operator[]( const TreeID & v)
+            {
+                return (*graph)[idmap[v]];
+            }
+
+
 
         };
 

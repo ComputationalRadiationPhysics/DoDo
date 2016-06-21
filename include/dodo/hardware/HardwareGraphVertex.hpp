@@ -12,7 +12,7 @@
 #include "dodo/utility/tree_id.hpp"
 #include "attributes.hpp"
 #include "InterconnectGraph.hpp"
-#include "ConsistsOfGraph.hpp"
+#include "../graph/TreeIDGraph.hpp"
 
 
 namespace dodo

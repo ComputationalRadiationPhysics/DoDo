@@ -24,3 +24,6 @@
 
 #pragma once
 
+#include <dodo/hardware/elements/Base.hpp>
+#include <dodo/hardware/elements/Memory.hpp>
+#include <dodo/hardware/elements/ProcessingElement.hpp>
