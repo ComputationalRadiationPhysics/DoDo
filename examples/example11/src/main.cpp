@@ -171,6 +171,32 @@ int main( )
         }
     }
 
+    boost::dynamic_properties dp;
+    dp.property( "id", get(boost::vertex_index, *threadGraph.graph));
+
+    std::ofstream ofs;
+    ofs.open("/tmp/threadgraph.graphml");
+    write_graphml(ofs, *threadGraph.graph, dp);
+    ofs.close();
+
+    ofs.open("/tmp/threadMapping.txt");
+    for(auto i : threadMapping)
+    {
+        ofs << i.first << " --> " << i.second << std::endl;
+    }
+    ofs.close();
+
+    ofs.open("/tmp/threadGraphTypes.txt");
+    for(auto i : threadGraphTypeMap)
+    {
+        ofs << i.first << " --> " << i.second << std::endl;
+    }
+    ofs.close();
+
+
+
+
+
     hwa.writeAllTreeIDGraphs("/tmp/");
     hwa.writeAllMaps("/tmp/");
 

@@ -134,15 +134,15 @@ namespace dodo
                     path_base + "consists_of_graph.graphml"
                 );
 
-//                writeTreeIDGraph(
-//                    mhg,
-//                    path_base + "memory_hierarchy_graph.graphml"
-//                );
-//
-//                writeTreeIDGraph(
-//                    ig,
-//                    path_base + "interconnect_graph.graphml"
-//                );
+                writeTreeIDGraph(
+                    mhg,
+                    path_base + "memory_hierarchy_graph.graphml"
+                );
+
+                writeTreeIDGraph(
+                    ig,
+                    path_base + "interconnect_graph.graphml"
+                );
             }
 
             graph::TreeIDGraph::TreeID addNode(
