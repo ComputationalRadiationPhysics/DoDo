@@ -27,8 +27,6 @@ struct XeonCoreVertex : public HWVertex_t
         setProperty<pattr::EnergyLevel>({40});
         setProperty<pattr::Name>({"Core"});
     }
-
-
 };
 
 struct L3CacheVertex : public HWVertex_t

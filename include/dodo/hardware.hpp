@@ -25,6 +25,7 @@
 #pragma once
 
 #include <dodo/hardware/attributes.hpp>
+#include <dodo/hardware/Bandwidth.hpp>
 #include <dodo/hardware/detail.hpp>
 #include <dodo/hardware/elements.hpp>
 #include <dodo/hardware/HardwareAbstraction.hpp>

@@ -13,7 +13,7 @@ namespace dodo
         template<typename T>
         struct ConsistsOf
         {
-            void operator()(T& t, TreeIDGraph& g)
+            void operator()(T& t, graph::TreeIDGraph& g)
             {
                 g.addVertex(t.id);
             }
@@ -67,7 +67,7 @@ namespace dodo
 
         private:
             std::shared_ptr< ResourceMap > resources;
-            TreeIDGraph g;
+            graph::TreeIDGraph g;
             ID rootID;
             boost::any rootNode;
 

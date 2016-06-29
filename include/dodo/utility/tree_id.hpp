@@ -30,8 +30,6 @@ namespace dodo
                 id{i}
             {}
 
-
-
             TreeID
             genChildID()
             {
@@ -81,6 +79,16 @@ namespace dodo
             )
             {
                 return lhs.id < rhs.id;
+            }
+
+            friend
+            bool
+            operator==(
+                const TreeID &lhs,
+                const TreeID &rhs
+            )
+            {
+                return lhs.id == rhs.id;
             }
 
 

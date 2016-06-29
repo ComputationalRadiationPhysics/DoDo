@@ -38,7 +38,7 @@ int main( )
         std::make_tuple("Clock Frequency", dodo::hardware::attributes::Speed())
     );
 
-    std::ofstream graphFile ("graph.graphml");
+    std::ofstream graphFile ("/tmp/graph.graphml");
     dodo::hardware::writeGraph(
         combinedGraph,
         vertexLabels,

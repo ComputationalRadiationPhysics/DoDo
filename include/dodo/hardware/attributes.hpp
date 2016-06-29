@@ -28,5 +28,6 @@
 #include <dodo/hardware/attributes/EnergyLevel.hpp>
 #include <dodo/hardware/attributes/Memorysize.hpp>
 #include <dodo/hardware/attributes/Name.hpp>
+#include <dodo/hardware/attributes/Plugin.hpp>
 #include <dodo/hardware/attributes/Speed.hpp>
 #include <dodo/hardware/attributes/Tag.hpp>

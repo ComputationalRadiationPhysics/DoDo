@@ -7,7 +7,7 @@
 
 namespace dodo
 {
-    namespace hardware
+    namespace graph
     {
 
         class TreeIDGraph :
@@ -18,13 +18,12 @@ namespace dodo
             using SBGL = graph::SimpleBGL< TreeID >;
             using VertexID = SBGL::VertexID;
 
-        private:
-            std::map<
+            using IdMap = std::map<
                 TreeID,
                 VertexID
-            > idmap;
+            >;
+            IdMap idmap;
 
-        public:
 
             void
             addVertexHook(
@@ -55,8 +54,8 @@ namespace dodo
             )
             {
                 return SBGL::addEdge(
-                    idmap[srcVertex],
-                    idmap[targetVertex]
+                    idmap.at(srcVertex),
+                    idmap.at(targetVertex)
                 );
             }
 
@@ -64,13 +63,19 @@ namespace dodo
             auto
             getAdjacentVertices( const TreeID & v )
             {
-                return SBGL::getAdjacentVertices(idmap[v]);
+                return SBGL::getAdjacentVertices(idmap.at(v));
             }
 
             auto
-            getOutEdges( const TreeID & v )
+            getOutEdges( const TreeID & v ) const
             {
-                return SBGL::getOutEdges(idmap[v]);
+                return SBGL::getOutEdges( idmap.at(v) );
+            }
+
+            auto
+            getInEdges( const TreeID & v )
+            {
+                return SBGL::getInEdges(idmap.at(v));
             }
 
 
@@ -83,7 +88,7 @@ namespace dodo
             auto
             operator[]( const TreeID & v)
             {
-                return (*graph)[idmap[v]];
+                return (*graph)[idmap.at(v)];
             }
 
 

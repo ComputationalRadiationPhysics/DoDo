@@ -5,7 +5,6 @@
 #include <iostream>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/subgraph.hpp>
 #include <boost/graph/graphviz.hpp>
 #include <boost/graph/copy.hpp>
 #include <tuple>
@@ -27,7 +26,7 @@ namespace dodo
             typename T_EdgeProperty = boost::no_property,
             typename T_OutEdgeList = boost::vecS,
             typename T_VertexList = boost::vecS,
-            typename T_Directed = boost::directedS
+            typename T_Directed = boost::bidirectionalS
         >
         class SimpleBGL :
             detail::SimpleBGLBase
@@ -107,7 +106,7 @@ namespace dodo
              * @brief Returns all outgoing edges of *srcVertex* paired with its target vertex.
              *
              */
-            std::pair<OutEdgeIter, OutEdgeIter> getOutEdges(const VertexID id)
+            std::pair<OutEdgeIter, OutEdgeIter> getOutEdges(const VertexID id) const
             {
                 return boost::out_edges(id, (*graph));
             }
@@ -117,7 +116,7 @@ namespace dodo
              * @brief Returns all incoming edges to *targetVertex* paired with its source vertex.
              *
              */
-            std::pair<InEdgeIter, InEdgeIter> getInEdges(const VertexID id) const
+            std::pair<InEdgeIter, InEdgeIter> getInEdges(const VertexID id)
             {
                 return boost::in_edges(id, (*graph));
             }

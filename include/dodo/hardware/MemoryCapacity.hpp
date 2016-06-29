@@ -20,7 +20,7 @@ namespace dodo {
             { }
 
             auto
-            getCapacity( )
+            getCapacity( ) const
             {
                 return capacityKBytes;
             }
@@ -55,7 +55,15 @@ namespace dodo {
                 filledKBytes -= size;
             }
 
+
         };
+
+        std::ostream& operator<<(
+            std::ostream& ostream1,
+            const MemoryCapacity& memC
+        ){
+            return ostream1 << memC.getCapacity();
+        }
 
     }
 }
