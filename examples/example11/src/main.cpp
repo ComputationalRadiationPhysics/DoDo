@@ -27,6 +27,7 @@ int main( )
     constexpr unsigned nMachines = 4;
     constexpr unsigned nSockets = 2;
     constexpr unsigned nCores = 4;
+    constexpr unsigned nGPUs = 4;
 
     std::vector<dodo::utility::TreeID> k20Nodes(nMachines);
     for(unsigned machine_i = 0; machine_i < nMachines; ++machine_i)
@@ -49,6 +50,57 @@ int main( )
             hwa.setCapacity(numa, 33554432);
             numaNodes[socket_i] = numa;
         }
+
+        for(unsigned gpu_i=0; gpu_i<nGPUs ; ++gpu_i)
+        {
+            auto gpu = hwa.addNode(
+                "nVidia K20m",
+                dodo::hardware::NodeType::STRUCTURAL,
+                machine
+            );
+            auto globalMem = hwa.addNode(
+                "globalMem",
+                dodo::hardware::NodeType::MEMORY,
+                gpu
+            );
+            hwa.setCapacity(globalMem, 5242880);
+            auto l2 = hwa.addNode(
+                "L2_GPU",
+                dodo::hardware::NodeType::CACHE,
+                globalMem
+            );
+            hwa.setCapacity(l2, 1280);
+
+            for(unsigned sm_i=0; sm_i<13 ; ++sm_i)
+            {
+                auto sm = hwa.addNode(
+                    "SM"+std::to_string(sm_i),
+                    dodo::hardware::NodeType::STRUCTURAL,
+                    globalMem
+                );
+                auto l1 = hwa.addNode(
+                    "L1_GPU",
+                    dodo::hardware::NodeType::CACHE,
+                    sm
+                );
+                hwa.setCapacity(l1, 48);
+                auto sharedMem = hwa.addNode(
+                    "sharedMem",
+                    dodo::hardware::NodeType::MEMORY,
+                    sm
+                );
+                hwa.setCapacity(sharedMem, 16);
+                for(unsigned core_i=0; core_i< 192; ++ core_i)
+                {
+                    auto core = hwa.addNode(
+                        "CUDA Core "+std::to_string(core_i+32*sm_i),
+                        dodo::hardware::NodeType::COMPUTE,
+                        l1
+                    );
+                }
+            }
+        }
+
 
         for(unsigned socket_i=0; socket_i<nSockets ; ++socket_i)
         {
