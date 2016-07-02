@@ -127,6 +127,7 @@ struct VProp
     size_t id;
     int x;
     int y;
+    float coefficient;
 };
 
 struct EProp
@@ -138,8 +139,8 @@ struct EProp
 int main( )
 {
 
-    const int domain_edge_length = 9;
-    const int patch_edge = 3;
+    const int domain_edge_length = 16;
+    const int patch_edge = 4;
     assert(domain_edge_length % patch_edge == 0);
     const int patches_per_edge = domain_edge_length/patch_edge; // 6/3 = 2
     const int domain_size = domain_edge_length*domain_edge_length; // 6*6
@@ -165,7 +166,7 @@ int main( )
     }
 
     boost::array< size_t, 2 > lengths = {{ patches_per_edge, patches_per_edge }};
-    boost::grid_graph< 2 > g( lengths, {{true, true}} );
+    boost::grid_graph< 2 > g( lengths, {{false, false}} );
     using Traits = boost::graph_traits<boost::grid_graph<2>>;
 
     using indexMapType = boost::property_map<boost::grid_graph<2>, boost::edge_index_t>::const_type;
@@ -229,10 +230,15 @@ int main( )
         p.id = i;
         p.x = v[0];
         p.y = v[1];
+        p.coefficient = 1;
+        if(i == 5 || i == 6 || i == 9 || i==10)
+        {
+            p.coefficient = 8;
+        }
         auto newV = cgraph.addVertex(p);
-        EProp ep;
-        ep.outDirection = "Self";
-        cgraph.addEdge(newV, newV, ep);
+        //EProp ep;
+        //ep.outDirection = "Self";
+        //cgraph.addEdge(newV, newV, ep);
         vertexMap[v] = i;
     }
 
@@ -246,11 +252,13 @@ int main( )
         cgraph.addEdge(from, to, ep);
     }
 
-//    std::stringstream ss;
-//    boost::dynamic_properties dp1;
-//    dp1.property("direction", boost::get(&EProp::outDirection, *cgraph.graph));
-//    write_graphml(ss, *cgraph.graph, dp1);
-//    std::cout << ss.str( ) << std::endl;
+    std::ofstream ofs;
+    ofs.open("/tmp/grid.graphml");
+    boost::dynamic_properties dp1;
+    dp1.property("direction", boost::get(&EProp::outDirection, *cgraph.graph));
+    dp1.property("coefficient", boost::get(&VProp::coefficient, *cgraph.graph));
+    write_graphml(ofs, *cgraph.graph, dp1);
+    ofs.close();
 
 
 

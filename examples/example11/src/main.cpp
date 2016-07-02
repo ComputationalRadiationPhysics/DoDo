@@ -24,10 +24,12 @@ int main( )
     auto ibcables1 = hwa.addInterconnectBidirectional(switch1, switch2, "IB");
     auto ibcables2 = hwa.addInterconnectBidirectional(switch1, switch3, "IB");
 
-    constexpr unsigned nMachines = 4;
+    constexpr unsigned nMachines = 1;
     constexpr unsigned nSockets = 2;
     constexpr unsigned nCores = 4;
-    constexpr unsigned nGPUs = 4;
+    constexpr unsigned nGPUs = 1;
+    constexpr unsigned nSMs = 2;
+    constexpr unsigned nCUDACores = 3;
 
     std::vector<dodo::utility::TreeID> k20Nodes(nMachines);
     for(unsigned machine_i = 0; machine_i < nMachines; ++machine_i)
@@ -63,15 +65,18 @@ int main( )
                 dodo::hardware::NodeType::MEMORY,
                 gpu
             );
+            hwa.addInterconnectBidirectional(globalMem, numaNodes[gpu_i%nSockets], "PCI");
             hwa.setCapacity(globalMem, 5242880);
             auto l2 = hwa.addNode(
                 "L2_GPU",
                 dodo::hardware::NodeType::CACHE,
                 globalMem
             );
+            hwa.addInterconnectBidirectional(globalMem, l2, "CUDA_L2_GLOBAL");
             hwa.setCapacity(l2, 1280);
+            hwa.addToMemHierarchy(l2, globalMem);
 
-            for(unsigned sm_i=0; sm_i<13 ; ++sm_i)
+            for(unsigned sm_i=0; sm_i<nSMs ; ++sm_i)
             {
                 auto sm = hwa.addNode(
                     "SM"+std::to_string(sm_i),
@@ -84,19 +89,26 @@ int main( )
                     sm
                 );
                 hwa.setCapacity(l1, 48);
+                hwa.addInterconnectBidirectional(l2, l1, "CUDA_L2_L1");
                 auto sharedMem = hwa.addNode(
                     "sharedMem",
                     dodo::hardware::NodeType::MEMORY,
                     sm
                 );
                 hwa.setCapacity(sharedMem, 16);
-                for(unsigned core_i=0; core_i< 192; ++ core_i)
+                hwa.addInterconnectBidirectional(l2, sharedMem, "CUDA_L2_L1");
+                hwa.addToMemHierarchy(l1, l2);
+                for(unsigned core_i=0; core_i< nCUDACores; ++ core_i)
                 {
                     auto core = hwa.addNode(
-                        "CUDA Core "+std::to_string(core_i+32*sm_i),
+                        "CUDA Core "+std::to_string(core_i+nCUDACores*sm_i),
                         dodo::hardware::NodeType::COMPUTE,
                         l1
                     );
+                    hwa.addInterconnectBidirectional(core, l1, "CUDA_L1_Core");
+                    hwa.addInterconnectBidirectional(core, sharedMem, "CUDA_L1_Core");
+                    hwa.addToMemHierarchy(core, l1);
+                    hwa.addToMemHierarchy(core, sharedMem);
                 }
             }
         }
@@ -160,6 +172,9 @@ int main( )
     nameBandwidthMap["L3L2"] = 2400u * 1000 * 1000 * 64 * 8 / 5 - nameBandwidthMap["L2L1"];
     nameBandwidthMap["CoreL1"] = 2400u * 1000 * 1000 * 64 * 8 *2;
     nameBandwidthMap["FSB"] = 14500u * 8; //MBit/s
+    nameBandwidthMap["CUDA_L2_GLOBAL"] = 208 * 1024 * 8; // MBit/s
+    nameBandwidthMap["CUDA_L2_L1"] = 100 * 1024 * 8; // MBit/s
+    nameBandwidthMap["CUDA_L1_Core"] = 64u * 706u * 1000u * 1000u; // MBit/s
 
 
     auto allCableIter = hwa.ig.getEdges();
@@ -193,7 +208,7 @@ int main( )
 
     std::map<dodo::graph::TreeIDGraph::VertexID, ThreadGraphNodeType> threadGraphTypeMap;
 
-    for(int i=0; i<8; ++i){
+    for(unsigned i=0; i<nSockets*nMachines; ++i){
         auto processVertex = threadGraph.addVertex();
         threadGraphTypeMap[processVertex] = ThreadGraphNodeType::PROCESS;
         threadMapping[processVertex] = l3Caches[i];
