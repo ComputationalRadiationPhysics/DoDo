@@ -128,6 +128,7 @@ struct VProp
     int x;
     int y;
     float coefficient;
+    std::string coordinatestring;
 };
 
 struct EProp
@@ -139,8 +140,8 @@ struct EProp
 int main( )
 {
 
-    const int domain_edge_length = 16;
-    const int patch_edge = 4;
+    const int domain_edge_length = 8;
+    const int patch_edge = 1;
     assert(domain_edge_length % patch_edge == 0);
     const int patches_per_edge = domain_edge_length/patch_edge; // 6/3 = 2
     const int domain_size = domain_edge_length*domain_edge_length; // 6*6
@@ -189,19 +190,19 @@ int main( )
             std::string var = "Self";// ("+std::to_string(fromx)+","+std::to_string(fromy)+")->("+std::to_string(tox)+","+std::to_string(toy)+")";
             if(fromx == (tox+1)%patches_per_edge)
             {
-                var = "East";// ("+std::to_string(fromx)+","+std::to_string(fromy)+")->("+std::to_string(tox)+","+std::to_string(toy)+")";
+                var = "E";// ("+std::to_string(fromx)+","+std::to_string(fromy)+")->("+std::to_string(tox)+","+std::to_string(toy)+")";
             }
             if((fromx+1)%patches_per_edge == tox)
             {
-                var = "West";// ("+std::to_string(fromx)+","+std::to_string(fromy)+")->("+std::to_string(tox)+","+std::to_string(toy)+")";
+                var = "W";// ("+std::to_string(fromx)+","+std::to_string(fromy)+")->("+std::to_string(tox)+","+std::to_string(toy)+")";
             }
             if((fromy+1)%patches_per_edge == toy)
             {
-                var = "South";// ("+std::to_string(fromx)+","+std::to_string(fromy)+")->("+std::to_string(tox)+","+std::to_string(toy)+")";
+                var = "S";// ("+std::to_string(fromx)+","+std::to_string(fromy)+")->("+std::to_string(tox)+","+std::to_string(toy)+")";
             }
             if(fromy == (toy+1)%patches_per_edge)
             {
-                var = "North";// ("+std::to_string(fromx)+","+std::to_string(fromy)+")->("+std::to_string(tox)+","+std::to_string(toy)+")";
+                var = "N";// ("+std::to_string(fromx)+","+std::to_string(fromy)+")->("+std::to_string(tox)+","+std::to_string(toy)+")";
             }
             put(dataMap, *e, var);
         }
@@ -221,6 +222,7 @@ int main( )
 
     using ComponentGridGraph = dodo::graph::SimpleBGL<VProp,EProp>;
     ComponentGridGraph cgraph;
+    int total = 0;
 
     std::map<boost::array<size_t,2>, int> vertexMap;
     for( decltype( num_vertices(g)) i=0 ; i< num_vertices(g) ; ++i)
@@ -231,10 +233,9 @@ int main( )
         p.x = v[0];
         p.y = v[1];
         p.coefficient = 1;
-        if(i == 5 || i == 6 || i == 9 || i==10)
-        {
-            p.coefficient = 8;
-        }
+        p.coordinatestring = "("+std::to_string(p.x)+ "," + std::to_string(p.y)+")";
+        p.coefficient = (domain_edge_length/2 - abs(p.x-domain_edge_length/2)) + (domain_edge_length/2 - abs(p.y-domain_edge_length/2));
+        total += p.coefficient;
         auto newV = cgraph.addVertex(p);
         //EProp ep;
         //ep.outDirection = "Self";
@@ -253,12 +254,14 @@ int main( )
     }
 
     std::ofstream ofs;
-    ofs.open("/tmp/grid.graphml");
+    ofs.open("/tmp/coordinate_grid.graphml");
     boost::dynamic_properties dp1;
     dp1.property("direction", boost::get(&EProp::outDirection, *cgraph.graph));
     dp1.property("coefficient", boost::get(&VProp::coefficient, *cgraph.graph));
+    dp1.property("coordinates" , boost::get(&VProp::coordinatestring, *cgraph.graph));
     write_graphml(ofs, *cgraph.graph, dp1);
     ofs.close();
+    std::cerr << total << std::endl;
 
 
 
