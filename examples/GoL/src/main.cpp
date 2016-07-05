@@ -128,6 +128,7 @@ struct VProp
     int x;
     int y;
     float coefficient;
+    float workload;
     std::string coordinatestring;
 };
 
@@ -140,7 +141,7 @@ struct EProp
 int main( )
 {
 
-    const int domain_edge_length = 8;
+    const int domain_edge_length = 4;
     const int patch_edge = 1;
     assert(domain_edge_length % patch_edge == 0);
     const int patches_per_edge = domain_edge_length/patch_edge; // 6/3 = 2
@@ -167,7 +168,7 @@ int main( )
     }
 
     boost::array< size_t, 2 > lengths = {{ patches_per_edge, patches_per_edge }};
-    boost::grid_graph< 2 > g( lengths, {{false, false}} );
+    boost::grid_graph< 2 > g( lengths, {{true, true}} );
     using Traits = boost::graph_traits<boost::grid_graph<2>>;
 
     using indexMapType = boost::property_map<boost::grid_graph<2>, boost::edge_index_t>::const_type;
@@ -208,22 +209,24 @@ int main( )
         }
     }
 
-    for( decltype( num_vertices(g)) i=0 ; i< num_vertices(g) ; ++i)
-    {
-        auto v = vertex(i,g);
-        auto oEdges = in_edges(v,g);
-        std::cout << "Vertex " << i << std::endl;
-        for(auto e(oEdges.first); e!=oEdges.second ; ++e)
-        {
-            std::cout << get(dataMap, *e) << "  ";
-        }
-        std::cout << std::endl;
-    }
+//    for( decltype( num_vertices(g)) i=0 ; i< num_vertices(g) ; ++i)
+//    {
+//        auto v = vertex(i,g);
+//        auto oEdges = in_edges(v,g);
+//        std::cout << "Vertex " << i << std::endl;
+//        for(auto e(oEdges.first); e!=oEdges.second ; ++e)
+//        {
+//            std::cout << get(dataMap, *e) << "  ";
+//        }
+//        std::cout << std::endl;
+//    }
 
     using ComponentGridGraph = dodo::graph::SimpleBGL<VProp,EProp>;
     ComponentGridGraph cgraph;
     int total = 0;
 
+    // add all vertices to graph
+    // also add self-edges already
     std::map<boost::array<size_t,2>, int> vertexMap;
     for( decltype( num_vertices(g)) i=0 ; i< num_vertices(g) ; ++i)
     {
@@ -232,17 +235,16 @@ int main( )
         p.id = i;
         p.x = v[0];
         p.y = v[1];
-        p.coefficient = 1;
         p.coordinatestring = "("+std::to_string(p.x)+ "," + std::to_string(p.y)+")";
-        p.coefficient = (domain_edge_length/2 - abs(p.x-domain_edge_length/2)) + (domain_edge_length/2 - abs(p.y-domain_edge_length/2));
-        total += p.coefficient;
         auto newV = cgraph.addVertex(p);
-        //EProp ep;
-        //ep.outDirection = "Self";
-        //cgraph.addEdge(newV, newV, ep);
+        EProp ep;
+        ep.outDirection = "Self";
+        cgraph.addEdge(newV, newV, ep);
         vertexMap[v] = i;
     }
 
+
+    // add edges from gridgraph to cgraph
     auto allEdges = edges(g);
     for(auto e(allEdges.first); e!=allEdges.second ; ++e)
     {
@@ -253,12 +255,43 @@ int main( )
         cgraph.addEdge(from, to, ep);
     }
 
+    // set workload at position
+    for(ComponentGridGraph::VertexID v : boost::make_iterator_range(cgraph.getVertices()))
+    {
+        VProp p = cgraph.getVertexProperty( v );
+        p.coefficient =
+            ( domain_edge_length / 2 - abs( p.x - domain_edge_length / 2 ) ) +
+            ( domain_edge_length / 2 - abs( p.y - domain_edge_length / 2 ) );
+        std::cout << p.coefficient << std::endl;
+        total += p.coefficient;
+        cgraph.setVertexProperty(v,p);
+    }
+
+    // set workload at position
+    for(ComponentGridGraph::VertexID v : boost::make_iterator_range(cgraph.getVertices()))
+    {
+        VProp p = cgraph.getVertexProperty( v );
+        for(ComponentGridGraph::EdgeID oei : boost::make_iterator_range(cgraph.getOutEdges(v)))
+        {
+            VProp neighbor = cgraph.getVertexProperty(oei.m_target);
+            p.workload += neighbor.coefficient;
+        }
+
+        p.workload += 2*p.coefficient;
+        p.workload *= 5;
+        std::cout << p.workload << std::endl;
+        cgraph.setVertexProperty(v,p);
+    }
+
     std::ofstream ofs;
     ofs.open("/tmp/coordinate_grid.graphml");
     boost::dynamic_properties dp1;
     dp1.property("direction", boost::get(&EProp::outDirection, *cgraph.graph));
     dp1.property("coefficient", boost::get(&VProp::coefficient, *cgraph.graph));
     dp1.property("coordinates" , boost::get(&VProp::coordinatestring, *cgraph.graph));
+    dp1.property("workload" , boost::get(&VProp::workload, *cgraph.graph));
+    dp1.property("x" , boost::get(&VProp::x, *cgraph.graph));
+    dp1.property("y" , boost::get(&VProp::y, *cgraph.graph));
     write_graphml(ofs, *cgraph.graph, dp1);
     ofs.close();
     std::cerr << total << std::endl;
