@@ -15,7 +15,7 @@ include(${VTK_USE_FILE})
 
 find_package(HDF5 REQUIRED)
 
-set(CMAKE_CXX_LINKER_FLAGS "${CMAKE_CXXLINKER_FLAGS} -rpath")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rpath")
 
 
 # Always add all files to the target executable build call to add them to the build project.
@@ -25,3 +25,4 @@ ADD_EXECUTABLE(${FolderName} ${_SOURCES} ${_HEADERS})
 TARGET_LINK_LIBRARIES(${FolderName} ${Dodo_LIBRARIES})
 TARGET_LINK_LIBRARIES(${FolderName} ${VTK_LIBRARIES})
 TARGET_LINK_LIBRARIES(${FolderName} ${HDF5_LIBRARIES})
+set_property(TARGET ${FolderName} PROPERTY CXX_STANDARD 14)

@@ -71,6 +71,17 @@ parsePythonOutput(std::string path, std::string species, unsigned step)
     return posMap;
 }
 
+template<typename T_Map>
+auto accumulateMaps(T_Map &in1, T_Map & in2)
+{
+    for(auto& m : in1)
+    {
+        m.second.second += in2[m.first].second;
+    }
+    return in1;
+
+}
+
 std::map<boost::array<size_t, 2>, std::pair<boost::array<size_t, 2>, size_t>>
 flatten3DParticleMap(
     const std::map<
@@ -105,12 +116,13 @@ template<typename T_Map>
 auto
 applyMapWeights(
     T_Map & inputMap,
-    size_t bytesPerParticle
+    double bytesPerParticle
 )
 {
     for(auto& elem : inputMap)
     {
         elem.second.second *= bytesPerParticle;
+        elem.second.second /= 1024.*1024.;
     }
     return inputMap;
 }
@@ -341,86 +353,99 @@ int main( )
 
     std::map< boost::array< size_t, dimension >, std::pair< boost::array< size_t, dimension >, size_t>> maximumMap;
 
-    auto m = parsePythonOutput("/home/carli/dev/diplom/data/particlePatches/"+experimentName, "p", 0);
-    auto flatFieldMap = fieldSizeMap3D( m );
-    flatFieldMap = applyMapWeights( flatFieldMap, 2*3*4+3*4 + 4 );
-    writeMapToVTK( flatFieldMap, "/tmp/field_grid.vtk" );
+//    auto m = parsePythonOutput("/home/carli/dev/diplom/data/particlePatches/"+experimentName, "p", 0);
+//    auto flatFieldMap = fieldSizeMap3D( m );
+//    flatFieldMap = applyMapWeights( flatFieldMap, 2*3*4+3*4 + 4 );
+//    writeMapToVTK( flatFieldMap, "/tmp/field_grid.vtk" );
 
+//    for(size_t i = 0 ; i<experimentTimeSteps ; ++i){
+//        std::cout << "Timestep " << i << std::endl;
+//        decltype(maximumMap) memPerTimestep;
+//        for(auto particle : particleTypes)
+//        {
+//            auto m = parsePythonOutput("/home/carli/dev/diplom/data/particlePatches/"+experimentName, particle, i*500);
+//            auto flatMap = m;
+//            if(dimension==2) {
+//                //auto flatMap = flatten3DParticleMap( m );
+//            }
+//            flatMap = applyMapWeights( flatMap, (4+3*4+3*4+4)/1024./1024 );
+//            writeMapToVTK( flatMap, "/tmp/particle_" + particle + "_grid" + std::to_string( i * 500 ) + ".vtk" );
+//            combineMapWithFunctor(flatMap, memPerTimestep, std::plus<size_t>());
+//        }
+//        combineMapWithFunctor(flatFieldMap, memPerTimestep, std::plus<size_t>());
+//        writeMapToVTK( memPerTimestep, "/tmp/totalSize_grid" + std::to_string( i * 500 ) + ".vtk", 1. / 1024. / 1024. );
+//        combineMapWithFunctor(
+//            memPerTimestep,
+//            maximumMap,
+//            [ ]( auto a, auto b ) { return std::max( a, b ); }
+//        );
+//    }
     for(size_t i = 0 ; i<experimentTimeSteps ; ++i){
-        std::cout << "Timestep " << i << std::endl;
-        decltype(maximumMap) memPerTimestep;
-        for(auto particle : particleTypes)
-        {
-            auto m = parsePythonOutput("/home/carli/dev/diplom/data/particlePatches/"+experimentName, particle, i*500);
-            auto flatMap = m;
-            if(dimension==2) {
-                auto flatMap = flatten3DParticleMap( m );
-            }
-            flatMap = applyMapWeights( flatMap, 4+3*4+3*4+4 );
-            writeMapToVTK( flatMap, "/tmp/particle_" + particle + "_grid" + std::to_string( i * 500 ) + ".vtk" );
-            combineMapWithFunctor(flatMap, memPerTimestep, std::plus<size_t>());
-        }
-        combineMapWithFunctor(flatFieldMap, memPerTimestep, std::plus<size_t>());
-        writeMapToVTK( memPerTimestep, "/tmp/totalSize_grid" + std::to_string( i * 500 ) + ".vtk", 1. / 1024. / 1024. );
-        combineMapWithFunctor(
-            memPerTimestep,
-            maximumMap,
-            [ ]( auto a, auto b ) { return std::max( a, b ); }
-        );
+        std::cout << "AllParticles Timestep " << i << std::endl;
+        auto pMap = parsePythonOutput("/home/carli/dev/diplom/data/particlePatches/"+experimentName, "p", i*500);
+        auto cMap = parsePythonOutput("/home/carli/dev/diplom/data/particlePatches/"+experimentName, "C", i*500);
+        auto eMap = parsePythonOutput("/home/carli/dev/diplom/data/particlePatches/"+experimentName, "e", i*500);
+        auto oMap = parsePythonOutput("/home/carli/dev/diplom/data/particlePatches/"+experimentName, "O", i*500);
+        pMap = accumulateMaps(pMap, cMap);
+        pMap = accumulateMaps(pMap, eMap);
+        pMap = accumulateMaps(pMap, oMap);
+        auto flatMap = pMap;
+        flatMap = applyMapWeights( flatMap, 4+3*4+3*4+4);
+        writeMapToVTK( flatMap, "/tmp/particle_all_grid" + std::to_string( i * 500 ) + ".vtk" );
     }
-    writeMapToVTK(
-        maximumMap,
-        "/tmp/maxTotalSizeMB_grid.vtk",
-        1. / 1024. / 1024.
-    );
-    auto mymap = parsePythonOutput("/home/carli/dev/diplom/data/particlePatches/"+experimentName, "C", 10000);
+//    writeMapToVTK(
+//        maximumMap,
+//        "/tmp/maxTotalSizeMB_grid.vtk",
+//        1. / 1024. / 1024.
+//    );
+//    auto mymap = parsePythonOutput("/home/carli/dev/diplom/data/particlePatches/"+experimentName, "C", 10000);
 
 
 
-    constexpr std::array<int, 3> superCellSize = {{ 8, 8, 4}};
-    // granularity of the algorithm: how many supercells need to be grouped together
-    constexpr std::array<int, 3> megaCellSize = {{ 4, 2, 2 }};
-    constexpr std::array<int, 3> cellsInMegaCell = {{
-        superCellSize[0] * megaCellSize[0],
-        superCellSize[1] * megaCellSize[1],
-        superCellSize[2] * megaCellSize[2]
-    }};
-    constexpr std::array<int, 3> domainElements = {{ 3680, 4624, 3680 }};
-    constexpr std::array<int, 3> gridResolution = {{
-        domainElements[0]/cellsInMegaCell[0],
-        domainElements[1]/cellsInMegaCell[1],
-        domainElements[2]/cellsInMegaCell[2]
-    }};
+//    constexpr std::array<int, 3> superCellSize = {{ 8, 8, 4}};
+//    // granularity of the algorithm: how many supercells need to be grouped together
+//    constexpr std::array<int, 3> megaCellSize = {{ 4, 2, 2 }};
+//    constexpr std::array<int, 3> cellsInMegaCell = {{
+//        superCellSize[0] * megaCellSize[0],
+//        superCellSize[1] * megaCellSize[1],
+//        superCellSize[2] * megaCellSize[2]
+//    }};
+//    constexpr std::array<int, 3> domainElements = {{ 3680, 4624, 3680 }};
+//    constexpr std::array<int, 3> gridResolution = {{
+//        domainElements[0]/cellsInMegaCell[0],
+//        domainElements[1]/cellsInMegaCell[1],
+//        domainElements[2]/cellsInMegaCell[2]
+//    }};
 
-    typedef boost::grid_graph<3> GridGraph;
-    using Dimensional = boost::array<size_t, 3>;
+//    typedef boost::grid_graph<3> GridGraph;
+//    using Dimensional = boost::array<size_t, 3>;
 
-    typedef boost::graph_traits<GridGraph> GridTraits;
+//    typedef boost::graph_traits<GridGraph> GridTraits;
 
 
-    //Dimensional fullDimensions = { { 3680/16, 4624/16, 3680/16} };
-    Dimensional fullDimensions{{gridResolution[0], gridResolution[1], gridResolution[2]}};
-    GridGraph full_grid(fullDimensions);
+//    //Dimensional fullDimensions = { { 3680/16, 4624/16, 3680/16} };
+//    Dimensional fullDimensions{{gridResolution[0], gridResolution[1], gridResolution[2]}};
+//    GridGraph full_grid(fullDimensions);
 
-    Dimensional patchDimensions{{20,20,20}};
-    GridGraph patch_grid(patchDimensions);
+//    Dimensional patchDimensions{{20,20,20}};
+//    GridGraph patch_grid(patchDimensions);
 
-    std::map<std::array<int,3>, size_t> patchMap;
+//    std::map<std::array<int,3>, size_t> patchMap;
 
-    using indexMapType = boost::property_map<GridGraph, boost::vertex_index_t>::const_type;
-    indexMapType indexMap(get(boost::vertex_index, patch_grid));
-    boost::vector_property_map<VProp, indexMapType> dataMap(num_vertices(patch_grid), indexMap);
+//    using indexMapType = boost::property_map<GridGraph, boost::vertex_index_t>::const_type;
+//    indexMapType indexMap(get(boost::vertex_index, patch_grid));
+//    boost::vector_property_map<VProp, indexMapType> dataMap(num_vertices(patch_grid), indexMap);
 
-    indexMapType indexMap2(get(boost::vertex_index, full_grid));
-    std::cout << "Elements in Map: "  << (num_vertices(full_grid)*4)/1024/1024./16/16/16 << " MB in size"<< std::endl;
-    boost::vector_property_map<float, indexMapType> particleCountMap(num_vertices(full_grid), indexMap2);
+//    indexMapType indexMap2(get(boost::vertex_index, full_grid));
+//    std::cout << "Elements in Map: "  << (num_vertices(full_grid)*4)/1024/1024./16/16/16 << " MB in size"<< std::endl;
+//    boost::vector_property_map<float, indexMapType> particleCountMap(num_vertices(full_grid), indexMap2);
 
-    indexMapType indexMap3(get(boost::vertex_index, full_grid));
-    std::cout << "Elements in Map: "  << (num_vertices(full_grid)*4)/1024/1024./16/16/16 << " MB in size"<< std::endl;
-    boost::vector_property_map<double, indexMapType> memSizeMap(num_vertices(full_grid), indexMap3);
+//    indexMapType indexMap3(get(boost::vertex_index, full_grid));
+//    std::cout << "Elements in Map: "  << (num_vertices(full_grid)*4)/1024/1024./16/16/16 << " MB in size"<< std::endl;
+//    boost::vector_property_map<double, indexMapType> memSizeMap(num_vertices(full_grid), indexMap3);
 
-    indexMapType indexMap4(get(boost::vertex_index, patch_grid));
-    boost::vector_property_map<double, indexMapType> patchMemSizeMap(num_vertices(patch_grid), indexMap4);
+//    indexMapType indexMap4(get(boost::vertex_index, patch_grid));
+//    boost::vector_property_map<double, indexMapType> patchMemSizeMap(num_vertices(patch_grid), indexMap4);
 
 //    for(unsigned x(0); x<patchDimensions[0]; ++x)
 //    {
@@ -439,53 +464,53 @@ int main( )
 //                // get particle count from file
 //                put(dataMap, zPos, v);
 
-    std::array<std::array<std::size_t, gridResolution[1]>, gridResolution[0]> flatParticleCount;
-    for(unsigned i=0; i<flatParticleCount.size(); ++i)
-        for( auto && item : flatParticleCount[i] )
-            item=0u;
+//    std::array<std::array<std::size_t, gridResolution[1]>, gridResolution[0]> flatParticleCount;
+//    for(unsigned i=0; i<flatParticleCount.size(); ++i)
+//        for( auto && item : flatParticleCount[i] )
+//            item=0u;
 
 
-    for(auto i : mymap)
-    {
-        VProp prop;
-        prop.xoffset = i.first[0];
-        prop.yoffset = i.first[1];
-        prop.zoffset = i.first[2];
-        prop.xextent = i.second.first[0];
-        prop.yextent = i.second.first[1];
-        prop.zextent = i.second.first[2];
-        prop.particleCount = i.second.second;
+//    for(auto i : mymap)
+//    {
+//        VProp prop;
+//        prop.xoffset = i.first[0];
+//        prop.yoffset = i.first[1];
+//        prop.zoffset = i.first[2];
+//        prop.xextent = i.second.first[0];
+//        prop.yextent = i.second.first[1];
+//        prop.zextent = i.second.first[2];
+//        prop.particleCount = i.second.second;
 
-        GridTraits::vertices_size_type patchElem = get(boost::vertex_index_t{}, patch_grid, {{prop.xoffset, prop.yoffset, prop.zoffset}});
-        GridTraits::vertex_descriptor patchID = vertex(patchElem, patch_grid);
-        put(patchMemSizeMap, patchID, (40.*prop.xextent*prop.yextent*prop.zextent+32.f*double(prop.particleCount)));
+//        GridTraits::vertices_size_type patchElem = get(boost::vertex_index_t{}, patch_grid, {{prop.xoffset, prop.yoffset, prop.zoffset}});
+//        GridTraits::vertex_descriptor patchID = vertex(patchElem, patch_grid);
+//        put(patchMemSizeMap, patchID, (40.*prop.xextent*prop.yextent*prop.zextent+32.f*double(prop.particleCount)));
 
-        // TODO: don't average particles, but take from 3D Histogram!
-        float particleCount = prop.particleCount / (double(prop.xextent)*prop.yextent*double(prop.zextent));
-        for(unsigned xFull{prop.xoffset} ; xFull < prop.xextent+prop.xoffset ; xFull+=cellsInMegaCell[0])
-        {
-            for(unsigned yFull{prop.yoffset} ; yFull < prop.yextent+prop.yoffset ; yFull+=cellsInMegaCell[1])
-            {
-                for(unsigned zFull{prop.zoffset} ; zFull < prop.zextent+prop.zoffset ; zFull+=cellsInMegaCell[2])
-                {
-                    GridTraits::vertices_size_type fullElem = get(
-                        boost::vertex_index_t{},
-                        full_grid,
-                        {{
-                            xFull/cellsInMegaCell[0],
-                            yFull/cellsInMegaCell[1],
-                            zFull/cellsInMegaCell[2]
-                        }}
-                    );
+//        // TODO: don't average particles, but take from 3D Histogram!
+//        float particleCount = prop.particleCount / (double(prop.xextent)*prop.yextent*double(prop.zextent));
+//        for(unsigned xFull{prop.xoffset} ; xFull < prop.xextent+prop.xoffset ; xFull+=cellsInMegaCell[0])
+//        {
+//            for(unsigned yFull{prop.yoffset} ; yFull < prop.yextent+prop.yoffset ; yFull+=cellsInMegaCell[1])
+//            {
+//                for(unsigned zFull{prop.zoffset} ; zFull < prop.zextent+prop.zoffset ; zFull+=cellsInMegaCell[2])
+//                {
+//                    GridTraits::vertices_size_type fullElem = get(
+//                        boost::vertex_index_t{},
+//                        full_grid,
+//                        {{
+//                            xFull/cellsInMegaCell[0],
+//                            yFull/cellsInMegaCell[1],
+//                            zFull/cellsInMegaCell[2]
+//                        }}
+//                    );
 
-                    GridTraits::vertex_descriptor fullID = vertex(fullElem, full_grid);
-                    put(particleCountMap, fullID, particleCount);
-                    put(memSizeMap, fullID, (4096.f*40.f+32.f*double(particleCount)));
-                }
-            }
-        }
+//                    GridTraits::vertex_descriptor fullID = vertex(fullElem, full_grid);
+//                    put(particleCountMap, fullID, particleCount);
+//                    put(memSizeMap, fullID, (4096.f*40.f+32.f*double(particleCount)));
+//                }
+//            }
+//        }
 
-    }
+//    }
 
 
 
