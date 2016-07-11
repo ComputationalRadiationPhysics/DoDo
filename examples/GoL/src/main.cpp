@@ -267,6 +267,7 @@ int main( )
         cgraph.setVertexProperty(v,p);
     }
 
+    int totalWorkload = 0;
     // set workload at position
     for(ComponentGridGraph::VertexID v : boost::make_iterator_range(cgraph.getVertices()))
     {
@@ -279,8 +280,10 @@ int main( )
 
         p.workload += 2*p.coefficient;
         p.workload *= 5;
+        totalWorkload += p.workload;
         std::cout << p.workload << std::endl;
         cgraph.setVertexProperty(v,p);
+
     }
 
     std::ofstream ofs;
@@ -295,6 +298,7 @@ int main( )
     write_graphml(ofs, *cgraph.graph, dp1);
     ofs.close();
     std::cerr << total << std::endl;
+    std::cerr << totalWorkload << std::endl;
 
 
 
