@@ -1,34 +1,25 @@
 #pragma once
 
+namespace dodo{
+namespace model{
+namespace hardware{
 
-#include "IHardwareAbstraction.hpp"
+    /**
+     * Uses several extensions that all have to inherit virtually
+     * from the HardwareAbstractionBase base class.
+     * In its interface, this class will have available all the interface
+     * methods from its bases. Thus, it acts as the nicely accessible interface.
+     */
+    template<typename... T_Extensions>
+    struct HardwareAbstraction :
+        public T_Extensions...
+    {
+        HardwareAbstraction(T_Extension&&... extensions) :
+            T_Extensions(extensions)...
+        {}
+    };
 
-namespace dodo
-{
-    namespace model{
-
-        namespace hardware
-        {
-            struct HardwareAbstraction:
-                public IHardwareAbstraction
-            {
-
-                std::map<
-                    graph::TreeIDGraph::TreeID,
-                    int
-                > id2speed;
-                boost::associative_property_map< decltype( id2speed ) > speedMap;
-
-                HardwareAbstraction() :
-                    speedMap(id2speed)
-                {
-                    properties.property("VertexSpeed", speedMap);
-                }
-
-
-            };
-
-        }
-    }
-}
+} /* hardware */
+} /* model */
+} /* dodo */
 

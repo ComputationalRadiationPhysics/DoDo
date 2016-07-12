@@ -1,98 +1,109 @@
 #pragma once
 
 #include <boost/fusion/include/adapt_struct.hpp>
-#include "dodo/types/StringLike.hpp"
+#include "dodo2/types/StringLike.hpp"
 
 namespace dodo
 {
-    namespace utility
+namespace utility
+{
+
+    class TreeID
     {
+    public:
+        unsigned children { 0 };
+        types::StringLike id;
+
+        TreeID( const TreeID & ) = default;
+
+        TreeID( TreeID && ) = default;
+
+        TreeID & operator=( const TreeID & ) = default;
+
+        TreeID & operator=( TreeID && ) = default;
+
+        ~TreeID( ) = default;
 
 
-        class TreeID
+        TreeID( ) :
+            id { std::to_string( children ) }
+        { }
+
+
+        TreeID( std::string i ) :
+            id { i }
+        { }
+
+        TreeID
+        genChildID( )
         {
-        public:
-            unsigned children{0};
-            types::StringLike id;
-            TreeID(const TreeID&) = default;
-            TreeID(TreeID&&) = default;
-            TreeID& operator=(const TreeID&) = default;
-            TreeID& operator=(TreeID&&) = default;
-            ~TreeID() = default;
+            return { id.value + "." + std::to_string( children++ ) };
+        }
 
 
-            TreeID() :
-                id{std::to_string(children)}
-            {}
+        size_t
+        getLevel( ) const
+        {
+            return std::count(
+                id.value.begin( ),
+                id.value.end( ),
+                '.'
+            );
+        }
 
 
-            TreeID(std::string i) :
-                id{i}
-            {}
+        types::StringLike
+        get( ) const
+        {
+            return id.value;
+        }
 
-            TreeID
-            genChildID()
+        TreeID
+        getParentID( ) const
+        {
+            auto lastDot = id.value.rfind( '.' );
+            if( lastDot == std::string::npos )
             {
-                return {id.value + "." + std::to_string(children++)};
+                throw std::runtime_error( "Root has no parent node" );
             }
-
-
-            size_t
-            getLevel() const
-            {
-                return std::count(id.value.begin(), id.value.end(), '.');
-            }
-
-
-            types::StringLike
-            get() const
-            {
-                return id.value;
-            }
-
-            TreeID
-            getParentID() const
-            {
-                auto lastDot = id.value.rfind('.');
-                if(lastDot == std::string::npos) throw std::runtime_error("Root has no parent node");
-                return { id.value.substr(0,lastDot) };
-            }
+            return { id.value.substr( 0, lastDot ) };
+        }
 
 
 
-            friend
-            std::ostream &
-            operator<<(
-                std::ostream &stream,
-                const TreeID &i
-            )
-            {
-                return stream << i.id;
-            }
+        friend
+        std::ostream &
+        operator<<(
+            std::ostream &stream,
+            const TreeID &i
+        )
+        {
+            return stream << i.id;
+        }
 
 
-            friend
-            bool
-            operator<(
-                const TreeID &lhs,
-                const TreeID &rhs
-            )
-            {
-                return lhs.id < rhs.id;
-            }
+        friend
+        bool
+        operator<(
+            const TreeID &lhs,
+            const TreeID &rhs
+        )
+        {
+            return lhs.id < rhs.id;
+        }
 
-            friend
-            bool
-            operator==(
-                const TreeID &lhs,
-                const TreeID &rhs
-            )
-            {
-                return lhs.id == rhs.id;
-            }
+        friend
+        bool
+        operator==(
+            const TreeID &lhs,
+            const TreeID &rhs
+        )
+        {
+            return lhs.id == rhs.id;
+        }
 
 
-        };
+    };
 
 // struct TreeIDLess :
 //     public std::binary_function<
@@ -111,10 +122,7 @@ namespace dodo
 // };
 
 
-
-
-
-    } /* utility */
+} /* utility */
 } /* dodo */
 
 BOOST_FUSION_ADAPT_STRUCT(

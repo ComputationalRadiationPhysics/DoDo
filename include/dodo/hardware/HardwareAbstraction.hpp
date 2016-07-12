@@ -390,8 +390,10 @@ namespace dodo
                         auto child = mhg[ ( *i ).m_target ];
                         if( std::find(res.begin(), res.end(), child) == res.end() )
                         {
-                            assert( typeMap.at( child ) == NodeType::MEMORY ||
-                                    typeMap.at( child ) == NodeType::CACHE
+                            assert( (typeMap.at( child ) == NodeType::MEMORY ||
+                                    typeMap.at( child ) == NodeType::CACHE) &&
+                                    "There is a non-memory element "
+                                    "in the Memory Hierarchy Graph!"
                             );
                             fringe.push_back( child );
                             res.push_back( child );
@@ -421,7 +423,8 @@ namespace dodo
                 std::size_t capacityInKByte
             ){
                 assert( typeMap.at( memory ) == NodeType::MEMORY ||
-                        typeMap.at( memory ) == NodeType::CACHE );
+                        typeMap.at( memory ) == NodeType::CACHE &&
+                        "Trying to set ");
                 MemoryCapacity m { capacityInKByte };
                 capacityMap.insert( std::make_pair(memory, m));
                 //capacityMap.at( memory ) = m;
