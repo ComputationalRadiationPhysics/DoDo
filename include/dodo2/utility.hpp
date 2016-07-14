@@ -24,9 +24,7 @@
 
 #pragma once
 
-#include <dodo/utility/convert_tuple.hpp>
-#include <dodo/utility/RingBuffer.hpp>
-#include <dodo/utility/tree_id.hpp>
-#include <dodo/utility/tuple_index.hpp>
-#include <dodo/utility/type_reflection.hpp>
-#include <dodo/utility/uniqueID.hpp>
+#include <dodo2/utility/convert_tuple.hpp>
+#include <dodo2/utility/tree_id.hpp>
+#include <dodo2/utility/tuple_index.hpp>
+#include <dodo2/utility/type_reflection.hpp>

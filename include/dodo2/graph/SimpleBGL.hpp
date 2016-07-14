@@ -221,6 +221,11 @@ namespace graph
             return num_vertices(*graph);
         }
 
+        size_t numEdges() const
+        {
+            return num_edges(*graph);
+        }
+
 
         void removeVertex(VertexID v)
         {

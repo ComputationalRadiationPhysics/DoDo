@@ -21,16 +21,20 @@ namespace hardware
         std::map< KEY_TYPE, MAPPED_TYPE > internal_##NAME;\
         PropertyManager::MapType < decltype( internal_##NAME ) > NAME;
 
-    using MemoryHierarchyGraph = graph::TreeIDGraph;
-    using ConsistsOfGraph = graph::TreeIDGraph;
-    using InterconnectGraph = graph::InterconnectGraph;
 
     class HardwareAbstractionBase
     {
+    public:
+        using MemoryHierarchyGraph = graph::TreeIDGraph;
+        using ConsistsOfGraph = graph::TreeIDGraph;
+        using InterconnectGraph = graph::InterconnectGraph;
+        using HardwareID = ConsistsOfGraph::TreeID;
         // These graphs represent the STRUCTURE, not the attributes
+    protected:
         ConsistsOfGraph cog;
         MemoryHierarchyGraph mhg;
         InterconnectGraph ig;
+    private:
 
         // The maps store the most basic attributes.
         // To add more advanced attributes, derive from this class
@@ -39,15 +43,15 @@ namespace hardware
         // give ALL the types with a tuple-structure. The latter might
         // require boost::hana magic to deal with derived classes of
         // the Hardware abstraction.
-        CREATE_PROP_MAP( ConsistsOfGraph::TreeID, std::string, nameMap )
+        CREATE_PROP_MAP( HardwareID, std::string, nameMap )
         CREATE_PROP_MAP( InterconnectGraph::EdgeID, std::string, edgeNameMap )
-        CREATE_PROP_MAP( ConsistsOfGraph::TreeID, property::VertexType, typeMap)
+        CREATE_PROP_MAP( HardwareID, property::VertexType, typeMap)
 
-        ConsistsOfGraph::TreeID
+        HardwareID
         addInternal(
             std::string & childName,
             property::VertexType type,
-            ConsistsOfGraph::TreeID childTreeID
+            HardwareID childTreeID
         )
         {
             nameMap[childTreeID] = childName;
@@ -67,7 +71,7 @@ namespace hardware
 
         bool
         isLeaf(
-            const ConsistsOfGraph::TreeID & c
+            const HardwareID & c
         ) const
         {
             auto outEdges = cog.getOutEdges(c);
@@ -114,13 +118,13 @@ namespace hardware
         void
         setProperty(
             const std::string & propName,
-            const utility::TreeID & id,
+            const HardwareID & id,
             T property
         ) {
             propertyManager.set( propName, id, property );
         }
 
-        ConsistsOfGraph::TreeID
+        HardwareID
         addRoot(
             std::string childName,
             property::VertexType type
@@ -132,14 +136,14 @@ namespace hardware
             return addInternal(
                 childName,
                 type,
-                ConsistsOfGraph::TreeID( )
+                HardwareID( )
             );
         }
 
-        ConsistsOfGraph::TreeID add(
+        HardwareID add(
             std::string childName,
             property::VertexType type,
-            ConsistsOfGraph::TreeID & parent
+            HardwareID & parent
         )
         {
             auto res = addInternal(
@@ -152,10 +156,36 @@ namespace hardware
 
         }
 
+        template<typename T_Graph, typename T_Map>
+        auto
+        createIndexMap(
+            T_Map & sourceMap,
+            const T_Graph & graph
+        )
+        {
+            using IndexMap = std::map<
+                typename T_Graph::VertexID,
+                typename T_Map::mapped_type
+            >;
+            IndexMap indexMap;
+
+            for( auto v : boost::make_iterator_range( graph.getVertices() ))
+            {
+                utility::TreeID id = const_cast<T_Graph &>(graph)[v];
+                indexMap.insert(
+                    std::make_pair(
+                        v,
+                        sourceMap[id]
+                    )
+                );
+            }
+            return indexMap;
+        }
+
         auto
         addInterconnect(
-            ConsistsOfGraph::TreeID fromElement,
-            ConsistsOfGraph::TreeID toElement,
+            HardwareID fromElement,
+            HardwareID toElement,
             const std::string & name = ""
         )
         {
@@ -166,8 +196,8 @@ namespace hardware
 
         auto
         addInterconnectBidirectional(
-            ConsistsOfGraph::TreeID element1,
-            ConsistsOfGraph::TreeID element2
+            HardwareID element1,
+            HardwareID element2
         )
         {
             return std::vector<InterconnectGraph::EdgeID>{
@@ -181,7 +211,7 @@ namespace hardware
             property::VertexType t
         )
         {
-            std::vector< ConsistsOfGraph::TreeID > res;
+            std::vector< HardwareID > res;
             for( auto & i : internal_typeMap )
             {
                 if( i.second == t )
@@ -194,10 +224,10 @@ namespace hardware
 
         auto
         getDirectChildren(
-            const graph::TreeIDGraph::TreeID& myself
+            const HardwareID & myself
         )
         {
-            std::vector<graph::TreeIDGraph::TreeID> res;
+            std::vector< HardwareID > res;
             auto outEdges = cog.getOutEdges( myself );
             for( auto i = outEdges.first; i != outEdges.second; ++i )
             {
@@ -208,12 +238,13 @@ namespace hardware
 
         auto
         getAllChildren(
-            const ConsistsOfGraph::TreeID& myself
+            const HardwareID& myself
         )
+        -> std::vector< HardwareID >
         {
-            std::list< ConsistsOfGraph::TreeID> fringe;
+            std::list< HardwareID> fringe;
             fringe.push_back(myself);
-            std::vector< ConsistsOfGraph::TreeID > res;
+            std::vector< HardwareID > res;
             while(!fringe.empty())
             {
                 auto a = fringe.front();
@@ -230,10 +261,10 @@ namespace hardware
 
         auto
         getLeafChildren(
-            const graph::TreeIDGraph::TreeID& myself
+            const HardwareID & myself
         )
         {
-            std::vector<ConsistsOfGraph::TreeID> res;
+            std::vector<HardwareID> res;
             auto allC = getAllChildren(myself);
             for(auto c : allC)
             {
@@ -249,7 +280,7 @@ namespace hardware
 
         auto
         getParent(
-            ConsistsOfGraph::TreeID myself
+            HardwareID myself
         )
         {
             auto v = cog.getInEdges( myself ).first->m_source;
@@ -261,12 +292,12 @@ namespace hardware
 
         auto
         getReachableNeighbors(
-            ConsistsOfGraph::TreeID myself
+            HardwareID myself
         )
         {
             std::list<
                 std::pair<
-                    ConsistsOfGraph::TreeID,
+                    HardwareID,
                     InterconnectGraph::EdgeID
                 >
             > res;
@@ -283,7 +314,7 @@ namespace hardware
         auto filterVertices(
             const T_Predicate predicate
         ){
-            std::vector< ConsistsOfGraph::TreeID > result;
+            std::vector< HardwareID > result;
             for(auto i : internal_nameMap)
             {
                 if(predicate(i.first))
@@ -345,6 +376,8 @@ namespace hardware
                 backingMemory
             );
         }
+
+
 
 
     };

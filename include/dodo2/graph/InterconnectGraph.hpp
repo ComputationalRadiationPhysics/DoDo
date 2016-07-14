@@ -94,6 +94,12 @@ namespace graph
             return ( *graph )[idmap[v]];
         }
 
+        auto
+        getSBGLID( const TreeID & v )
+        {
+            return idmap[v];
+        }
+
 
 
     };

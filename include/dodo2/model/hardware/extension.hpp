@@ -24,5 +24,6 @@
 
 #pragma once
 
-#include <dodo2/types/Base.hpp>
-#include <dodo2/types/StringLike.hpp>
+#include <dodo2/model/hardware/extension/InterconnectBandwidth.hpp>
+#include <dodo2/model/hardware/extension/MemoryUsage.hpp>
+#include <dodo2/model/hardware/extension/VertexSpeed.hpp>

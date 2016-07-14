@@ -1,7 +1,9 @@
 #pragma once
 
+#include <boost/graph/dijkstra_shortest_paths.hpp>
 
 #include <dodo2/model/hardware/HardwareAbstractionBase.hpp>
+#include <dodo2/model/hardware/property/Bandwidth.hpp>
 
 
 namespace dodo
@@ -28,6 +30,8 @@ namespace extension
         > id2inLat;
         PropertyManager::MapType< decltype( id2inLat ) > inLatMap;
 
+
+    protected:
         InterconnectBandwidth( ) :
             inBWMap( id2inBW ),
             inLatMap( id2inLat )
@@ -42,6 +46,8 @@ namespace extension
             );
         }
 
+    public:
+
         std::size_t
         getTransferTime
         (
@@ -50,17 +56,42 @@ namespace extension
             const std::size_t dataBytes
         )
         {
-            //dummy casts to avoid warnings during prototyping
-            (void) from;
-            (void) to;
-            (void) dataBytes;
-            //TODO: Find shortest path based on latency and bandwidth!
-            // assume that all transfers are legal and that
-            // elements themselves don't add any addditional constraints
-            // For elements that don't have latency/bw annotated, assume an
-            // instant transfer
 
-            return 0;
+            using Weight = std::size_t;
+
+            using IndexMap = boost::property_map<
+                InterconnectGraph::BGLGraph,
+                boost::vertex_index_t
+            >::type;
+            IndexMap indexMap;
+            int c=0;
+            for( auto v : boost::make_iterator_range( ig.getVertices( ) ) )
+            {
+                indexMap[v] = c;
+                ++c;
+            }
+            std::vector< Weight > finalDistances( ig.numVertices( ) );
+            auto distanceMap = boost::make_iterator_property_map(
+                finalDistances.begin( ),
+                indexMap
+            );
+
+            auto wmap = make_transform_value_property_map(
+                [ ]( auto & e )
+                {
+                    return 1. / e;
+                },
+                inBWMap
+            );
+
+            // TODO: set the weight to Latency + Bandwidth!
+            boost::dijkstra_shortest_paths(
+                *ig.graph,
+                ig.getSBGLID( from ),
+                boost::distance_map( distanceMap ).boost::weight_map(wmap)
+            );
+
+            return distanceMap[ig.getSBGLID( to )];
         }
 
     };

@@ -12,7 +12,9 @@ namespace hardware{
      */
     template<typename... T_Extensions>
     struct HardwareAbstraction :
+        public virtual HardwareAbstractionBase,
         public T_Extensions...
+
     {
         HardwareAbstraction(T_Extension&&... extensions) :
             T_Extensions(extensions)...

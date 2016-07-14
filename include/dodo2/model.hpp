@@ -24,5 +24,5 @@
 
 #pragma once
 
-#include <dodo2/types/Base.hpp>
-#include <dodo2/types/StringLike.hpp>
+#include <dodo2/model/hardware.hpp>
+#include <dodo2/model/worker.hpp>

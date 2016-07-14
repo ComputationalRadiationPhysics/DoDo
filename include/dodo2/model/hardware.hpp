@@ -24,5 +24,8 @@
 
 #pragma once
 
-#include <dodo2/types/Base.hpp>
-#include <dodo2/types/StringLike.hpp>
+#include <dodo2/model/hardware/extension.hpp>
+#include <dodo2/model/hardware/HardwareAbstractionBase.hpp>
+#include <dodo2/model/hardware/HardwareAbstraction.hpp>
+#include <dodo2/model/hardware/property.hpp>
+#include <dodo2/model/hardware/PropertyManager.hpp>
