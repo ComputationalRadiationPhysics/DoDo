@@ -5,7 +5,7 @@
 #include <dodo2/graph/InterconnectGraph.hpp>
 #include <dodo2/model/hardware/property/VertexType.hpp>
 #include <dodo2/utility/tuple_index.hpp>
-#include <dodo2/model/hardware/PropertyManager.hpp>
+#include <dodo2/utility/PropertyManager.hpp>
 
 
 namespace dodo
@@ -19,7 +19,7 @@ namespace hardware
     // for use in the PropertyManager
     #define CREATE_PROP_MAP( KEY_TYPE, MAPPED_TYPE, NAME )\
         std::map< KEY_TYPE, MAPPED_TYPE > internal_##NAME;\
-        PropertyManager::MapType < decltype( internal_##NAME ) > NAME;
+        utility::PropertyManager::MapType < decltype( internal_##NAME ) > NAME;
 
 
     class HardwareAbstractionBase
@@ -79,7 +79,7 @@ namespace hardware
         }
 
     protected:
-        PropertyManager propertyManager;
+        utility::PropertyManager propertyManager;
 
     public:
 

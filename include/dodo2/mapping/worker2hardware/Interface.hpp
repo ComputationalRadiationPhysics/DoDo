@@ -7,6 +7,7 @@
 #include <dodo2/model/worker/Model.hpp>
 #include <dodo2/model/hardware/HardwareAbstraction.hpp>
 #include <dodo2/model/hardware/HardwareAbstractionBase.hpp>
+#include <dodo2/utility/OneToNMap.hpp>
 
 
 namespace dodo
@@ -15,6 +16,7 @@ namespace mapping
 {
 namespace worker2hardware
 {
+
 
     /**
      * Extensions need to be default-constructible!
@@ -31,11 +33,7 @@ namespace worker2hardware
         using HardwareID = HardwareAbstraction::HardwareID;
         std::shared_ptr< model::worker::Model > workerModel;
         std::shared_ptr< HardwareAbstraction > hardwareModel;
-        std::map<
-            HardwareID,
-            std::vector< WorkerID >
-        > hw2worker;
-        std::map< WorkerID, HardwareID > worker2hw;
+        utility::OneToNMap<HardwareID, WorkerID> mapping;
 
     public:
 
@@ -45,8 +43,7 @@ namespace worker2hardware
         ) :
             workerModel( workerModel ),
             hardwareModel( hardwareModel )
-        {
-        }
+        { }
 
         Interface(
             const std::shared_ptr< model::worker::Model > & workerModel,
@@ -58,13 +55,8 @@ namespace worker2hardware
         ) :
             workerModel( workerModel ),
             hardwareModel( hardwareModel ),
-            worker2hw( worker2hw )
-        {
-            for( auto & i : worker2hw )
-            {
-                hw2worker[i.second].push_back( i.first );
-            }
-        }
+            mapping(worker2hw)
+        { }
 
         Interface(
             const std::shared_ptr< model::worker::Model > & workerModel,
@@ -76,23 +68,8 @@ namespace worker2hardware
         ) :
             workerModel( workerModel ),
             hardwareModel( hardwareModel ),
-            hw2worker( hw2worker )
-        {
-            for( auto & i : hw2worker )
-            {
-                for( auto & j : i.second )
-                {
-                    worker2hw.insert(
-                        std::make_pair(
-                            j,
-                            i.first
-                        )
-                    );
-                }
-            }
-        }
-
-
+            mapping(hw2worker)
+        { }
 
         auto
         moveWorkerToCore(
@@ -100,32 +77,20 @@ namespace worker2hardware
             const HardwareID& h
         )
         {
-            if( worker2hw.find( w ) != worker2hw.end( ) )
-            {
-                const auto & currentCore = worker2hw.at( w );
-                const auto & currentWorkerList = hw2worker.at( currentCore );
-                std::remove(
-                    currentWorkerList,
-                    currentWorkerList.end( ),
-                    w
-                );
-            }
-
-            hw2worker[h].push_back(w);
-            worker2hw[w] = h;
-
+            mapping.eraseMapping(w);
+            mapping.addMapping(h, w);
         }
 
-        assignWorkerToCore( const WorkerID w, const HardwareID & core )
+        auto
+        getWorkersOfCore( const HardwareID& h )
         {
-            // worker
-            assert( worker2hw.find( w ) == worker2hw.end( ) )
+            return mapping.one2n[h];
         }
 
         auto
         getHWOfWorker( const WorkerID w )
         {
-            return worker2hw.at( w );
+            return mapping.n2one.at(w);
         }
 
     };

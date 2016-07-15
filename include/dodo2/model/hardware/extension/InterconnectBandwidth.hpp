@@ -22,13 +22,13 @@ namespace extension
             InterconnectGraph::EdgeID,
             std::size_t
         > id2inBW;
-        PropertyManager::MapType< decltype( id2inBW ) > inBWMap;
+        utility::PropertyManager::MapType< decltype( id2inBW ) > inBWMap;
 
         std::map<
             InterconnectGraph::EdgeID,
             std::size_t
         > id2inLat;
-        PropertyManager::MapType< decltype( id2inLat ) > inLatMap;
+        utility::PropertyManager::MapType< decltype( id2inLat ) > inLatMap;
 
 
     protected:

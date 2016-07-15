@@ -11,9 +11,7 @@
 
 namespace dodo
 {
-namespace model
-{
-namespace hardware
+namespace utility
 {
     class PropertyManager
     {
@@ -83,7 +81,6 @@ namespace hardware
         }
     };
 
-} /* hardware*/
-} /* model */
+} /* utility */
 } /* dodo */
 

@@ -2,7 +2,7 @@
 
 
 #include <dodo2/graph/TreeIDGraph.hpp>
-#include <dodo2/model/hardware/PropertyManager.hpp>
+#include <dodo2/utility/PropertyManager.hpp>
 #include <dodo2/model/hardware/HardwareAbstractionBase.hpp>
 
 
