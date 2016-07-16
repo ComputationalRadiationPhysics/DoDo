@@ -14,12 +14,12 @@ namespace data
     template<typename T_Derived>
     class SimulationDomainMapInterface
     {
-    protected:
+    public:
         std::map<
             graph::CoordinateGraph::EdgeID,
             T_Derived::Directions
         > edge2Direction;
-        boost::associative_property_map< decltype(edge2Direction) > directionMap;
+        boost::associative_property_map< decltype( edge2Direction ) > directionMap;
     };
 
 } /* data */

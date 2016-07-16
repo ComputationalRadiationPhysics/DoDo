@@ -133,6 +133,12 @@ namespace worker
         }
 
         auto
+        getNumberOfWorkers( ) const
+        {
+            return g.numVertices();
+        }
+
+        auto
         getAllAddressSpaces( ) const
         {
             TypeFilter filter(

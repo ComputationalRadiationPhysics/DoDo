@@ -19,19 +19,22 @@ namespace data
     public:
         using Graph = graph::DataGraph;
         using Map = utility::OneToNMap<graph::CoordinateGraph, Graph >;
+        using DataID = Graph::VertexID;
         Graph g;
         Map map;
         bool readOnly;
         SimulationDomain* simDom;
         utility::PropertyManager propertyManager;
+        std::string name;
 
         std::map<
-            Graph::VertexID,
+            DataID,
             float
         > wMap;
         boost::associative_property_map< decltype(wMap) > weightMap;
 
-        DataDomain()
+        DataDomain(const std::string& name)
+            : name(name)
         {
             propertyManager.registerProperty("weight", weightMap);
         }

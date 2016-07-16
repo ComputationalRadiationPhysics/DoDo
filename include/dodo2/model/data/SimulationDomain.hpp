@@ -16,6 +16,7 @@ namespace data
     public:
         using Graph = graph::CoordinateGraph;
         Graph g;
+
     };
 
 } /* data */

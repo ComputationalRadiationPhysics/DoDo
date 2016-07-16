@@ -16,9 +16,6 @@ namespace mapping
 {
 namespace worker2hardware
 {
-namespace extensions
-{
-
 
     template<typename T_Interface>
     bool checkMemoryLegality( const std::shared_ptr<T_Interface> & i )
@@ -43,7 +40,6 @@ namespace extensions
         return true;
     }
 
-}
 
 } /* worker2hardware */
 } /* mapping */

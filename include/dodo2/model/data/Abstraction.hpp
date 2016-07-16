@@ -18,11 +18,12 @@ namespace data
     {
     public:
         T_SimDom simDom;
+        using DataID = DataDomain::DataID;
         std::map<std::string, DataDomain> dataDomains;
 
-        void addDataDomain(std::string name, DataDomain&& dom)
+        void addDataDomain(DataDomain&& dom)
         {
-            dataDomains.insert(std::make_pair(name, dom));
+            dataDomains.insert(std::make_pair(dom.name, dom));
         }
 
 

@@ -1,7 +1,9 @@
 #pragma once
 
 
-#include <tuple>
+#include <map>
+#include <vector>
+#include <algorithm>
 
 
 namespace dodo
@@ -28,7 +30,7 @@ namespace utility
             const std::map<
                 T_N,
                 T_One
-            > & worker2hw
+            > & n2one
         ) :
             n2one( n2one )
         {

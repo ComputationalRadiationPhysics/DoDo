@@ -18,12 +18,8 @@ namespace worker2hardware
 {
 
 
-    /**
-     * Extensions need to be default-constructible!
-     * -> Policy-Based design :)
-     */
     template<
-        typename T_HardwareAbstraction,
+        typename T_HardwareAbstraction
     >
     class Interface
     {
@@ -51,11 +47,11 @@ namespace worker2hardware
             const std::map<
                 WorkerID,
                 HardwareID
-            > & worker2hw
+            > & mapping
         ) :
             workerModel( workerModel ),
             hardwareModel( hardwareModel ),
-            mapping(worker2hw)
+            mapping(mapping)
         { }
 
         Interface(
@@ -64,11 +60,11 @@ namespace worker2hardware
             const std::map<
                 HardwareID,
                 std::vector< WorkerID >
-            > & hw2worker
+            > & mapping
         ) :
             workerModel( workerModel ),
             hardwareModel( hardwareModel ),
-            mapping(hw2worker)
+            mapping(mapping)
         { }
 
         auto
