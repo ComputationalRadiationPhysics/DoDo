@@ -24,6 +24,5 @@
 
 #pragma once
 
-#include <dodo2/mapping/worker2hardware/extensions.hpp>
 #include <dodo2/mapping/worker2hardware/Interface.hpp>
 #include <dodo2/mapping/worker2hardware/Interface.hpp>

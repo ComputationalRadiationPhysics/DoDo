@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 #include <boost/fusion/include/adapt_struct.hpp>
 #include "dodo2/types/StringLike.hpp"
 

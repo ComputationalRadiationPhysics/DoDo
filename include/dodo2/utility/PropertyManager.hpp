@@ -5,6 +5,9 @@
 
 #include <boost/property_map/dynamic_property_map.hpp>
 
+
+#include <dodo2/utility/tree_id.hpp>
+
 namespace dodo
 {
 namespace utility
@@ -41,22 +44,22 @@ namespace utility
         }
 
 
-        template<
-            typename T,
-            typename I
-        >
-        auto
-        get(
-            const std::string & propName,
-            const I id
-        ) const -> T
-        {
-            return boost::get< T >(
-                propName,
-                properties,
-                id
-            );
-        }
+//        template<
+//            typename T,
+//            typename I
+//        >
+//        auto
+//        get(
+//            const std::string & propName,
+//            const I id
+//        ) const -> T
+//        {
+//            return boost::get< T >(
+//                propName,
+//                properties,
+//                id
+//            );
+//        }
 
 
         template<
@@ -96,20 +99,21 @@ namespace utility
 //        }
 //
 //
-//        template< typename T >
-//        auto
-//        get(
-//            const std::string & propName,
-//            const utility::TreeID & id
-//        ) const -> T
-//        {
-//            return boost::get< T >(
-//                propName,
-//                properties,
-//                id
-//            );
-//        }
-//    };
+        template< typename T >
+        auto
+        get(
+            const std::string & propName,
+            const TreeID & id
+        ) -> T
+        {
+
+            return boost::lexical_cast<T>(boost::get(
+                propName,
+                properties,
+                id
+            ));
+        }
+    };
 
 } /* utility */
 } /* dodo */

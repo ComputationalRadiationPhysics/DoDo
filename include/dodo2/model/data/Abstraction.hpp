@@ -13,6 +13,15 @@ namespace model
 namespace data
 {
 
+    /**
+     * Needs to be specialized with a implementation that fulfills the
+     * SimulationDomainMapInterface and the SimulationDomain. See WrappedGrid2D
+     * for an example.
+     *
+     * Has exactly 1 member of that specialization. This is used for spatial
+     * information. Has also an unspecified number of DataDomains, arranged by
+     * name. Data domains internally map to a
+     */
     template< typename T_SimDom >
     class Abstraction
     {

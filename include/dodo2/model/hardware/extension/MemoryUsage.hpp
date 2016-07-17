@@ -24,17 +24,33 @@ namespace extension
 
         std::map<
             ConsistsOfGraph::TreeID,
-            property::MemoryCapacity
+//            property::MemoryCapacity
+            std::size_t
         > id2memusage;
-        PropertyManager::MapType< decltype( id2memusage ) > memUsageMap;
+        utility::PropertyManager::MapType< decltype( id2memusage ) > memUsageMap;
 
+    public:
 
         MemoryUsage( ) :
             memUsageMap( id2memusage )
         {
             propertyManager.registerProperty(
-                "MemoryUsage",
+                std::string("MemoryUsage"),
                 memUsageMap
+            );
+        }
+
+        void
+        setCapacity(
+            const ConsistsOfGraph::TreeID & id,
+            const size_t s
+        )
+        {
+            propertyManager.set(
+                std::string("MemoryUsage"),
+                id,
+//                property::MemoryCapacity( s )
+                s
             );
         }
 

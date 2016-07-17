@@ -59,21 +59,22 @@ namespace extension
 
             using Weight = std::size_t;
 
-            using IndexMap = boost::property_map<
-                InterconnectGraph::BGLGraph,
-                boost::vertex_index_t
-            >::type;
+            using IndexMap = std::map<
+                InterconnectGraph::VertexID,
+                std::size_t
+            >;
             IndexMap indexMap;
+            boost::associative_property_map<IndexMap> propmapIndex(indexMap);
             int c=0;
             for( auto v : boost::make_iterator_range( ig.getVertices( ) ) )
             {
-                indexMap[v] = c;
-                ++c;
+                put(propmapIndex, v, c++);
             }
+
             std::vector< Weight > finalDistances( ig.numVertices( ) );
             auto distanceMap = boost::make_iterator_property_map(
                 finalDistances.begin( ),
-                indexMap
+                propmapIndex
             );
 
             auto wmap = make_transform_value_property_map(
@@ -88,7 +89,7 @@ namespace extension
             boost::dijkstra_shortest_paths(
                 *ig.graph,
                 ig.getSBGLID( from ),
-                boost::distance_map( distanceMap ).boost::weight_map(wmap)
+                boost::distance_map( distanceMap ).weight_map(wmap)
             );
 
             return distanceMap[ig.getSBGLID( to )];

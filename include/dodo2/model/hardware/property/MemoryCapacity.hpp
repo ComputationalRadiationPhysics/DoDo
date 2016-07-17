@@ -26,6 +26,11 @@ namespace property
             filledKBytes { 0 }
         { }
 
+        MemoryCapacity() :
+            capacityKBytes {0},
+            filledKBytes{0}
+        {}
+
 
         void
         setTotalCapacity ( MemSize_t size )
@@ -82,13 +87,13 @@ namespace property
         }
     };
 
-    std::ostream & operator<<(
-        std::ostream & ostream1,
-        const MemoryCapacity & memC
-    )
-    {
-        return ostream1 << memC.getCapacity( );
-    }
+//    std::ostream & operator<<(
+//        std::ostream & ostream1,
+//        const MemoryCapacity & memC
+//    )
+//    {
+//        return ostream1 << memC.getTotalCapacity( );
+//    }
 
 }
 }

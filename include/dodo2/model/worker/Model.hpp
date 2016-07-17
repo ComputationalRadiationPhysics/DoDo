@@ -116,7 +116,7 @@ namespace worker
         }
 
         auto
-        getAllWorkers( ) const
+        getAllWorkers( )
         {
             TypeFilter filter(
                 property::NodeType::WORKER,
@@ -139,7 +139,7 @@ namespace worker
         }
 
         auto
-        getAllAddressSpaces( ) const
+        getAllAddressSpaces( )
         {
             TypeFilter filter(
                 property::NodeType::ADDRESS_SPACE,
@@ -165,7 +165,7 @@ namespace worker
         auto
         getWorkersInAddressSpace(
             const WorkerID addressSpace
-        ) const
+        )
         {
             FindWorkerFilter filter(
                 addressSpace,

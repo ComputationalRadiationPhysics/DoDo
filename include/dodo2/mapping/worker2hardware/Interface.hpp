@@ -26,7 +26,7 @@ namespace worker2hardware
         using HardwareAbstraction = T_HardwareAbstraction;
 
         using WorkerID = model::worker::Model::WorkerID;
-        using HardwareID = HardwareAbstraction::HardwareID;
+        using HardwareID = typename HardwareAbstraction::HardwareID;
         std::shared_ptr< model::worker::Model > workerModel;
         std::shared_ptr< HardwareAbstraction > hardwareModel;
         utility::OneToNMap<HardwareID, WorkerID> mapping;

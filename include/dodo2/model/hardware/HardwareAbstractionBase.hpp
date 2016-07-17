@@ -110,7 +110,10 @@ namespace hardware
             const std::string & propName,
             const utility::TreeID & id
         ) {
-            return propertyManager.get(propName, id);
+            return propertyManager.get< T >(
+                propName,
+                id
+            );
         }
 
 
@@ -197,12 +200,13 @@ namespace hardware
         auto
         addInterconnectBidirectional(
             HardwareID element1,
-            HardwareID element2
+            HardwareID element2,
+            const std::string & name = ""
         )
         {
             return std::vector<InterconnectGraph::EdgeID>{
-                addInterconnect(element1, element2)[0],
-                addInterconnect(element2, element1)[0],
+                addInterconnect(element1, element2, name)[0],
+                addInterconnect(element2, element1, name)[0]
             };
         }
 
@@ -342,15 +346,17 @@ namespace hardware
                 auto t = mhg.getOutEdges( current );
                 for(auto i=t.first; i!=t.second; ++i)
                 {
-                    auto child = mhg[ ( *i ).m_target ];
+                    MemoryHierarchyGraph::TreeID child = mhg[ ( *i ).m_target ];
                     if( std::find(res.begin(), res.end(), child) == res.end() )
                     {
                         assert(
-                            propertyManager.get( "NodeType", child )
+                            (
+                            propertyManager.get<property::VertexType>( "VertexType", child )
                             == property::VertexType::MEMORY
                             ||
-                            propertyManager.get( "NodeType", child )
+                            propertyManager.get<property::VertexType>( "VertexType", child )
                             == property::VertexType::CACHE
+                            )
                             &&
                             "Memory hierarchy seems to contain an "
                             "element that is not a memory"

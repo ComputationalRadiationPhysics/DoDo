@@ -17,7 +17,10 @@ namespace data
     class DataDomain
     {
     public:
+
         using Graph = graph::DataGraph;
+        // TODO: think about moving the map to the Abstraction instead of having
+        // it directly inside the DataDomain
         using Map = utility::OneToNMap<graph::CoordinateGraph, Graph >;
         using DataID = Graph::VertexID;
         Graph g;

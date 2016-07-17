@@ -11,6 +11,7 @@
 #include <boost/property_map/dynamic_property_map.hpp>
 #include <boost/property_map/transform_value_property_map.hpp>
 #include <boost/pending/property.hpp>
+#include <boost/graph/grid_graph.hpp>
 
 #include "PrettyPrinter.hpp"
 
@@ -34,58 +35,58 @@ namespace detail
      * @param dp the dynamic_properties which will be filled
      * @param g the BGL graph where the properties come from
      */
-    template<
-        typename T_Tag,
-        typename T_Graph,
-        typename PropMap = typename boost::property_map<
-            T_Graph,
-            T_Tag
-        >::type,
-        typename MemberSeq = typename boost::property_traits< PropMap >::value_type,
-        typename = typename std::enable_if<
-            !std::is_same<
-                MemberSeq,
-                boost::no_property
-            >::value
-        >::type
-    >
-    void
-    member_iterator(
-        boost::dynamic_properties &dp,
-        T_Graph &g
-    )
-    {
-        using namespace boost;
-
-        using Indices = mpl::range_c<
-            unsigned,
-            0,
-            fusion::result_of::size<MemberSeq>::value
-        >;
-
-        fusion::for_each(
-            Indices{},
-            [&](auto i)
-            {
-                const auto name = fusion::extension::struct_member_name<
-                    MemberSeq,
-                    i
-                >::call();
-                phoenix::function <PrettyPrinter> prettyPrinter;
-
-                PropMap propMap = get(T_Tag{}, g);
-                dp.property(
-                    name,
-                    make_transform_value_property_map(
-                        prettyPrinter(
-                            phoenix::at_c<i>(phoenix::arg_names::arg1)
-                        ),
-                        propMap
-                    )
-                );
-            }
-        );
-    }
+//    template<
+//        typename T_Tag,
+//        typename T_Graph,
+//        typename PropMap = typename boost::property_map<
+//            T_Graph,
+//            T_Tag
+//        >::type,
+//        typename MemberSeq = typename boost::property_traits< PropMap >::value_type,
+//        typename = typename std::enable_if<
+//            !std::is_same<
+//                MemberSeq,
+//                boost::no_property
+//            >::value
+//        >::type
+//    >
+//    void
+//    member_iterator(
+//        boost::dynamic_properties &dp,
+//        T_Graph &g
+//    )
+//    {
+//        using namespace boost;
+//
+//        using Indices = mpl::range_c<
+//            unsigned,
+//            0,
+//            fusion::result_of::size<MemberSeq>::value
+//        >;
+//
+//        fusion::for_each(
+//            Indices{},
+//            [&](auto i)
+//            {
+//                const auto name = fusion::extension::struct_member_name<
+//                    MemberSeq,
+//                    i
+//                >::call();
+//                phoenix::function <PrettyPrinter> prettyPrinter;
+//
+//                PropMap propMap = get(T_Tag{}, g);
+//                dp.property(
+//                    name,
+//                    make_transform_value_property_map(
+//                        prettyPrinter(
+//                            phoenix::at_c<i>(phoenix::arg_names::arg1)
+//                        ),
+//                        propMap
+//                    )
+//                );
+//            }
+//        );
+//    }
 
 
     /**

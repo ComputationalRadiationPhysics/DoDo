@@ -39,7 +39,12 @@ namespace data2worker
                 DataDomain currentDom = i->dataModel->dataDomains[name];
                 for( const Interface::DataID did : d)
                 {
-                    float weight = currentDom.propertyManager.get("weight", did);
+                    float weight =
+                        currentDom.propertyManager
+                            .get(
+                                "weight",
+                                did
+                            );
                 }
             }
 

@@ -40,7 +40,7 @@ namespace property
             return 0;
         }
 
-    }
+    };
 
 
 }

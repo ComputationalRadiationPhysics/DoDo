@@ -12,7 +12,7 @@ namespace dodo{
 namespace model{
 namespace hardware{
 namespace property{
-    enum class VertexType
+    enum VertexType
     {
         COMPUTE,
         MEMORY,

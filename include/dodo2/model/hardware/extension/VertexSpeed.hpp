@@ -25,8 +25,9 @@ namespace extension
             ConsistsOfGraph::TreeID,
             size_t
         > id2speed;
-        PropertyManager::MapType< decltype( id2speed ) > speedMap;
+        utility::PropertyManager::MapType< decltype( id2speed ) > speedMap;
 
+    public:
 
         VertexSpeed( ) :
             speedMap( id2speed )

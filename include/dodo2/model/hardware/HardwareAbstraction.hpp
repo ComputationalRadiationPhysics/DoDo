@@ -1,5 +1,8 @@
 #pragma once
 
+#include <dodo2/model/hardware/HardwareAbstractionBase.hpp>
+
+
 namespace dodo{
 namespace model{
 namespace hardware{
@@ -16,8 +19,11 @@ namespace hardware{
         public T_Extensions...
 
     {
-        HardwareAbstraction(T_Extension&&... extensions) :
-            T_Extensions(extensions)...
+//        HardwareAbstraction(T_Extensions... extensions) :
+//            T_Extensions(extensions)...
+//        {}
+        HardwareAbstraction() :
+            T_Extensions()...
         {}
     };
 
