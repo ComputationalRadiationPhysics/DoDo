@@ -4,6 +4,7 @@
 
 #include <dodo2/model/hardware/HardwareAbstractionBase.hpp>
 #include <dodo2/model/hardware/property/Bandwidth.hpp>
+#include "ExtensionInterface.hpp"
 
 
 namespace dodo
@@ -16,7 +17,8 @@ namespace extension
 {
 
     class InterconnectBandwidth :
-        public virtual HardwareAbstractionBase
+        public virtual HardwareAbstractionBase,
+        public ExtensionInterface
     {
         std::map<
             InterconnectGraph::EdgeID,
@@ -48,7 +50,7 @@ namespace extension
 
     public:
 
-        std::size_t
+        float
         getTransferTime
         (
             const ConsistsOfGraph::TreeID & from,
@@ -57,42 +59,47 @@ namespace extension
         )
         {
 
-            using Weight = std::size_t;
 
-            using IndexMap = std::map<
-                InterconnectGraph::VertexID,
-                std::size_t
-            >;
-            IndexMap indexMap;
-            boost::associative_property_map<IndexMap> propmapIndex(indexMap);
-            int c=0;
-            for( auto v : boost::make_iterator_range( ig.getVertices( ) ) )
-            {
-                put(propmapIndex, v, c++);
-            }
-
-            std::vector< Weight > finalDistances( ig.numVertices( ) );
+            std::vector< float >distanceMem( ig.numVertices( ) );
             auto distanceMap = boost::make_iterator_property_map(
-                finalDistances.begin( ),
-                propmapIndex
+                distanceMem.begin( ),
+                boost::get(boost::vertex_index, *ig.graph)
             );
 
-            auto wmap = make_transform_value_property_map(
-                [ ]( auto & e )
-                {
-                    return 1. / e;
-                },
-                inBWMap
-            );
+            std::map< InterconnectGraph::EdgeID, float > durationMem;
+            for(auto eIt : id2inBW)
+            {
+                InterconnectGraph::EdgeID e = eIt.first;
+                float time = id2inLat[e] + static_cast<float>(dataBytes) / eIt.second;
+                durationMem.insert(std::make_pair(e, time));
+            }
+            boost::associative_property_map<decltype(durationMem)> transferDuration(durationMem);
 
-            // TODO: set the weight to Latency + Bandwidth!
+
             boost::dijkstra_shortest_paths(
                 *ig.graph,
                 ig.getSBGLID( from ),
-                boost::distance_map( distanceMap ).weight_map(wmap)
+                boost::distance_map( distanceMap ).weight_map(transferDuration)
             );
 
             return distanceMap[ig.getSBGLID( to )];
+        }
+
+        void
+        addPropertyToDPWriter(
+            boost::dynamic_properties & dp,
+            std::list< std::shared_ptr< void > > &
+        ) override
+        {
+            dp.property(
+                "InterconnectBandwidth",
+                inBWMap
+            );
+
+            dp.property(
+                "InterconnectLatency",
+                inLatMap
+            );
         }
 
     };

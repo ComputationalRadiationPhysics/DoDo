@@ -14,6 +14,7 @@ namespace utility
 {
     class PropertyManager
     {
+    public:
         boost::dynamic_properties properties;
         std::set< std::string > registeredNames;
 
@@ -99,11 +100,11 @@ namespace utility
 //        }
 //
 //
-        template< typename T >
+        template< typename T , typename I>
         auto
         get(
             const std::string & propName,
-            const TreeID & id
+            const I & id
         ) -> T
         {
 

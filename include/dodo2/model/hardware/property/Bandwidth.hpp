@@ -20,27 +20,27 @@ namespace property
 
         _count
     };
-
-    struct Bandwidth
-    {
-        virtual
-        std::size_t
-        operator()( std::size_t )
-        {
-            return 0;
-        }
-
-    };
-
-    struct InfiniBandwidth : private Bandwidth
-    {
-        std::size_t
-        operator()( std::size_t transferredBytes ) override
-        {
-            return 0;
-        }
-
-    };
+//
+//    struct Bandwidth
+//    {
+//        virtual
+//        std::size_t
+//        operator()( std::size_t )
+//        {
+//            return 0;
+//        }
+//
+//    };
+//
+//    struct InfiniBandwidth : private Bandwidth
+//    {
+//        std::size_t
+//        operator()( std::size_t transferredBytes ) override
+//        {
+//            return 0;
+//        }
+//
+//    };
 
 
 }

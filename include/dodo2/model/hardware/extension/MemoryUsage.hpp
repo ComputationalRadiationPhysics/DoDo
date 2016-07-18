@@ -5,6 +5,7 @@
 #include <dodo2/utility/PropertyManager.hpp>
 #include <dodo2/model/hardware/HardwareAbstractionBase.hpp>
 #include <dodo2/model/hardware/property/MemoryCapacity.hpp>
+#include "ExtensionInterface.hpp"
 
 
 namespace dodo
@@ -19,7 +20,8 @@ namespace extension
     using ConsistsOfGraph = graph::TreeIDGraph;
 
     class MemoryUsage :
-        public virtual HardwareAbstractionBase
+        public virtual HardwareAbstractionBase,
+        public ExtensionInterface
     {
 
         std::map<
@@ -51,6 +53,24 @@ namespace extension
                 id,
 //                property::MemoryCapacity( s )
                 s
+            );
+        }
+
+
+        void
+        addPropertyToDPWriter(
+            boost::dynamic_properties & dp,
+            std::list< std::shared_ptr< void > > & freeList
+        ) override
+        {
+            auto associativeMap = createAssociativeIndexMap(
+                id2memusage,
+                mhg,
+                freeList
+            );
+            dp.property(
+                "MemoryUsage",
+                associativeMap
             );
         }
 

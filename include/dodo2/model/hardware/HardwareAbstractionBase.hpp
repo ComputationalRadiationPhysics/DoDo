@@ -34,7 +34,6 @@ namespace hardware
         ConsistsOfGraph cog;
         MemoryHierarchyGraph mhg;
         InterconnectGraph ig;
-    private:
 
         // The maps store the most basic attributes.
         // To add more advanced attributes, derive from this class
@@ -47,6 +46,7 @@ namespace hardware
         CREATE_PROP_MAP( InterconnectGraph::EdgeID, std::string, edgeNameMap )
         CREATE_PROP_MAP( HardwareID, property::VertexType, typeMap)
 
+    private:
         HardwareID
         addInternal(
             std::string & childName,
@@ -104,11 +104,11 @@ namespace hardware
             );
         }
 
-        template<typename T>
+        template<typename T, typename I>
         T
         getProperty(
             const std::string & propName,
-            const utility::TreeID & id
+            const I & id
         ) {
             return propertyManager.get< T >(
                 propName,
@@ -117,11 +117,11 @@ namespace hardware
         }
 
 
-        template<typename T>
+        template<typename T, typename I>
         void
         setProperty(
             const std::string & propName,
-            const HardwareID & id,
+            const I & id,
             T property
         ) {
             propertyManager.set( propName, id, property );
@@ -166,16 +166,17 @@ namespace hardware
             const T_Graph & graph
         )
         {
+
             using IndexMap = std::map<
                 typename T_Graph::VertexID,
                 typename T_Map::mapped_type
             >;
-            IndexMap indexMap;
+            auto indexMap = std::make_shared<IndexMap>();
 
             for( auto v : boost::make_iterator_range( graph.getVertices() ))
             {
                 utility::TreeID id = const_cast<T_Graph &>(graph)[v];
-                indexMap.insert(
+                indexMap->insert(
                     std::make_pair(
                         v,
                         sourceMap[id]
@@ -183,6 +184,25 @@ namespace hardware
                 );
             }
             return indexMap;
+        }
+
+        template<typename T_Graph, typename T_Map>
+        auto
+        createAssociativeIndexMap(
+            T_Map & sourceMap,
+            const T_Graph & graph,
+            std::list< std::shared_ptr< void > > & freeList
+        )
+        {
+
+            auto indexMap = createIndexMap(
+                sourceMap,
+                graph
+            );
+            freeList.push_back( indexMap );
+            boost::associative_property_map< typename std::decay< decltype( *indexMap ) >::type >
+                associativeMap( *indexMap );
+            return associativeMap;
         }
 
         auto
@@ -332,7 +352,7 @@ namespace hardware
         auto
         getBackingMemories(
             const MemoryHierarchyGraph::TreeID & pe
-        )
+        ) -> std::vector<MemoryHierarchyGraph::TreeID>
         {
             // Breadth first search. We assume a TREE (only 1 path to a node!)
             std::vector<MemoryHierarchyGraph::TreeID> res;
@@ -382,6 +402,13 @@ namespace hardware
                 backingMemory
             );
         }
+
+        auto
+        getAllInterconnects()
+        {
+            return ig.getEdges();
+        }
+
 
 
 

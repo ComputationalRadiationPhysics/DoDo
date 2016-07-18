@@ -42,7 +42,7 @@ namespace graph
             T_OutEdgeList,
             T_VertexList,
             T_Directed,
-            T_VertexProperty,
+            boost::property<boost::vertex_index_t, size_t, T_VertexProperty>,
             T_EdgeProperty
         > BGLGraph;
 

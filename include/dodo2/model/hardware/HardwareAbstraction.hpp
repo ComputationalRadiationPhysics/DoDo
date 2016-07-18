@@ -19,12 +19,121 @@ namespace hardware{
         public T_Extensions...
 
     {
-//        HardwareAbstraction(T_Extensions... extensions) :
-//            T_Extensions(extensions)...
-//        {}
+
+    private:
+        template<
+            typename T,
+            typename... Ts
+        >
+        void fillPropMap(
+            boost::dynamic_properties & dp,
+            std::list< std::shared_ptr< void > > & freeList
+        )
+        {
+            T::addPropertyToDPWriter( dp, freeList );
+            fillPropMap< Ts... >( dp, freeList );
+        }
+template< typename... Ts >
+        auto fillPropMap(
+            boost::dynamic_properties &,
+            std::list< std::shared_ptr< void > > &
+        )
+        -> typename std::enable_if< sizeof...( Ts ) == 0 >::type
+        { }
+
+        template<typename T_Graph>
+        void
+        writeTreeIDGraph(
+            const T_Graph & graph,
+            std::string path,
+            boost::dynamic_properties & dp
+        )
+        {
+            std::ofstream ofs;
+            ofs.open(path);
+            write_graphml(ofs, *(graph.graph), dp );
+            ofs.close();
+        }
+
+    public:
+
         HardwareAbstraction() :
             T_Extensions()...
         {}
+
+        void
+        writeAllGraphs( std::string path_base )
+        {
+            std::list< std::shared_ptr< void > > freeList;
+            boost::dynamic_properties dp;
+
+
+            {
+                auto indexMap = createIndexMap(
+                    internal_typeMap,
+                    cog
+                );
+                freeList.push_back( indexMap );
+                boost::associative_property_map< typename std::decay< decltype( *indexMap ) >::type >
+                    associativeMap( *indexMap );
+                dp.property(
+                    "VertexType",
+                    associativeMap
+                );
+            }
+//            {
+//                auto indexMap = createIndexMap(
+//                    cog.idmap,
+//                    cog
+//                );
+//                freeList.push_back( indexMap );
+//                boost::associative_property_map< typename std::decay< decltype( *indexMap ) >::type >
+//                    associativeMap( *indexMap );
+//                dp.property(
+//                    "VertexType",
+//                    associativeMap
+//                );
+//            }
+            dp.property("TreeID", boost::get(boost::vertex_bundle, *cog.graph));
+            {
+                auto indexMap = createIndexMap(
+                    internal_nameMap,
+                    cog
+                );
+                freeList.push_back( indexMap );
+                boost::associative_property_map< typename std::decay< decltype( *indexMap ) >::type >
+                    associativeMap( *indexMap );
+                dp.property(
+                    "VertexName",
+                    associativeMap
+                );
+            }
+            dp.property( "EdgeName", edgeNameMap );
+
+            fillPropMap< T_Extensions... >(
+                dp,
+                freeList
+            );
+
+            writeTreeIDGraph(
+                cog,
+                path_base + "consists_of_graph.graphml",
+                dp
+            );
+
+            writeTreeIDGraph(
+                mhg,
+                path_base + "memory_hierarchy_graph.graphml",
+                dp
+            );
+
+            writeTreeIDGraph(
+                ig,
+                path_base + "interconnect_graph.graphml",
+                dp
+            );
+        }
+
     };
 
 } /* hardware */

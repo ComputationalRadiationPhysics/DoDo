@@ -107,6 +107,7 @@ namespace utility
 
     };
 
+
 // struct TreeIDLess :
 //     public std::binary_function<
 //         const TreeID,
@@ -126,6 +127,24 @@ namespace utility
 
 } /* utility */
 } /* dodo */
+
+
+
+namespace boost
+{
+    std::string
+    lexical_cast( const dodo::utility::TreeID & t )
+    {
+        return t.id;
+    }
+
+    template<>
+    dodo::utility::TreeID
+    lexical_cast( const std::string & s )
+    {
+        return dodo::utility::TreeID( s );
+    }
+} /* boost */
 
 BOOST_FUSION_ADAPT_STRUCT(
     dodo::utility::TreeID,

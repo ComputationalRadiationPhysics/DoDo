@@ -88,7 +88,7 @@ namespace types
 
 namespace boost
 {
-//    template<>
+    template<>
     dodo::types::StringLike
     lexical_cast( const std::string & s )
     {
