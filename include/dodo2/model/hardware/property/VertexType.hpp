@@ -12,8 +12,9 @@ namespace dodo{
 namespace model{
 namespace hardware{
 namespace property{
-    enum VertexType
+    enum class VertexType
     {
+        MACHINE,
         COMPUTE,
         MEMORY,
         CACHE,
@@ -30,6 +31,9 @@ namespace property{
     {
         switch( n )
         {
+            case VertexType::MACHINE:
+                ostream1 << "Machine";
+                break;
             case VertexType::COMPUTE:
                 ostream1 << "Compute";
                 break;
@@ -71,6 +75,8 @@ namespace boost
     dodo::model::hardware::property::VertexType
     lexical_cast( const std::string & s )
     {
+        if(s == "Machine")
+            return dodo::model::hardware::property::VertexType::MACHINE;
         if(s == "Compute")
             return dodo::model::hardware::property::VertexType::COMPUTE;
         if(s == "Memory")

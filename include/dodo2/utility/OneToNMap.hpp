@@ -25,8 +25,8 @@ namespace utility
             T_One
         > n2one;
 
-        OneToNMap(){};
-        OneToNMap(
+        explicit OneToNMap(){};
+        explicit OneToNMap(
             const std::map<
                 T_N,
                 T_One
@@ -40,7 +40,7 @@ namespace utility
             }
         }
 
-        OneToNMap(
+        explicit OneToNMap(
             const std::map<
                 T_One,
                 std::vector< T_N >
@@ -63,14 +63,15 @@ namespace utility
         }
 
         void
-        eraseMapping( T_N n)
+        eraseMapping( T_N n )
         {
             if( n2one.find( n ) != n2one.end( ) )
             {
                 const auto & currentOne = n2one.at( n );
-                const auto & currentNList = one2n.at( currentOne );
+                auto & currentNList = one2n.at( currentOne );
+
                 std::remove(
-                    currentNList,
+                    currentNList.begin( ),
                     currentNList.end( ),
                     n
                 );

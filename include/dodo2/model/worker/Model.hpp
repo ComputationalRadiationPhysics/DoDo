@@ -77,6 +77,20 @@ namespace worker
 
 
     public:
+
+        Model() = default;
+        Model(size_t addressSpaces, size_t workersPerSpace)
+        {
+            for(size_t i=0 ; i< addressSpaces ; ++i)
+            {
+                auto aSpace = newAddressSpace();
+                for(size_t j=0 ; j<workersPerSpace ; ++j)
+                {
+                    addWorker(aSpace);
+                }
+            }
+        }
+
         using WorkerID = WorkerGraph::VertexID;
 
         WorkerID
@@ -96,6 +110,7 @@ namespace worker
         WorkerID
         addWorker( const WorkerID addressSpace )
         {
+            std::cerr << g.getVertexProperty( addressSpace ).type << std::endl;
             assert(
                 g.getVertexProperty( addressSpace ).type
                 == property::NodeType::ADDRESS_SPACE
