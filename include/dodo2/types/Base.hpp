@@ -27,6 +27,7 @@ namespace types
         virtual ~Base( ) = default;
 
 
+        explicit
         Base(T t) :
             value(t)
         {};

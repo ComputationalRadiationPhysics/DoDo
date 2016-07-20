@@ -29,12 +29,13 @@ namespace types
 
         inline
         auto
-        size( )
+        size( ) const
         {
             return this->value.size( );
         }
 
 
+        explicit
         StringLike( Base::value_type s ) :
             Base( s )
         { };

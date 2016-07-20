@@ -2,6 +2,7 @@
 #include <memory>
 
 #include <dodo2.hpp>
+#include <dodo2/mapping/worker2hardware/checkMemoryBalance.hpp>
 
 
 int main( )
@@ -19,7 +20,7 @@ int main( )
     auto rootNode = hwa->addRoot("Hypnos", dodo::model::hardware::property::VertexType::STRUCTURAL);
     auto switch1 = hwa->add("IB-Switch", dodo::model::hardware::property::VertexType::INTERCONNECT, rootNode);
 
-    constexpr unsigned nMachines = 1;
+    constexpr unsigned nMachines = 2;
     constexpr unsigned nSockets = 1;
     constexpr unsigned nCores = 4;
 
@@ -121,19 +122,18 @@ int main( )
     // * end of defining HWA
     // **************************
 
-//    auto workerModel = std::make_shared<dodo::model::worker::Model>(
-//        nMachines,
-//        nCores
-//    );
 
-    auto workerModel = std::make_shared<dodo::model::worker::Model>( );
 
     /**
      * definie the Mapping
      */
 
     using namespace dodo::model::hardware;
-
+//    auto workerModel = std::make_shared<dodo::model::worker::Model>(
+//        nMachines,
+//        nCores
+//    );
+//
 //    std::map< HardwareAbstraction::HardwareID , std::vector<dodo::model::worker::Model::WorkerID> > hw2workerMap;
 //    auto aspaces = workerModel->getAllAddressSpaces( ).first;
 //    for( auto & machine : hwa->getHWElementsByName("KeplerNode"))
@@ -142,19 +142,26 @@ int main( )
 //        std::advance(aspaces, 1);
 //        hw2workerMap[machine].push_back(aspace);
 //        auto workers = workerModel->getWorkersInAddressSpace( aspace ).first;
-//        for( auto & core : hwa->getAllChildrenWithType( k20Nodes[0], property::COMPUTE ) )
+//        for( auto & core : hwa->getAllChildrenWithType( k20Nodes[0], property::VertexType::COMPUTE ) )
 //        {
 //            hw2workerMap[core].push_back(*workers);
 //            std::advance(workers,1);
 //        }
 //    }
+//    dodo::mapping::worker2hardware::Interface<HardwareAbstraction> worker2hwMapping(workerModel, hwa,hw2workerMap);
 
-
+    auto workerModel = std::make_shared<dodo::model::worker::Model>( );
     dodo::mapping::worker2hardware::Interface<HardwareAbstraction> worker2hwMapping(workerModel, hwa);
 
     worker2hwMapping.generateTrivialMapping(1, {"KeplerNode"});
 
 
+//    assert(dodo::mapping::worker2hardware::checkMemoryLegality(worker2hwMapping));
+
+    for(auto& p : dodo::mapping::worker2hardware::getMaxMemoryForWorker(worker2hwMapping))
+    {
+        std::cerr << "Memory for Worker " << p.first << ":  " << p.second << std::endl;
+    }
 
 
     hwa->writeAllGraphs("/tmp/");

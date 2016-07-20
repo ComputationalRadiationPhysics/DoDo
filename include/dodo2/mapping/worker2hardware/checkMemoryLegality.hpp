@@ -17,29 +17,40 @@ namespace mapping
 namespace worker2hardware
 {
 
-    template<typename T_Interface>
-    bool checkMemoryLegality( const std::shared_ptr<T_Interface> & i )
-    {
 
-        for( auto aSpace : i->workerModel->getAllAddressSpaces( ) )
+    template<typename T_Interface>
+    bool checkMemoryLegality( const T_Interface & i )
+    {
+        for( auto worker : i.listWorkers() )
         {
-            const auto hwMemory = i->worker2hw.at( aSpace );
-            const auto & allHWchildren = i->hardwareModel->getAllChildren( hwMemory );
-            for( auto worker : i->workerModel->getWorkersInAddressSpace( aSpace ) )
+            std::cout << "Worker: " << worker << " on HW: " << i.getHWOfWorker(worker) << std::endl;
+        }
+        for( auto aSpace : i.listAddressSpaces( ) )
+        {
+            const auto hwMemory = i.getHWOfWorker( aSpace );
+            std::cout << "Address Space: " << aSpace << " on HW: " << hwMemory << std::endl;
+            for( auto worker : i.getWorkersInAddressSpace( aSpace ) )
             {
-                if( std::find(
-                    allHWchildren.begin( ),
-                    allHWchildren.end( ),
-                    worker
-                ) == allHWchildren.end( ) )
+                auto core = i.getHWOfWorker( worker );
+                std::cout << "    Worker " << worker << " on Core " << core << std::endl;
+                if( ! i.hardwareModel->isIndirectParent( hwMemory, core ) )
                 {
-                    return false;
+                    std::cout << "abort " << std::endl;
+                    return false;;
+
                 }
             }
         }
         return true;
     }
 
+
+    template<typename T_Interface>
+    bool
+    checkMemoryLegality( const std::shared_ptr<T_Interface> & i )
+    {
+        return checkMemoryLegality(*i);
+    }
 
 } /* worker2hardware */
 } /* mapping */

@@ -33,7 +33,8 @@ namespace hardware{
             T::addPropertyToDPWriter( dp, freeList );
             fillPropMap< Ts... >( dp, freeList );
         }
-template< typename... Ts >
+
+        template< typename... Ts >
         auto fillPropMap(
             boost::dynamic_properties &,
             std::list< std::shared_ptr< void > > &
@@ -55,6 +56,29 @@ template< typename... Ts >
             ofs.close();
         }
 
+        template<typename M>
+        auto
+        addLocalMap(
+            std::string name,
+            M & localMap,
+            boost::dynamic_properties & dp,
+            std::list< std::shared_ptr< void > > & freeList
+        )
+        -> void
+        {
+            auto indexMap = createIndexMap(
+                localMap,
+                cog
+            );
+            freeList.push_back( indexMap );
+            boost::associative_property_map< typename std::decay< decltype( *indexMap ) >::type >
+                associativeMap( *indexMap );
+            dp.property(
+                name,
+                associativeMap
+            );
+        }
+
     public:
 
         HardwareAbstraction() :
@@ -67,47 +91,9 @@ template< typename... Ts >
             std::list< std::shared_ptr< void > > freeList;
             boost::dynamic_properties dp;
 
-
-            {
-                auto indexMap = createIndexMap(
-                    internal_typeMap,
-                    cog
-                );
-                freeList.push_back( indexMap );
-                boost::associative_property_map< typename std::decay< decltype( *indexMap ) >::type >
-                    associativeMap( *indexMap );
-                dp.property(
-                    "VertexType",
-                    associativeMap
-                );
-            }
-//            {
-//                auto indexMap = createIndexMap(
-//                    cog.idmap,
-//                    cog
-//                );
-//                freeList.push_back( indexMap );
-//                boost::associative_property_map< typename std::decay< decltype( *indexMap ) >::type >
-//                    associativeMap( *indexMap );
-//                dp.property(
-//                    "VertexType",
-//                    associativeMap
-//                );
-//            }
+            addLocalMap("VertexType", internal_typeMap, dp, freeList );
+            addLocalMap("VertexName", internal_nameMap, dp, freeList );
             dp.property("TreeID", boost::get(boost::vertex_bundle, *cog.graph));
-            {
-                auto indexMap = createIndexMap(
-                    internal_nameMap,
-                    cog
-                );
-                freeList.push_back( indexMap );
-                boost::associative_property_map< typename std::decay< decltype( *indexMap ) >::type >
-                    associativeMap( *indexMap );
-                dp.property(
-                    "VertexName",
-                    associativeMap
-                );
-            }
             dp.property( "EdgeName", edgeNameMap );
 
             fillPropMap< T_Extensions... >(

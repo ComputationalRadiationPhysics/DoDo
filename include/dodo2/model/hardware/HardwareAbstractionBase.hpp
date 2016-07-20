@@ -294,7 +294,7 @@ namespace dodo
 
                 auto
                 getHWElementsByName(
-                    const std::string & t
+                    const std::string t
                 )
                 -> std::vector< HardwareID >
                 {
@@ -410,8 +410,9 @@ namespace dodo
 
 
                 auto getParent(
-                    HardwareID myself
+                    const HardwareID & myself
                 )
+                -> HardwareID
                 {
                     auto inEdgePair = cog.getInEdges( myself );
                     if( std::distance(inEdgePair.first, inEdgePair.second) == 0)
@@ -420,6 +421,16 @@ namespace dodo
                     }
                     auto v = inEdgePair.first->m_source;
                     return cog[v];
+                }
+
+                auto
+                isParent(
+                    const HardwareID & possibleParent,
+                    const HardwareID & possibleChild
+                )
+                -> bool
+                {
+                    return possibleParent.hasIndirectChild(possibleChild);
                 }
 
 
