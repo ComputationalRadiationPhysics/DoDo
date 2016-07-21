@@ -14,11 +14,11 @@ namespace utility
 {
     class PropertyManager
     {
-    public:
         boost::dynamic_properties properties;
-        std::set< std::string > registeredNames;
 
     public:
+        std::set< std::string > registeredNames;
+
         template< typename T >
         using MapType = boost::associative_property_map< T >;
 

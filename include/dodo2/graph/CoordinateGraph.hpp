@@ -1,5 +1,9 @@
 #pragma once
 
+
+#include <boost/graph/properties.hpp>
+#include <boost/pending/property.hpp>
+
 #include "dodo2/graph/SimpleBGL.hpp"
 #include "dodo2/utility/tree_id.hpp"
 

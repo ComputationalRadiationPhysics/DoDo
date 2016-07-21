@@ -33,25 +33,26 @@ namespace detail
                     participatingWorkers[memory]++;
             }
         }
+
+        auto
+        get( typename T_Interface::HardwareID h ) const
+        -> int
+        {
+            return participatingWorkers.at(h);
+        }
     };
 
     template<typename T_Interface>
     struct ParticipationsMax
     {
-        std::map<
-            typename T_Interface::HardwareID,
-            int
-        > participatingWorkers;
+        ParticipationsMax( const T_Interface & )
+        { }
 
-        ParticipationsMax( const T_Interface & i )
+        auto
+        get( typename T_Interface::HardwareID ) const
+        -> int
         {
-            for(auto worker : i.listWorkers( ) )
-            {
-                typename T_Interface::HardwareID core = i.getHWOfWorker( worker );
-                auto memories = i.hardwareModel->getBackingMemories( core );
-                for( auto memory : memories )
-                    participatingWorkers[memory] = 1;
-            }
+            return 1;
         }
     };
 
@@ -92,8 +93,7 @@ namespace detail
                                    "MemoryUsage",
                                    m
                            ) /
-                           const_cast< T_Participations & >( parts )
-                               .participatingWorkers[m];
+                           parts.get(m);
                 }
             );
             result.push_back(

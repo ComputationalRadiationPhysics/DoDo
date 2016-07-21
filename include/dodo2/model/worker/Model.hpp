@@ -1,5 +1,9 @@
 #pragma once
 
+#include <cassert>
+
+#include <boost/graph/filtered_graph.hpp>
+#include <boost/graph/adjacency_list.hpp>
 
 #include <dodo2/graph/SimpleBGL.hpp>
 #include <dodo2/model/worker/property/NodeType.hpp>
@@ -49,36 +53,62 @@ namespace worker
             }
         };
 
-        struct FindWorkerFilter
-        {
-            WorkerGraph::VertexID aSpace;
-            WorkerGraph* gInner;
+//        struct FindWorkerFilter
+//        {
+//            WorkerGraph::VertexID aSpace;
+//            WorkerGraph* gInner;
+//
+//            FindWorkerFilter( )
+//            { };
+//
+//
+//            FindWorkerFilter(
+//                WorkerGraph::VertexID p,
+//                WorkerGraph * pg
+//            ) :
+//                aSpace( p ),
+//                gInner( pg )
+//            { };
+//
+//            bool
+//            operator()( WorkerGraph::VertexID id )
+//            {
+//                const property::Bundle prop = gInner->getVertexProperty( id );
+////                std::cerr << "submitted Type: WORKER" << " actualType: " << gInner->getVertexProperty( id ).type << std::endl;
+//                bool type = prop.type == property::NodeType::WORKER;
+//                bool s = gInner->getOutEdges( id ).first->m_target == aSpace;
+//                return type && s;
+//            }
+//        };
 
-            FindWorkerFilter( )
-            { };
-
-
-            FindWorkerFilter(
-                WorkerGraph::VertexID p,
-                WorkerGraph * pg
-            ) :
-                aSpace( p ),
-                gInner( pg )
-            { };
-
-            bool
-            operator()( WorkerGraph::VertexID id )
-            {
-                const property::Bundle prop = gInner->getVertexProperty( id );
-//                std::cerr << "submitted Type: WORKER" << " actualType: " << gInner->getVertexProperty( id ).type << std::endl;
-                bool type = prop.type == property::NodeType::WORKER;
-                bool s = gInner->getOutEdges( id ).first->m_target == aSpace;
-                return type && s;
-            }
-        };
+//        struct IsWorkerFilter
+//        {
+//            WorkerGraph* gInner;
+//            IsWorkerFilter( WorkerGraph* gParam ) :
+//                gInner(gParam)
+//            {}
+//
+//            bool operator()( WorkerGraph::VertexID id )
+//            {
+//                const property::Bundle prop = gInner->getVertexProperty( id );
+//                return prop.type == property::NodeType::WORKER;
+//            }
+//        };
 
 
     public:
+
+        bool isWorker(  WorkerGraph::VertexID id )
+        {
+            const property::Bundle prop = g.getVertexProperty( id );
+            return prop.type == property::NodeType::WORKER;
+        }
+
+        bool isAddressSpace(  WorkerGraph::VertexID id )
+        {
+            const property::Bundle prop = g.getVertexProperty( id );
+            return prop.type == property::NodeType::ADDRESS_SPACE;
+        }
 
         Model() = default;
 
@@ -175,7 +205,6 @@ namespace worker
                 boost::keep_all( ),
                 filter
             );
-//            std::cerr << "nAddressSpaces: " << boost::num_vertices(fg) << std::endl;
             return boost::vertices( fg );
         }
 
@@ -191,21 +220,23 @@ namespace worker
             const WorkerID addressSpace
         )
         {
-            FindWorkerFilter filter(
-                addressSpace,
-                &g
-            );
-            boost::filtered_graph<
-                WorkerGraph::BGLGraph,
-                boost::keep_all,
-                FindWorkerFilter
-            > fg(
-                *g.graph,
-                boost::keep_all( ),
-                filter
-            );
-//            std::cerr << "nAddressSpaces: " << boost::num_vertices(fg) << std::endl;
-            return boost::vertices( fg );
+//            FindWorkerFilter filter(
+//                addressSpace,
+//                &g
+//            );
+//            boost::filtered_graph<
+//                WorkerGraph::BGLGraph,
+//                boost::keep_all,
+//                FindWorkerFilter
+//            > fg(
+//                *g.graph,
+//                boost::keep_all( ),
+//                filter
+//            );
+////            std::cerr << "nAddressSpaces: " << boost::num_vertices(fg) << std::endl;
+//            return boost::vertices( fg );
+//            return g.getInEdges(addressSpace);
+            return g.getAdjacentVertices(addressSpace);
         }
 
     };

@@ -1,8 +1,12 @@
 #include <iostream>
 #include <memory>
 
+#include <boost/range/algorithm.hpp>
+#include <boost/range/algorithm_ext.hpp>
+
 #include <dodo2.hpp>
-#include <dodo2/mapping/worker2hardware/checkMemoryBalance.hpp>
+#include <dodo2/mapping/worker2hardware/getMemoryForWorker.hpp>
+#include <dodo2/mapping/worker2hardware/getFLOPSForWorker.hpp>
 
 
 int main( )
@@ -14,7 +18,6 @@ int main( )
         dodo::model::hardware::extension::VertexSpeed
     >;
 
-//    HardwareAbstraction hwa;
     auto hwa = std::make_shared<HardwareAbstraction>();
 
     auto rootNode = hwa->addRoot("Hypnos", dodo::model::hardware::property::VertexType::STRUCTURAL);
@@ -83,7 +86,7 @@ int main( )
                 auto l1 = hwa->add( "L1", dodo::model::hardware::property::VertexType::CACHE, l2 );
                 hwa->setCapacity(l1, 32);
                 auto core = hwa->add( "Core", dodo::model::hardware::property::VertexType::COMPUTE, l1 );
-//                hwa->gigaFLOPSMap.insert( std::make_pair( core, 153.6 ) );
+                hwa->setProperty("VertexSpeed", core, 42000lu);
                 hwa->addToMemHierarchy(core, l1);
                 hwa->addToMemHierarchy(l1, l2);
                 hwa->addToMemHierarchy(l2, l3);
@@ -129,26 +132,6 @@ int main( )
      */
 
     using namespace dodo::model::hardware;
-//    auto workerModel = std::make_shared<dodo::model::worker::Model>(
-//        nMachines,
-//        nCores
-//    );
-//
-//    std::map< HardwareAbstraction::HardwareID , std::vector<dodo::model::worker::Model::WorkerID> > hw2workerMap;
-//    auto aspaces = workerModel->getAllAddressSpaces( ).first;
-//    for( auto & machine : hwa->getHWElementsByName("KeplerNode"))
-//    {
-//        auto aspace = *aspaces;
-//        std::advance(aspaces, 1);
-//        hw2workerMap[machine].push_back(aspace);
-//        auto workers = workerModel->getWorkersInAddressSpace( aspace ).first;
-//        for( auto & core : hwa->getAllChildrenWithType( k20Nodes[0], property::VertexType::COMPUTE ) )
-//        {
-//            hw2workerMap[core].push_back(*workers);
-//            std::advance(workers,1);
-//        }
-//    }
-//    dodo::mapping::worker2hardware::Interface<HardwareAbstraction> worker2hwMapping(workerModel, hwa,hw2workerMap);
 
     auto workerModel = std::make_shared<dodo::model::worker::Model>( );
     dodo::mapping::worker2hardware::Interface<HardwareAbstraction> worker2hwMapping(workerModel, hwa);
@@ -156,11 +139,27 @@ int main( )
     worker2hwMapping.generateTrivialMapping(1, {"KeplerNode"});
 
 
-//    assert(dodo::mapping::worker2hardware::checkMemoryLegality(worker2hwMapping));
+    assert(dodo::mapping::worker2hardware::checkMemoryLegality(worker2hwMapping));
 
-    for(auto& p : dodo::mapping::worker2hardware::getMaxMemoryForWorker(worker2hwMapping))
+    boost::range::for_each(
+        dodo::mapping::worker2hardware::getMaxMemoryForWorker(worker2hwMapping),
+        dodo::mapping::worker2hardware::getFairMemoryForWorker(worker2hwMapping),
+        [ ](
+            auto a,
+            auto b
+        )
+        {
+            std::cerr << "Worker: " << a.first <<
+                " MaxMem: " << a.second <<
+                " FairMem: " << b.second <<
+                std::endl;
+        }
+    );
+
+    for(auto i : dodo::mapping::worker2hardware::getFLOPSForWorker(worker2hwMapping))
     {
-        std::cerr << "Memory for Worker " << p.first << ":  " << p.second << std::endl;
+        std::cerr << "Worker: " << i.first << " FLOPS: " << i.second << std::endl;
+
     }
 
 

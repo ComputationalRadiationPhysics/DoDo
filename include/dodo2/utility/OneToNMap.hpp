@@ -62,8 +62,9 @@ namespace utility
             }
         }
 
-        void
+        auto
         eraseMapping( T_N n )
+        -> void
         {
             if( n2one.find( n ) != n2one.end( ) )
             {
@@ -83,6 +84,29 @@ namespace utility
         {
             one2n[o].push_back(n);
             n2one[n] = o;
+        }
+
+        auto
+        addMapping( std::pair<T_One, T_N> p )
+        -> void
+        {
+            T_One o; T_N n;
+            std::tie(o,n) = p;
+            addMapping(o,n);
+        }
+
+        auto
+        moveNToOne(
+            T_N n,
+            T_One o
+        )
+        -> void
+        {
+            eraseMapping( n );
+            addMapping(
+                o,
+                n
+            );
         }
 
     };

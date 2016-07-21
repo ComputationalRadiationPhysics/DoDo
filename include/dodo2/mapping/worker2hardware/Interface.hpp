@@ -10,6 +10,8 @@
 #include <dodo2/model/hardware/HardwareAbstractionBase.hpp>
 #include <dodo2/utility/OneToNMap.hpp>
 #include <dodo2/mapping/worker2hardware/checkMemoryLegality.hpp>
+#include <boost/iterator/filter_iterator.hpp>
+#include <boost/range/iterator_range.hpp>
 
 
 namespace dodo
@@ -34,7 +36,11 @@ namespace dodo
                 utility::OneToNMap<
                     HardwareID,
                     WorkerID
-                > mapping;
+                > workerMapping;
+                utility::OneToNMap<
+                    HardwareID,
+                    WorkerID
+                > addressSpaceMapping;
 
                 std::shared_ptr< model::worker::Model > workerModel;
             public:
@@ -55,12 +61,31 @@ namespace dodo
                     const std::map<
                         WorkerID,
                         HardwareID
-                    > & mapping
+                    > & p_mapping
                 ) :
                     workerModel( workerModel ),
-                    hardwareModel( hardwareModel ),
-                    mapping( mapping )
-                { }
+                    hardwareModel( hardwareModel )
+                {
+                    for( const auto & i : p_mapping )
+                    {
+                        if( workerModel->isWorker( i.first ) )
+                        {
+                            workerMapping.addMapping( i );
+                        }
+                        else if ( workerModel->isAddressSpace( i.first ) )
+                        {
+                            addressSpaceMapping.addMapping( i );
+                        }
+                        else
+                        {
+                            throw std::runtime_error(
+                                "Element " +
+                                i.first +
+                                " is neither a worker nor an address Space!"
+                            );
+                        }
+                    }
+                }
 
 
                 Interface(
@@ -69,12 +94,36 @@ namespace dodo
                     const std::map<
                         HardwareID,
                         std::vector< WorkerID >
-                    > & mapping
+                    > & p_mapping
                 ) :
                     workerModel( workerModel ),
-                    hardwareModel( hardwareModel ),
-                    mapping( mapping )
-                { }
+                    hardwareModel( hardwareModel )
+                {
+                    for( const auto & j : p_mapping )
+                    {
+                        for( const auto i : j.second )
+                        {
+                            if( workerModel->isWorker( i ) )
+                            {
+                                workerMapping.addMapping( j.first, i );
+                            }
+                            else if( workerModel->isAddressSpace( i ) )
+                            {
+                                addressSpaceMapping.addMapping( j.first, i );
+                            }
+                            else
+                            {
+                                throw std::runtime_error(
+                                    "Element " +
+                                    i +
+                                    " is neither a worker nor an address Space!"
+                                );
+
+                            }
+                        }
+                    }
+
+                }
 
 
                 auto
@@ -84,8 +133,22 @@ namespace dodo
                 )
                 -> void
                 {
-                    mapping.eraseMapping( w );
-                    mapping.addMapping(
+                    workerMapping.eraseMapping( w );
+                    workerMapping.addMapping(
+                        h,
+                        w
+                    );
+                }
+
+                auto
+                moveAddressSpaceToHW(
+                    const WorkerID w,
+                    const HardwareID & h
+                )
+                -> void
+                {
+                    addressSpaceMapping.eraseMapping( w );
+                    addressSpaceMapping.addMapping(
                         h,
                         w
                     );
@@ -96,7 +159,47 @@ namespace dodo
                 getWorkersOfCore( const HardwareID & h )
                 const -> std::vector< WorkerID >
                 {
-                    return mapping.one2n[h];
+                    return workerMapping.one2n[h];
+                }
+
+                auto
+                getAddressSpacesOfHW( const HardwareID & h )
+                const -> std::vector< WorkerID >
+                {
+                    return addressSpaceMapping.one2n[h];
+                }
+
+//                struct IsCore
+//                {
+//                    std::shared_ptr< T_HardwareAbstraction > hardwareModel;
+//
+//                    IsCore( const std::shared_ptr< T_HardwareAbstraction > & hardwareModel ) :
+//                        hardwareModel( hardwareModel )
+//                    { }
+//                    bool operator()(HardwareID h)
+//                    {
+//                        return hardwareModel->template getProperty<model::hardware::property::VertexType>("VertexType", h) == model::hardware::property::VertexType::COMPUTE;
+//                    }
+//                };
+                auto
+                getWorkersOfAllCores( )
+                const
+                {
+                    // possibility 1: copy the map to contain only workers
+                    // possibility 2: store workers and address spaces in different maps!
+//                    boost::filter_iterator(
+//                        [ & ]( auto i )
+//                        {
+//                            return hardwareModel->isVertexType(
+//                                i,
+//                                model::hardware::property::VertexType::COMPUTE
+//                            );
+//                        },
+//                        mapping.one2n.begin( ),
+//                        mapping.one2n.end( )
+//                    );
+//                    return mapping.one2n;
+                    return workerMapping.one2n;
                 }
 
                 auto
@@ -111,13 +214,27 @@ namespace dodo
 
                 }
 
+//                auto
+//                listUsedCores( )
+//                const
+//                -> std::vector< HardwareID >
+//                {
+//                }
 
                 auto
                 getHWOfWorker( const WorkerID w )
                 const
                 -> HardwareID
                 {
-                    return mapping.n2one.at( w );
+                    return workerMapping.n2one.at( w );
+                }
+
+                auto
+                getHWOfAddressSpace( const WorkerID w )
+                const
+                -> HardwareID
+                {
+                    return addressSpaceMapping.n2one.at( w );
                 }
 
                 auto
@@ -167,7 +284,7 @@ namespace dodo
                             machineElements.insert( location );
                             // define a new address space at each possible location
                             auto newSpace = workerModel->newAddressSpace( );
-                            moveWorkerToCore( newSpace, location ); //if it's stupid, but it works -> it's not stupid!
+                            moveAddressSpaceToHW( newSpace, location );
                         }
                     }
 
@@ -183,7 +300,7 @@ namespace dodo
                         {
                             // Address space is in the same type-structure as workers,
                             // so we have to pick first element of vector
-                            auto newWorker = workerModel->addWorker( mapping.one2n.at( current )[0] );
+                            auto newWorker = workerModel->addWorker( addressSpaceMapping.one2n.at( current )[0] );
                             moveWorkerToCore(newWorker, core);
                         }
 

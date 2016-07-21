@@ -1,5 +1,9 @@
 #pragma once
 
+#include <list>
+#include <cassert>
+
+#include <boost/range/iterator_range.hpp>
 
 #include <dodo2/graph/TreeIDGraph.hpp>
 #include <dodo2/graph/InterconnectGraph.hpp>
@@ -109,6 +113,15 @@ namespace dodo
                     );
                 }
 
+                auto
+                isVertexType(
+                    const HardwareID & id,
+                    property::VertexType t
+                ) const
+                -> bool
+                {
+                    return internal_typeMap.at(id) == t;
+                }
 
                 template<
                     typename T,
@@ -196,8 +209,7 @@ namespace dodo
                     >;
                     auto indexMap = std::make_shared< IndexMap >( );
 
-                    for( auto
-                            v : boost::make_iterator_range( graph.getVertices( ) ) )
+                    for( auto v : boost::make_iterator_range( graph.getVertices( ) ) )
                     {
                         utility::TreeID id = const_cast<T_Graph &>(graph)[v];
                         indexMap->insert(
@@ -390,7 +402,8 @@ namespace dodo
                     return res;
                 }
 
-                auto getLeafChildren(
+                auto
+                getLeafChildren(
                     const HardwareID & myself
                 )
                 -> std::vector< HardwareID >
@@ -409,7 +422,8 @@ namespace dodo
                 }
 
 
-                auto getParent(
+                auto
+                getParent(
                     const HardwareID & myself
                 )
                 -> HardwareID
@@ -424,7 +438,7 @@ namespace dodo
                 }
 
                 auto
-                isParent(
+                isIndirectParent(
                     const HardwareID & possibleParent,
                     const HardwareID & possibleChild
                 )

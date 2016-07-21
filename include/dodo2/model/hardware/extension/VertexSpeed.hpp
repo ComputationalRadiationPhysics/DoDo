@@ -1,6 +1,12 @@
 #pragma once
 
 
+#include <list>
+#include <memory>
+#include <map>
+
+#include <boost/property_map/dynamic_property_map.hpp>
+
 #include <dodo2/graph/TreeIDGraph.hpp>
 #include <dodo2/utility/PropertyManager.hpp>
 #include <dodo2/model/hardware/HardwareAbstractionBase.hpp>
