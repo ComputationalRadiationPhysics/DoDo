@@ -24,9 +24,8 @@
 
 #pragma once
 
-#include <dodo2/utility/convert_tuple.hpp>
-#include <dodo2/utility/OneToNMap.hpp>
-#include <dodo2/utility/PropertyManager.hpp>
-#include <dodo2/utility/tree_id.hpp>
-#include <dodo2/utility/tuple_index.hpp>
-#include <dodo2/utility/type_reflection.hpp>
+#include <dodo2/model/data/Abstraction.hpp>
+#include <dodo2/model/data/DataDomain.hpp>
+#include <dodo2/model/data/SimulationDomain.hpp>
+#include <dodo2/model/data/SimulationDomainMapInterface.hpp>
+#include <dodo2/model/data/WrappedGrid2D.hpp>

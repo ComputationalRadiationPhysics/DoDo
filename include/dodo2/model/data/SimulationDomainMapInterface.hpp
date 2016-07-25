@@ -15,11 +15,6 @@ namespace data
     class SimulationDomainMapInterface
     {
     public:
-        std::map<
-            graph::CoordinateGraph::EdgeID,
-            T_Derived::Directions
-        > edge2Direction;
-        boost::associative_property_map< decltype( edge2Direction ) > directionMap;
     };
 
 } /* data */

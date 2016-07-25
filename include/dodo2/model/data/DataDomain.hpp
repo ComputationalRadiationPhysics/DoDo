@@ -26,8 +26,8 @@ namespace data
         using DataID = Graph::VertexID;
         using PosID = graph::CoordinateGraph::VertexID;
         using Map = utility::OneToNMap<
-            PosID,
-            DataID
+            DataID,
+            PosID
         >;
         Graph g;
         Map map;
@@ -46,15 +46,29 @@ namespace data
             : name(name)
         {
             propertyManager.registerProperty(
-                "weight",
+                "sizeInKB",
                 weightMap
             );
         }
 
 
+        template< typename T >
+        auto
+        getProperty(
+            std::string const & propertyName,
+            DataID id
+        )
+        {
+            return propertyManager.get< T >(
+                propertyName,
+                id
+            );
+        }
+
 
         std::size_t
-        size() const
+        size()
+        const
         {
             return g.numVertices( );
         }
@@ -66,7 +80,7 @@ namespace data
         )
         -> void
         {
-            map.moveNToOne( d, p );
+            map.moveNToOne( p, d );
         }
 
         auto
@@ -75,10 +89,10 @@ namespace data
         )
         -> DataID
         {
-            auto d = g.addVertex( );
+            DataID d = g.addVertex( );
             map.addMapping(
-                p,
-                d
+                d,
+                p
             );
             return d;
         }
@@ -87,23 +101,23 @@ namespace data
         getDataAtPos(
             const PosID p
         ) const
-        -> std::vector< DataID >
+        -> DataID
         {
-            return map.one2n.at( p );
+            return map.n2one.at( p );
         }
 
         auto
         getPosOfData(
             const DataID d
         ) const
-        -> PosID
+        -> std::vector< PosID >
         {
-            return map.n2one.at( d );
+            return map.one2n.at( d );
         }
 
 
         auto
-        getDataAtAllPos( ) const
+        getAllDataPositions( ) const
         {
             return map.one2n;
         }

@@ -13,7 +13,13 @@ namespace graph
 {
 
     class CoordinateGraph :
-        public graph::SimpleBGL< >
+        public graph::SimpleBGL<
+            boost::no_property,
+            boost::property<
+                boost::edge_index_t,
+                std::size_t
+            >
+        >
     {
     public:
         using SBGL = graph::SimpleBGL<
@@ -24,6 +30,13 @@ namespace graph
             >
         >;
         using VertexID = SBGL::VertexID;
+
+        CoordinateGraph() = default;
+
+
+        CoordinateGraph( unsigned nVertices ) :
+            SBGL( nVertices )
+        { }
 
     };
 

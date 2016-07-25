@@ -28,11 +28,55 @@ namespace data
     public:
         T_SimDom simDom;
         using DataID = DataDomain::DataID;
+        using PosID = graph::CoordinateGraph::VertexID;
+        using Directions = typename T_SimDom::Directions;
+
         std::map<std::string, DataDomain> dataDomains;
+
 
         void addDataDomain(DataDomain&& dom)
         {
             dataDomains.insert(std::make_pair(dom.name, dom));
+        }
+
+        template<typename T>
+        auto
+        getProperty(
+            std::string const & domainName,
+            std::string const & propertyName,
+            DataID id
+        ) const
+        -> T
+        {
+            return dataDomains.at( domainName ).propertyManager.get(
+                propertyName,
+                id
+            );
+        }
+
+        auto
+        getNeighborData(
+            std::string const & domainName,
+            PosID posID,
+            Directions dir
+        )
+        -> DataID
+        {
+            PosID neighborPos = simDom.getNeighbor(
+                posID,
+                dir
+            );
+            return dataDomains.at( domainName ).getDataAtPos( neighborPos );
+        }
+
+        auto
+        getNeighborData(
+            std::string const & domainName,
+            PosID posID
+        )
+        -> DataID
+        {
+            return dataDomains.at( domainName ).getDataAtPos( posID );
         }
 
 

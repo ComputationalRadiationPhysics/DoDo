@@ -25,5 +25,6 @@
 #pragma once
 
 #include <dodo2/mapping/component2worker.hpp>
+#include <dodo2/mapping/data2pos.hpp>
 #include <dodo2/mapping/data2worker.hpp>
 #include <dodo2/mapping/worker2hardware.hpp>

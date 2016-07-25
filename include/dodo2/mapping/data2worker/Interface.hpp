@@ -20,9 +20,10 @@ namespace data2worker
 {
 
 
+    template<typename T_SimDom>
     class Interface
     {
-        using DataModel = model::data::Abstraction;
+        using DataModel = model::data::Abstraction<T_SimDom>;
         using DataID = model::data::DataDomain::DataID;
         using WorkerModel = model::worker::Model;
         using WorkerID = WorkerModel::WorkerID;
@@ -61,7 +62,6 @@ namespace data2worker
         ) :
             dataModel( dataModel ),
             workerModel( workerModel )
-//            mapping( mapping )
         {
             for(auto a : p_mapping)
             {
@@ -83,7 +83,6 @@ namespace data2worker
         ) :
             dataModel( dataModel ),
             workerModel( workerModel )
-//            mapping( mapping )
         {
             for(auto a : p_mapping)
             {
@@ -91,6 +90,7 @@ namespace data2worker
             }
 
         }
+
 
         auto
         moveDataToWorker(

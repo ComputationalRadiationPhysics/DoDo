@@ -66,6 +66,12 @@ namespace graph
         }
 
 
+        SimpleBGL( unsigned nVertices )
+        {
+            graph = std::make_shared< BGLGraph >( nVertices );
+        }
+
+
         /**
          * @brief Returns all vertices of the graph
          *
@@ -187,7 +193,7 @@ namespace graph
 
         VertexID addVertex()
         {
-            auto v = boost::add_vertex(*graph);
+            VertexID v = boost::add_vertex(*graph);
             return v;
         }
 

@@ -24,5 +24,8 @@
 
 #pragma once
 
-#include <dodo2/mapping/worker2hardware/Interface.hpp>
+#include <dodo2/mapping/worker2hardware/checkMemoryLegality.hpp>
+#include <dodo2/mapping/worker2hardware/detail.hpp>
+#include <dodo2/mapping/worker2hardware/getFLOPSForWorker.hpp>
+#include <dodo2/mapping/worker2hardware/getMemoryForWorker.hpp>
 #include <dodo2/mapping/worker2hardware/Interface.hpp>

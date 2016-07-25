@@ -24,9 +24,4 @@
 
 #pragma once
 
-#include <dodo2/utility/convert_tuple.hpp>
-#include <dodo2/utility/OneToNMap.hpp>
-#include <dodo2/utility/PropertyManager.hpp>
-#include <dodo2/utility/tree_id.hpp>
-#include <dodo2/utility/tuple_index.hpp>
-#include <dodo2/utility/type_reflection.hpp>
+#include <dodo2/mapping/worker2hardware/detail/collectMemoryForWorker.hpp>

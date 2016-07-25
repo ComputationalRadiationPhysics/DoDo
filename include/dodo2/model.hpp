@@ -24,5 +24,6 @@
 
 #pragma once
 
+#include <dodo2/model/data.hpp>
 #include <dodo2/model/hardware.hpp>
 #include <dodo2/model/worker.hpp>

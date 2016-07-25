@@ -28,4 +28,3 @@
 #include <dodo2/model/hardware/HardwareAbstractionBase.hpp>
 #include <dodo2/model/hardware/HardwareAbstraction.hpp>
 #include <dodo2/model/hardware/property.hpp>
-#include <dodo2/utility/PropertyManager.hpp>
