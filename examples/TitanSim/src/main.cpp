@@ -119,11 +119,14 @@ applyMapWeights(
     double bytesPerParticle
 )
 {
+    double megabyteCounter = 0;
     for(auto& elem : inputMap)
     {
         elem.second.second *= bytesPerParticle;
         elem.second.second /= 1024.*1024.;
+        megabyteCounter += elem.second.second;
     }
+    std::cerr << megabyteCounter << std::endl;
     return inputMap;
 }
 
@@ -353,10 +356,11 @@ int main( )
 
     std::map< boost::array< size_t, dimension >, std::pair< boost::array< size_t, dimension >, size_t>> maximumMap;
 
-//    auto m = parsePythonOutput("/home/carli/dev/diplom/data/particlePatches/"+experimentName, "p", 0);
-//    auto flatFieldMap = fieldSizeMap3D( m );
-//    flatFieldMap = applyMapWeights( flatFieldMap, 2*3*4+3*4 + 4 );
-//    writeMapToVTK( flatFieldMap, "/tmp/field_grid.vtk" );
+    auto m = parsePythonOutput("/home/carli/dev/diplom/data/particlePatches/"+experimentName, "p", 0);
+    auto flatFieldMap = fieldSizeMap3D( m );
+    writeMapToVTK( flatFieldMap, "/tmp/field_grid_counts.vtk" );
+    flatFieldMap = applyMapWeights( flatFieldMap, 2*3*4+3*4 + 4 );
+    writeMapToVTK( flatFieldMap, "/tmp/field_grid.vtk" );
 
 //    for(size_t i = 0 ; i<experimentTimeSteps ; ++i){
 //        std::cout << "Timestep " << i << std::endl;
@@ -380,7 +384,8 @@ int main( )
 //            [ ]( auto a, auto b ) { return std::max( a, b ); }
 //        );
 //    }
-    for(size_t i = 0 ; i<experimentTimeSteps ; ++i){
+//    for(size_t i = 0 ; i<experimentTimeSteps ; ++i){
+    { size_t i = 0;
         std::cout << "AllParticles Timestep " << i << std::endl;
         auto pMap = parsePythonOutput("/home/carli/dev/diplom/data/particlePatches/"+experimentName, "p", i*500);
         auto cMap = parsePythonOutput("/home/carli/dev/diplom/data/particlePatches/"+experimentName, "C", i*500);
@@ -390,6 +395,7 @@ int main( )
         pMap = accumulateMaps(pMap, eMap);
         pMap = accumulateMaps(pMap, oMap);
         auto flatMap = pMap;
+        applyMapWeights( flatMap, 1024*1024);
         flatMap = applyMapWeights( flatMap, 4+3*4+3*4+4);
         writeMapToVTK( flatMap, "/tmp/particle_all_grid" + std::to_string( i * 500 ) + ".vtk" );
     }
