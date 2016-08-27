@@ -6,7 +6,7 @@
 #include <boost/property_map/vector_property_map.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/property_map/property_map.hpp>
-#include <dodo/graph/SimpleBGL.hpp>
+#include <dodo2/graph/SimpleBGL.hpp>
 
 
 //struct ComputeComponent
