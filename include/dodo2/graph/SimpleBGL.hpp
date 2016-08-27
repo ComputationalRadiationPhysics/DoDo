@@ -71,6 +71,9 @@ namespace graph
             graph = std::make_shared< BGLGraph >( nVertices );
         }
 
+        virtual ~SimpleBGL()
+        { }
+
 
         /**
          * @brief Returns all vertices of the graph
@@ -243,6 +246,7 @@ namespace graph
         {
             return boost::edge_range(srcVertex, destVertex, *graph);
         }
+
 
 
     };
