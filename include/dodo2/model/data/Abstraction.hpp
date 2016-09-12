@@ -33,6 +33,8 @@ namespace data
 
         std::map<std::string, DataDomain> dataDomains;
 
+        //TODO: add a property manager for domain-wide properties here (stuff like read-only could go there)
+
 
         void addDataDomain(DataDomain&& dom)
         {
