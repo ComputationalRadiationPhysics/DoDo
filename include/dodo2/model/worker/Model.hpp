@@ -34,7 +34,7 @@ namespace worker
             WorkerGraph* gInner;
 
             TypeFilter( )
-            { };
+            { }
 
 
             TypeFilter(
@@ -43,7 +43,7 @@ namespace worker
             ) :
                 t( p ),
                 gInner( pgInner )
-            { };
+            { }
 
             bool
             operator()( WorkerGraph::VertexID id )

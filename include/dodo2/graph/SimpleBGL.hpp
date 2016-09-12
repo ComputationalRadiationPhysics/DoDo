@@ -71,8 +71,9 @@ namespace graph
             graph = std::make_shared< BGLGraph >( nVertices );
         }
 
-        virtual ~SimpleBGL()
-        { }
+        SimpleBGL(const SimpleBGL&) = default;
+        SimpleBGL& operator=(const SimpleBGL&) = default;
+        virtual ~SimpleBGL() = default;
 
 
         /**

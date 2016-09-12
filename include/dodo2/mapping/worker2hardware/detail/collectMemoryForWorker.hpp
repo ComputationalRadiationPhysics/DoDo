@@ -86,9 +86,9 @@ namespace detail
                 memories.begin( ),
                 memories.end( ),
                 0lu,
-                [&i, &parts](std::size_t sum, const auto & m)
+                [&i, &parts](std::size_t isum, const auto & m)
                 {
-                    return sum +
+                    return isum +
                            i.hardwareModel->template getProperty< std::size_t >(
                                    "MemoryUsage",
                                    m

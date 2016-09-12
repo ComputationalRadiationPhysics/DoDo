@@ -30,13 +30,13 @@ namespace types
         explicit
         Base(T t) :
             value(t)
-        {};
+        {}
 
 
         operator value_type() const
         {
             return value;
-        };
+        }
 
 
 
