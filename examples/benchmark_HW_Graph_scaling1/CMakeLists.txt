@@ -10,7 +10,7 @@ string(REPLACE " " "_" FolderName ${FolderName})
 file(GLOB_RECURSE _SOURCES "src" "*.cpp")
 file(GLOB_RECURSE _HEADERS "src" "*.hpp")
 
-FIND_PACKAGE(Boost 1.61 COMPONENTS program_options)
+FIND_PACKAGE(Boost 1.60 REQUIRED COMPONENTS program_options)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 set(Dodo_LIBRARIES ${Dodo_LIBRARIES} ${Boost_LIBRARIES})
 
