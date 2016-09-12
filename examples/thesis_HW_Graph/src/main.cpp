@@ -1,8 +1,8 @@
 #include <iostream>
+#include <vector>
 #include <boost/graph/graphml.hpp>
-#include <dodo/components/dependency/HierarchicalComponent.hpp>
-#include <dodo.hpp>
-#include <dodo/hardware/HardwareAbstraction.hpp>
+#include <dodo2.hpp>
+#include <dodo2/model/hardware/HardwareAbstraction.hpp>
 
 
 
@@ -15,10 +15,14 @@ enum ThreadGraphNodeType{
 
 int main( )
 {
-    dodo::hardware::HardwareAbstraction hwa;
+    dodo::model::hardware::HardwareAbstraction<
+        dodo::model::hardware::extension::MemoryUsage,
+        dodo::model::hardware::extension::InterconnectBandwidth,
+        dodo::model::hardware::extension::VertexSpeed
+    > hwa;
 
-    auto rootNode = hwa.addRoot("Cluster", dodo::hardware::NodeType::STRUCTURAL);
-    auto switch1 = hwa.addNode("Switch", dodo::hardware::NodeType::INTERCONNECT, rootNode);
+    auto rootNode = hwa.addRoot("Cluster", dodo::model::hardware::property::VertexType::STRUCTURAL);
+    auto switch1 = hwa.add("Switch", dodo::model::hardware::property::VertexType::INTERCONNECT, rootNode);
 
     constexpr unsigned nMachines = 2;
     constexpr unsigned nSockets = 1;
@@ -29,18 +33,18 @@ int main( )
     std::vector<dodo::utility::TreeID> k20Nodes(nMachines);
     for(unsigned machine_i = 0; machine_i < nMachines; ++machine_i)
     {
-        auto machine = hwa.addNode(
+        auto machine = hwa.add(
             "ComputeNode",
-            dodo::hardware::NodeType::STRUCTURAL,
+            dodo::model::hardware::property::VertexType::STRUCTURAL,
             rootNode
         );
         k20Nodes[machine_i] = machine;
         std::vector<dodo::utility::TreeID> numaNodes(nSockets);
         for(unsigned socket_i=0; socket_i<nSockets ; ++socket_i)
         {
-            auto numa = hwa.addNode(
+            auto numa = hwa.add(
                 "RAM",
-                dodo::hardware::NodeType::MEMORY,
+                dodo::model::hardware::property::VertexType::MEMORY,
                 machine
             );
             hwa.setCapacity(numa, 33554432);
@@ -49,20 +53,20 @@ int main( )
 
         for(unsigned gpu_i=0; gpu_i<nGPUs ; ++gpu_i)
         {
-            auto gpu = hwa.addNode(
+            auto gpu = hwa.add(
                 "nVidia K20m",
-                dodo::hardware::NodeType::STRUCTURAL,
+                dodo::model::hardware::property::VertexType::STRUCTURAL,
                 machine
             );
-            auto globalMem = hwa.addNode(
+            auto globalMem = hwa.add(
                 "globalMem",
-                dodo::hardware::NodeType::MEMORY,
+                dodo::model::hardware::property::VertexType::MEMORY,
                 gpu
             );
             hwa.setCapacity(globalMem, 5242880);
-            auto l2 = hwa.addNode(
+            auto l2 = hwa.add(
                 "L2_GPU",
-                dodo::hardware::NodeType::CACHE,
+                dodo::model::hardware::property::VertexType::CACHE,
                 globalMem
             );
             hwa.addInterconnectBidirectional(globalMem, l2, "CUDA_L2_GLOBAL");
@@ -71,23 +75,23 @@ int main( )
 
             for(unsigned sm_i=0; sm_i<nSMs ; ++sm_i)
             {
-                auto l1 = hwa.addNode(
+                auto l1 = hwa.add(
                     "L1_SM",
-                    dodo::hardware::NodeType::CACHE,
+                    dodo::model::hardware::property::VertexType::CACHE,
                     l2
                 );
 
-                auto sm = hwa.addNode(
+                auto sm = hwa.add(
                     "SM",
-                    dodo::hardware::NodeType::COMPUTE,
+                    dodo::model::hardware::property::VertexType::COMPUTE,
                     globalMem
                 );
 
                 hwa.setCapacity(l1, 48);
                 hwa.addInterconnectBidirectional(l2, l1, "CUDA_L2_L1");
-                auto sharedMem = hwa.addNode(
+                auto sharedMem = hwa.add(
                     "sharedMem",
-                    dodo::hardware::NodeType::MEMORY,
+                    dodo::model::hardware::property::VertexType::MEMORY,
                     l2
                 );
                 hwa.setCapacity(sharedMem, 16);
@@ -115,14 +119,14 @@ int main( )
         {
             dodo::utility::TreeID numa = numaNodes[socket_i];
             hwa.addInterconnectBidirectional(numa, machine, "PCI");
-            auto package = hwa.addNode(
+            auto package = hwa.add(
                 "CPU",
-                dodo::hardware::NodeType::STRUCTURAL,
+                dodo::model::hardware::property::VertexType::STRUCTURAL,
                 numa
             );
-            auto l3 = hwa.addNode(
+            auto l3 = hwa.add(
                 "L3",
-                dodo::hardware::NodeType::CACHE,
+                dodo::model::hardware::property::VertexType::CACHE,
                 package
             );
             hwa.setCapacity(l3, 10240);
@@ -134,12 +138,12 @@ int main( )
 
             for(unsigned core_i=0; core_i<nCores; ++core_i)
             {
-                auto l2 = hwa.addNode( "L2", dodo::hardware::NodeType::CACHE, l3 );
+                auto l2 = hwa.add( "L2", dodo::model::hardware::property::VertexType::CACHE, l3 );
                 hwa.setCapacity(l2, 256);
-                auto l1 = hwa.addNode( "L1", dodo::hardware::NodeType::CACHE, l2 );
+                auto l1 = hwa.add( "L1", dodo::model::hardware::property::VertexType::CACHE, l2 );
                 hwa.setCapacity(l1, 32);
-                auto core = hwa.addNode( "Core", dodo::hardware::NodeType::COMPUTE, l1 );
-                hwa.gigaFLOPSMap.insert( std::make_pair( core, 153.6 ) );
+                auto core = hwa.add( "Core", dodo::model::hardware::property::VertexType::COMPUTE, l1 );
+                hwa.setVertexSpeed(core, 153.6);
                 hwa.addToMemHierarchy(core, l1);
                 hwa.addToMemHierarchy(l1, l2);
                 hwa.addToMemHierarchy(l2, l3);
@@ -165,21 +169,21 @@ int main( )
     nameBandwidthMap["CUDA_SM_L1"] = 64u * 706u * 1000u * 1000u; // MBit/s
 
 
-    auto allCableIter = hwa.ig.getEdges();
+    auto allCableIter = hwa.getAllInterconnects();
     for(auto i(allCableIter.first); i!=allCableIter.second; ++i)
     {
-        const std::string cableName = hwa.cableNameMap[(*i)];
+        const std::string cableName = hwa.getProperty<std::string>("EdgeName", *i);
         for(auto possibleName : nameBandwidthMap)
         {
             if(cableName == possibleName.first)
             {
-                hwa.bandwidthMap.insert(std::make_pair(*i, dodo::hardware::Bandwidth(possibleName.second)));
+                  hwa.setProperty("InterconnectBandwidth", *i, possibleName.second);
             }
         }
     }
 
 
-    hwa.writeAllTreeIDGraphs("/tmp/");
+    hwa.writeAllGraphs("/tmp/");
 
     return 0;
 }

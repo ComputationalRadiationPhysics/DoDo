@@ -119,6 +119,19 @@ namespace hardware{
                 dp
             );
         }
+        void
+        writeAllMaps( std::string path_base )
+        {
+            std::list< std::shared_ptr< void > > freeList;
+            boost::dynamic_properties dp;
+
+
+            // TODO: implement
+            for(std::string m : propertyManager.registeredNames)
+            {
+            }
+
+        }
 
     };
 

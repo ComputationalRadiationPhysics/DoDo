@@ -49,6 +49,21 @@ namespace extension
 
 
         void
+        setVertexSpeed(
+            const ConsistsOfGraph::TreeID & id,
+            const size_t s
+        )
+        {
+            propertyManager.set(
+                std::string("VertexSpeed"),
+                id,
+                s
+            );
+        }
+
+
+
+        void
         addPropertyToDPWriter(
             boost::dynamic_properties & dp,
             std::list< std::shared_ptr< void > > & freeList
