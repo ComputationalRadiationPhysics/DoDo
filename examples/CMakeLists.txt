@@ -10,6 +10,7 @@ PROJECT("Dodo_examples")
 #-------------------------------------------------------------------------------
 SET(DODO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../" CACHE STRING  "The location of the Dodo library")
 LIST(APPEND CMAKE_PREFIX_PATH "${DODO_ROOT}")
+LIST(APPEND CMAKE_MODULE_PATH "${DODO_ROOT}/cmake")
 
 FIND_PACKAGE(Dodo REQUIRED)
 ADD_COMPILE_OPTIONS(${Dodo_COMPILE_OPTIONS})
