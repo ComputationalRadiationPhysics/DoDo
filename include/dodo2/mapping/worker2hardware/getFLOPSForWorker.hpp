@@ -29,7 +29,7 @@ namespace worker2hardware
         > > result;
         for( auto coreMap : i.getWorkersOfAllCores( ) )
         {
-            int divisor = coreMap.second.size();
+            unsigned divisor = coreMap.second.size();
             if(divisor == 0) continue;
             size_t speed = i.hardwareModel->template getProperty< size_t >(
                 "VertexSpeed",

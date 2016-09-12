@@ -47,24 +47,24 @@ namespace dodo
                 std::shared_ptr< HardwareAbstraction > hardwareModel;
 
                 Interface(
-                    const std::shared_ptr< model::worker::Model > & workerModel,
-                    const std::shared_ptr< HardwareAbstraction > & hardwareModel
+                    const std::shared_ptr< model::worker::Model > & pworkerModel,
+                    const std::shared_ptr< HardwareAbstraction > & phardwareModel
                 ) :
-                    workerModel( workerModel ),
-                    hardwareModel( hardwareModel )
+                    workerModel( pworkerModel ),
+                    hardwareModel( phardwareModel )
                 { }
 
 
                 Interface(
-                    const std::shared_ptr< model::worker::Model > & workerModel,
-                    const std::shared_ptr< HardwareAbstraction > & hardwareModel,
+                    const std::shared_ptr< model::worker::Model > & pworkerModel,
+                    const std::shared_ptr< HardwareAbstraction > & phardwareModel,
                     const std::map<
                         WorkerID,
                         HardwareID
                     > & p_mapping
                 ) :
-                    workerModel( workerModel ),
-                    hardwareModel( hardwareModel )
+                    workerModel( pworkerModel ),
+                    hardwareModel( phardwareModel )
                 {
                     for( const auto & i : p_mapping )
                     {
@@ -89,15 +89,15 @@ namespace dodo
 
 
                 Interface(
-                    const std::shared_ptr< model::worker::Model > & workerModel,
-                    const std::shared_ptr< HardwareAbstraction > & hardwareModel,
+                    const std::shared_ptr< model::worker::Model > & pworkerModel,
+                    const std::shared_ptr< HardwareAbstraction > & phardwareModel,
                     const std::map<
                         HardwareID,
                         std::vector< WorkerID >
                     > & p_mapping
                 ) :
-                    workerModel( workerModel ),
-                    hardwareModel( hardwareModel )
+                    workerModel( pworkerModel ),
+                    hardwareModel( phardwareModel )
                 {
                     for( const auto & j : p_mapping )
                     {
@@ -276,10 +276,9 @@ namespace dodo
                     );
 
                     std::set< HardwareID > machineElements;
-                    for( const auto iname : boost::make_iterator_range( machineNames ) )
+                    for( const auto& iname : boost::make_iterator_range( machineNames ) )
                     {
-                        std::string name = iname;
-                        for( const auto location :  hardwareModel->getHWElementsByName( name ) )
+                        for( const auto location :  hardwareModel->getHWElementsByName( iname ) )
                         {
                             machineElements.insert( location );
                             // define a new address space at each possible location

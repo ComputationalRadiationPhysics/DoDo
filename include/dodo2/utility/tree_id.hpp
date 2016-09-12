@@ -47,10 +47,12 @@ namespace utility
         size_t
         getLevel( ) const
         {
-            return std::count(
-                id.begin( ),
-                id.end( ),
-                '.'
+            return static_cast<size_t>(
+                std::count(
+                    id.begin( ),
+                    id.end( ),
+                    '.'
+                )
             );
         }
 

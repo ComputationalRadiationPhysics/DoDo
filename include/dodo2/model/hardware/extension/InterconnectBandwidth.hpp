@@ -85,6 +85,7 @@ namespace extension
             return distanceMap[ig.getSBGLID( to )];
         }
 
+        virtual
         void
         addPropertyToDPWriter(
             boost::dynamic_properties & dp,
@@ -101,6 +102,8 @@ namespace extension
                 inLatMap
             );
         }
+
+        virtual ~InterconnectBandwidth( ) = default;
 
     };
 

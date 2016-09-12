@@ -50,7 +50,7 @@ namespace data
         ) const
         -> T
         {
-            return dataDomains.at( domainName ).propertyManager.get(
+            return dataDomains.at( domainName ).propertyManager.template get<T>(
                 propertyName,
                 id
             );

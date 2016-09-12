@@ -35,7 +35,7 @@ po::variables_map parseCommandLine(const int argc, char** argv)
     );
     po::variables_map vm;
     po::store(po::parse_command_line( argc, argv, cmdline_options ), vm);
-    po:notify(vm);
+    po::notify(vm);
     return vm;
 
 //    if(vm.count("help")){

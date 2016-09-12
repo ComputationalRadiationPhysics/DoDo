@@ -38,7 +38,7 @@ namespace types
         explicit
         StringLike( Base::value_type s ) :
             Base( s )
-        { };
+        { }
 
 
         friend

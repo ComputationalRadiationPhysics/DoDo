@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <algorithm>
+#include <string>
 
 #include <boost/bimap.hpp>
 #include <dodo2/model/worker/Model.hpp>
@@ -42,16 +43,16 @@ namespace data2worker
 
 
         Interface(
-            const std::shared_ptr< DataModel > & dataModel,
-            const std::shared_ptr< WorkerModel > & workerModel
+            const std::shared_ptr< DataModel > & pdataModel,
+            const std::shared_ptr< WorkerModel > & pworkerModel
         ) :
-            dataModel( dataModel ),
-            workerModel( workerModel )
+            dataModel( pdataModel ),
+            workerModel( pworkerModel )
         { }
 
         Interface(
-            const std::shared_ptr< DataModel > & dataModel,
-            const std::shared_ptr< WorkerModel > & workerModel,
+            const std::shared_ptr< DataModel > & pdataModel,
+            const std::shared_ptr< WorkerModel > & pworkerModel,
             const std::map<
                 std::string,
                 std::map<
@@ -60,8 +61,8 @@ namespace data2worker
                 >
             > & p_mapping
         ) :
-            dataModel( dataModel ),
-            workerModel( workerModel )
+            dataModel( pdataModel ),
+            workerModel( pworkerModel )
         {
             for(auto a : p_mapping)
             {
@@ -71,8 +72,8 @@ namespace data2worker
         }
 
         Interface(
-            const std::shared_ptr< DataModel > & dataModel,
-            const std::shared_ptr< WorkerModel > & workerModel,
+            const std::shared_ptr< DataModel > & pdataModel,
+            const std::shared_ptr< WorkerModel > & pworkerModel,
             const std::map<
                 std::string,
                 std::map<
@@ -81,8 +82,8 @@ namespace data2worker
                 >
             > & p_mapping
         ) :
-            dataModel( dataModel ),
-            workerModel( workerModel )
+            dataModel( pdataModel ),
+            workerModel( pworkerModel )
         {
             for(auto a : p_mapping)
             {
@@ -114,7 +115,7 @@ namespace data2worker
             const WorkerID w
         ) const -> std::vector< DataID >
         {
-            return mapping[dataName].one2n[w];
+            return mapping.at(dataName).one2n.at(w);
         }
 
         auto

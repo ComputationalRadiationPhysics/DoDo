@@ -1,10 +1,6 @@
 #pragma once
 
-#include <boost/graph/dijkstra_shortest_paths.hpp>
-
-#include <dodo2/model/hardware/HardwareAbstractionBase.hpp>
-#include <dodo2/model/hardware/property/Bandwidth.hpp>
-
+#include <memory>
 
 namespace dodo
 {
@@ -23,6 +19,8 @@ namespace extension
             std::list< std::shared_ptr< void > > &
         )
         { }
+
+        virtual ~ExtensionInterface(){}
 
     };
 
