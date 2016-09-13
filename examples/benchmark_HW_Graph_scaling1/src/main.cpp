@@ -24,13 +24,15 @@ enum ThreadGraphNodeType{
 
 
 
+po::variables_map parseCommandLine(const int, char**);
+
 po::variables_map parseCommandLine(const int argc, char** argv)
 {
     po::options_description cmdline_options( "Experiment Options" );
     cmdline_options.add_options( )
     (
         "nodes",
-        po::value< int >( )->default_value( 4 ),
+        po::value< size_t >( )->default_value( 4 ),
         "The number nodes to model"
     );
     po::variables_map vm;
@@ -66,14 +68,14 @@ int main(
     auto ibcables2 = hwa.addInterconnectBidirectional(switch1, switch3, "IB");
 
     //constexpr unsigned nMachines = 1;
-    unsigned nMachines = vm["nodes"].as<int>();
+    size_t nMachines = vm["nodes"].as<size_t>();
     constexpr unsigned nSockets = 1;
     constexpr unsigned nCores = 4;
     constexpr unsigned nGPUs = 1;
     constexpr unsigned nSMs = 4;
 
     std::vector<dodo::utility::TreeID> k20Nodes(nMachines);
-    for(unsigned machine_i = 0; machine_i < nMachines; ++machine_i)
+    for(size_t machine_i = 0; machine_i < nMachines; ++machine_i)
     {
         auto machine = hwa.add(
             "KeplerNode",
@@ -205,7 +207,7 @@ int main(
     nameBandwidthMap["IB"] = 9700u;    //single link IB FDR-10 in MBit/s
     nameBandwidthMap["QPI"] = 153600u;      //2.4 GHz as from the processor
     // See http://www.7-cpu.com/cpu/Haswell.html
-    nameBandwidthMap["L2L1"] = 2400u * 1000 * 1000 * 64 * 8 / 2.3; //2.4 GHz, theoretical peak of 64bytes per 2.3 cycles
+    nameBandwidthMap["L2L1"] = static_cast<size_t>(2400u * 1000 * 1000 * 64 * 8 / 2.3); //2.4 GHz, theoretical peak of 64bytes per 2.3 cycles
     nameBandwidthMap["L3L2"] = 2400u * 1000 * 1000 * 64 * 8 / 5 - nameBandwidthMap["L2L1"];
     nameBandwidthMap["CoreL1"] = 2400u * 1000 * 1000 * 64 * 8 *2;
     nameBandwidthMap["FSB"] = 14500u * 8; //MBit/s
@@ -303,7 +305,7 @@ int main(
 //
 //
 //
-//    hwa.writeAllTreeIDGraphs("/tmp/");
+    hwa.writeAllGraphs("/tmp/");
 //    hwa.writeAllMaps("/tmp/");
 
 
