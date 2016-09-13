@@ -38,6 +38,7 @@ namespace extension
     public:
 
         VertexSpeed( ) :
+            id2speed{},
             speedMap( id2speed )
         {
             propertyManager.registerProperty(

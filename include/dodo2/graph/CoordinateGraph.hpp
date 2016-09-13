@@ -34,7 +34,7 @@ namespace graph
         CoordinateGraph() = default;
 
 
-        CoordinateGraph( unsigned nVertices ) :
+        CoordinateGraph( std::size_t nVertices ) :
             SBGL( nVertices )
         { }
 

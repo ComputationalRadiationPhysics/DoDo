@@ -15,6 +15,7 @@ namespace property
     {
         std::size_t id;
         NodeType type;
+        unsigned padding;
     };
 
 } /* property */

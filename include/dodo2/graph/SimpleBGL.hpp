@@ -60,16 +60,13 @@ namespace graph
     public:
 
 
-        SimpleBGL()
-        {
-            graph = std::make_shared<BGLGraph>();
-        }
+        SimpleBGL() :
+            graph{ std::make_shared<BGLGraph>()  }
+        {}
 
-
-        SimpleBGL( unsigned nVertices )
-        {
-            graph = std::make_shared< BGLGraph >( nVertices );
-        }
+        SimpleBGL( std::size_t nVertices ) :
+            graph{ std::make_shared< BGLGraph >( nVertices ) }
+        {}
 
         SimpleBGL(const SimpleBGL&) = default;
         SimpleBGL& operator=(const SimpleBGL&) = default;

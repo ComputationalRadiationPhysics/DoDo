@@ -34,6 +34,7 @@ namespace extension
     public:
 
         MemoryUsage( ) :
+            id2memusage{},
             memUsageMap( id2memusage )
         {
             propertyManager.registerProperty(

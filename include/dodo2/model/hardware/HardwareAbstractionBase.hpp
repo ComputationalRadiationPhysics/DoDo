@@ -95,9 +95,16 @@ namespace dodo
                 // The 'internal_' member variables are created by the macro
                 // CREATE_PROP_MAP
                 HardwareAbstractionBase( ) :
+                    cog(),
+                    mhg(),
+                    ig(),
+                    internal_nameMap(),
                     nameMap( internal_nameMap ),
+                    internal_edgeNameMap(),
                     edgeNameMap( internal_edgeNameMap ),
-                    typeMap( internal_typeMap )
+                    internal_typeMap(),
+                    typeMap( internal_typeMap ),
+                    propertyManager()
                 {
                     propertyManager.registerProperty(
                         "VertexName",
@@ -112,6 +119,8 @@ namespace dodo
                         typeMap
                     );
                 }
+
+                virtual ~HardwareAbstractionBase() = default;
 
                 auto
                 isVertexType(

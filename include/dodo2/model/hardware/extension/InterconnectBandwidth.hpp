@@ -35,7 +35,9 @@ namespace extension
 
     protected:
         InterconnectBandwidth( ) :
+            id2inBW{},
             inBWMap( id2inBW ),
+            id2inLat{},
             inLatMap( id2inLat )
         {
             propertyManager.registerProperty(

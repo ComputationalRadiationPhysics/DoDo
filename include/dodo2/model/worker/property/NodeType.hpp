@@ -15,10 +15,13 @@ namespace property{
     enum class NodeType
     {
         ADDRESS_SPACE,
-        WORKER,
-        _count
+        WORKER
     };
 
+    std::ostream & operator<<(
+        std::ostream &,
+        const NodeType &
+    );
 
     std::ostream & operator<<(
         std::ostream & ostream1,
@@ -33,13 +36,12 @@ namespace property{
             case NodeType::WORKER:
                 ostream1 << "Worker";
                 break;
-            default:
-                throw std::runtime_error( "Unknown NodeType!" );
         }
         return ostream1;
     }
 
 
+    std::string to_string( const NodeType & );
     std::string to_string( const NodeType & n )
     {
         std::stringstream ss;

@@ -33,7 +33,9 @@ namespace worker
             property::NodeType t;
             WorkerGraph* gInner;
 
-            TypeFilter( )
+            TypeFilter( ) :
+                t( property::NodeType::WORKER ),
+                gInner( NULL )
             { }
 
 
@@ -113,7 +115,10 @@ namespace worker
         Model() = default;
 
         explicit
-        Model(size_t addressSpaces, size_t workersPerSpace)
+        Model(
+            size_t addressSpaces,
+            size_t workersPerSpace
+        ) : g{}
         {
             for(size_t i=0 ; i< addressSpaces ; ++i)
             {

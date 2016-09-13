@@ -25,13 +25,17 @@ namespace utility
             T_One
         > n2one;
 
-        explicit OneToNMap(){}
+        explicit OneToNMap() :
+            one2n{},
+            n2one{}
+        {}
         explicit OneToNMap(
             const std::map<
                 T_N,
                 T_One
             > & pn2one
         ) :
+            one2n{},
             n2one( pn2one )
         {
             for( auto & i : n2one )
@@ -46,7 +50,8 @@ namespace utility
                 std::vector< T_N >
             > & pone2n
         ) :
-            one2n( pone2n )
+            one2n( pone2n ),
+            n2one{}
         {
             for( auto & i : one2n )
             {

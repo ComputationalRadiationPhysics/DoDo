@@ -42,8 +42,14 @@ namespace data
         > wMap;
         boost::associative_property_map< decltype(wMap) > weightMap;
 
-        DataDomain(const std::string& pname)
-            : name(pname)
+        DataDomain(const std::string& pname) :
+            g{},
+            map{},
+            readOnly{ false },
+            propertyManager{},
+            name{pname},
+            wMap{},
+            weightMap{}
         {
             propertyManager.registerProperty(
                 "sizeInKB",

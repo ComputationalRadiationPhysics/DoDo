@@ -12,8 +12,9 @@ namespace utility
     class TreeID
     {
     public:
-        unsigned children { 0 };
         std::string id;
+        unsigned children { 0 };
+        unsigned padding { 0 };
 
         TreeID( const TreeID & ) = default;
 
@@ -28,7 +29,7 @@ namespace utility
 
         explicit
         TreeID( ) :
-            id { std::to_string( children ) }
+            id { std::to_string( 0 ) }
         { }
 
 
@@ -80,7 +81,7 @@ namespace utility
         {
             return std::equal(
                 possibleChild.id.begin(),
-                possibleChild.id.begin() + std::min( possibleChild.id.size(), id.size() ),
+                possibleChild.id.begin() + static_cast<long>(std::min( possibleChild.id.size(), id.size() ) ) ,
                 id.begin()
             );
         }
@@ -254,6 +255,9 @@ namespace utility
 
 namespace boost
 {
+    std::string
+    lexical_cast( const dodo::utility::TreeID & );
+
     std::string
     lexical_cast( const dodo::utility::TreeID & t )
     {

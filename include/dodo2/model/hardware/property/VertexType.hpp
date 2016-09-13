@@ -19,10 +19,11 @@ namespace property{
         MEMORY,
         CACHE,
         STRUCTURAL,
-        INTERCONNECT,
-        _count
+        INTERCONNECT
     };
 
+    std::ostream &
+    operator<<( std::ostream &, const VertexType & );
 
     std::ostream & operator<<(
         std::ostream & ostream1,
@@ -49,14 +50,15 @@ namespace property{
             case VertexType::INTERCONNECT:
                 ostream1 << "Interconnect";
                 break;
-            default:
-                throw std::runtime_error( "Unknown VertexType!" );
+            //default:
+            //    throw std::runtime_error( "Unknown VertexType!" );
 
         }
         return ostream1;
     }
 
 
+    std::string to_string( const VertexType & );
     std::string to_string( const VertexType & n )
     {
         std::stringstream ss;

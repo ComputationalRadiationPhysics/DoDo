@@ -73,6 +73,11 @@ namespace types
         }
     }; /* StringLike */
 
+    std::ostream&
+    operator<<(
+        std::ostream &,
+        const StringLike &
+    );
 
     std::ostream&
     operator<<(

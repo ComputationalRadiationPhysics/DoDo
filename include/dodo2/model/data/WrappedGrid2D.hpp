@@ -24,8 +24,7 @@ namespace data
             NORTH,
             EAST,
             SOUTH,
-            WEST,
-            _count
+            WEST
         };
 
     private:
@@ -50,17 +49,21 @@ namespace data
                     return "SOUTH";
                 case Directions::WEST:
                     return "WEST";
-                default:
-                    throw std::runtime_error("unknown direction!");
+                //default:
+                //    throw std::runtime_error("unknown direction!");
             }
         }
 
+        WrappedGrid2D() :
+            edge2Direction{},
+            directionMap{},
+            vertex2Coordinate{},
+            coordinateMap{}
+        {}
+
     public:
 
-
         using PosID = graph::CoordinateGraph::VertexID;
-
-
         std::map<
             graph::CoordinateGraph::VertexID,
             std::array<std::size_t, 2>
