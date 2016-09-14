@@ -90,6 +90,14 @@ namespace dodo
             protected:
                 utility::PropertyManager propertyManager;
 
+                std::size_t
+                countPropertiesBase()
+                {
+                    return internal_nameMap.size() +
+                           internal_edgeNameMap.size() +
+                           internal_typeMap.size();
+                }
+
             public:
 
                 // The 'internal_' member variables are created by the macro

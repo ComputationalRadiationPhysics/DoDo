@@ -50,6 +50,12 @@ namespace extension
             );
         }
 
+        virtual
+        std::size_t
+        countPropertiesInternal( ) override
+        {
+            return id2inBW.size() + id2inLat.size();
+        }
     public:
 
         float

@@ -231,6 +231,8 @@ int main(
         }
     }
 
+    std::cout << nMachines << "    ";
+
 
 //    dodo::graph::TreeIDGraph threadGraph;
 //    std::map<dodo::graph::TreeIDGraph::VertexID, dodo::graph::TreeIDGraph::TreeID > threadMapping;

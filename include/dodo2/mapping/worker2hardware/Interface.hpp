@@ -266,7 +266,9 @@ namespace dodo
                     const std::vector< std::string > & machineNames
                 ) -> void
                 {
+#ifndef NDEBUG
                     auto allAddressSpaces = workerModel->getAllAddressSpaces( );
+#endif
                     assert(
                         ( std::distance(
                             allAddressSpaces.first,

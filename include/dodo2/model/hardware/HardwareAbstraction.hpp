@@ -19,7 +19,6 @@ namespace hardware{
         public T_Extensions...
 
     {
-
     private:
         template<
             typename T,
@@ -79,7 +78,35 @@ namespace hardware{
             );
         }
 
+
+        template<
+            typename TProp,
+            typename... T_Props
+        >
+        auto
+        countOtherProperties( std::size_t & s )
+        -> void
+        {
+            s += TProp::countPropertiesInternal( );
+            countOtherProperties< T_Props... >( s );
+        }
+
+        template<typename... T_Props>
+        auto
+        countOtherProperties( std::size_t & )
+        -> typename std::enable_if< sizeof...( T_Props ) == 0 >::type
+        { }
+
+
     public:
+
+        std::size_t
+        countProperties()
+        {
+            std::size_t s = countPropertiesBase( );
+            countOtherProperties< T_Extensions... >( s );
+            return s;
+        }
 
         HardwareAbstraction() :
             T_Extensions()...
@@ -134,6 +161,7 @@ namespace hardware{
         }
 
     };
+
 
 } /* hardware */
 } /* model */

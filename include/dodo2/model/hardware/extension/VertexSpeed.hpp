@@ -35,6 +35,15 @@ namespace extension
         > id2speed;
         utility::PropertyManager::MapType< decltype( id2speed ) > speedMap;
 
+    protected:
+        virtual
+        std::size_t
+        countPropertiesInternal( ) override
+        {
+            return id2speed.size();
+        }
+
+
     public:
 
         VertexSpeed( ) :
