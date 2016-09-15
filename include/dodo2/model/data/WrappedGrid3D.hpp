@@ -15,27 +15,31 @@ namespace model
 namespace data
 {
 
-    class WrappedGrid2D;
+    class WrappedGrid3D;
 namespace traits{
     template<>
-    struct Directions<WrappedGrid2D>
+    struct Directions<WrappedGrid3D>
     {
         enum class Values
         {
             NORTH,
             EAST,
             SOUTH,
-            WEST
+            WEST,
+            UP,
+            DOWN
         };
     };
 }
 
-    class WrappedGrid2D :
+    class WrappedGrid3D :
         public SimulationDomain,
-        public SimulationDomainMapInterface< WrappedGrid2D >
+        public SimulationDomainMapInterface< WrappedGrid3D >
     {
+    public:
+
     private:
-        using Directions = traits::Directions<WrappedGrid2D>::Values;
+        using Directions = traits::Directions<WrappedGrid3D>::Values;
         std::map<
             graph::CoordinateGraph::EdgeID,
             Directions
@@ -57,16 +61,20 @@ namespace traits{
                     return "SOUTH";
                 case Directions::WEST:
                     return "WEST";
+                case Directions::UP:
+                    return "UP";
+                case Directions::DOWN:
+                    return "DOWN";
                 //default:
                 //    throw std::runtime_error("unknown direction!");
             }
         }
 
-        WrappedGrid2D() :
+        WrappedGrid3D() :
             edge2Direction{},
-            directionMap{},
+            directionMap{edge2Direction},
             vertex2Coordinate{},
-            coordinateMap{}
+            coordinateMap{vertex2Coordinate}
         {}
 
     public:
@@ -74,7 +82,7 @@ namespace traits{
         using PosID = graph::CoordinateGraph::VertexID;
         std::map<
             graph::CoordinateGraph::VertexID,
-            std::array<std::size_t, 2>
+            std::array<std::size_t, 3>
         > vertex2Coordinate;
         boost::associative_property_map< decltype(vertex2Coordinate) > coordinateMap;
 
@@ -104,24 +112,25 @@ namespace traits{
         }
 
         static
-        WrappedGrid2D
+        WrappedGrid3D
         generate(
             std::size_t dimx,
-            std::size_t dimy
+            std::size_t dimy,
+            std::size_t dimz
         )
         {
-            constexpr int dim = 2;
-            const boost::array< std::size_t, dim > lengths = {{ dimx, dimy }};
-            const boost::grid_graph< dim > grid( lengths, {{true, true}} );
+            constexpr int dim = 3;
+            const boost::array< std::size_t, dim > lengths = {{ dimx, dimy, dimz }};
+            const boost::grid_graph< dim > grid( lengths, {{true, true, true}} );
             using GridTraits = boost::graph_traits< boost::grid_graph< dim > >;
             auto n = num_vertices(grid);
             graph::CoordinateGraph simGrid(n);
 
-            WrappedGrid2D result;
+            WrappedGrid3D result;
             // TODO: check the following:
             // attention: this might lead to a segfault, not sure what happens
             // with the map from the grid once the static function is finished
-//            result.coordinateMap = get(boost::vertex_bundle, grid);
+//            result.coordinateMap = boost::get(boost::vertex_bundle_t, grid);
 
 //            something like this might be safer (but slower):
 //            for(GridTraits::vertex_descriptor v : boost::make_iterator_range(vertices(grid)))
@@ -138,8 +147,10 @@ namespace traits{
                 {
                     std::size_t fromx = e.first[0];
                     std::size_t fromy = e.first[1];
+                    std::size_t fromz = e.first[2];
                     std::size_t tox = e.second[0];
                     std::size_t toy = e.second[1];
+                    std::size_t toz = e.second[2];
 
                     GridTraits::vertices_size_type vid2 = get(boost::vertex_index, grid, e.second);
                     assert(vid2 < n);
@@ -161,8 +172,17 @@ namespace traits{
                     {
                         var = Directions::NORTH;
                     }
+                    if(fromz == (toz+1)%dimz)
+                    {
+                        var = Directions::DOWN;
+                    }
+                    if((fromz+1)%dimz == toz)
+                    {
+                        var = Directions::UP;
+                    }
                     graph::CoordinateGraph::EdgeID edge = simGrid.addEdge(vid, vid2);
 
+//                    result.edge2Direction.insert(std::make_pair(edge,var));
                     put(result.directionMap, edge, var);
                 }
             }

@@ -8,6 +8,7 @@
 
 #include <dodo2.hpp>
 #include <stdlib.h>
+#include <dodo2/mapping/data2worker/distributeRoundRobin.hpp>
 
 
 namespace po = boost::program_options;
@@ -48,7 +49,7 @@ po::variables_map parseCommandLine(const int argc, char** argv)
     po::notify(vm);
 
     if(vm.count("help")){
-        std::cout << "# extent   nodes   cogvertices   totalProperties    memory    time"<< std::endl;
+        std::cout << "# extent   nodes   cogvertices   totalProperties   memory    time"<< std::endl;
         exit(0);
     }
     return vm;
@@ -68,9 +69,9 @@ int main(
         dodo::model::hardware::extension::VertexSpeed,
         dodo::model::hardware::extension::InterconnectBandwidth
     >;
-    MyHWAbs hwa;
+    auto hwa = std::make_shared<MyHWAbs>();
 
-    auto rootNode = hwa.addRoot("Hypnos", dodo::model::hardware::property::VertexType::STRUCTURAL);
+    auto rootNode = hwa->addRoot("Hypnos", dodo::model::hardware::property::VertexType::STRUCTURAL);
     size_t dim = vm["dim"].as<size_t>();
     size_t n = dim*dim*dim;
 
@@ -86,7 +87,7 @@ int main(
         start = std::chrono::system_clock::now();
         for( size_t i=0; i<n ; ++i)
         {
-            computeNodes[i] = hwa.add("CompNode"+ std::to_string(i), dodo::model::hardware::property::VertexType::MACHINE, rootNode);
+            computeNodes[i] = hwa->add("CompNode", dodo::model::hardware::property::VertexType::MACHINE, rootNode);
         }
 
         if(n>1)
@@ -98,131 +99,70 @@ int main(
             {
                 const auto toVertexInGrid = get(boost::vertex_index, grid, e.second);
                 const auto toTreeID = computeNodes[toVertexInGrid];
-                hwa.addInterconnect(treeID, toTreeID, "Infiniband");
+                hwa->addInterconnect(treeID, toTreeID, "Infiniband");
             }
         }
     }
 
     constexpr unsigned nSockets = 1;
-    constexpr unsigned nCores = 4;
     constexpr unsigned nGPUs = 1;
-    constexpr unsigned nSMs = 4;
 
     for(auto& machine : computeNodes)
     {
         std::vector<dodo::utility::TreeID> numaNodes(nSockets);
         for(unsigned socket_i=0; socket_i<nSockets ; ++socket_i)
         {
-            const auto numa = hwa.add(
+            const auto numa = hwa->add(
                 "NUMA-Node",
                 dodo::model::hardware::property::VertexType::MEMORY,
                 machine
             );
-            hwa.setCapacity(numa, 33554432);
+            hwa->setCapacity(numa, 33554432);
             numaNodes[socket_i] = numa;
         }
-
-        for(unsigned gpu_i=0; gpu_i<nGPUs ; ++gpu_i)
-        {
-            auto gpu = hwa.add(
-                "nVidia K20m",
-                dodo::model::hardware::property::VertexType::STRUCTURAL,
-                machine
-            );
-            auto globalMem = hwa.add(
-                "globalMem",
-                dodo::model::hardware::property::VertexType::MEMORY,
-                gpu
-            );
-            hwa.addInterconnectBidirectional(globalMem, numaNodes[gpu_i%nSockets], "PCI");
-            hwa.setCapacity(globalMem, 5242880);
-            auto l2 = hwa.add(
-                "L2_GPU",
-                dodo::model::hardware::property::VertexType::CACHE,
-                globalMem
-            );
-            hwa.addInterconnectBidirectional(globalMem, l2, "CUDA_L2_GLOBAL");
-            hwa.setCapacity(l2, 1280);
-            hwa.addToMemHierarchy(l2, globalMem);
-
-            for(unsigned sm_i=0; sm_i<nSMs ; ++sm_i)
-            {
-                const auto l1 = hwa.add(
-                    "L1_SM",
-                    dodo::model::hardware::property::VertexType::CACHE,
-                    l2
-                );
-
-                const auto sm = hwa.add(
-                    "SM",
-                    dodo::model::hardware::property::VertexType::COMPUTE,
-                    globalMem
-                );
-
-                hwa.setCapacity(l1, 48);
-                hwa.addInterconnectBidirectional(l2, l1, "CUDA_L2_L1");
-                const auto sharedMem = hwa.add(
-                    "sharedMem",
-                    dodo::model::hardware::property::VertexType::MEMORY,
-                    l2
-                );
-                hwa.setCapacity(sharedMem, 16);
-                hwa.addInterconnectBidirectional(l2, sharedMem, "CUDA_L2_L1");
-                hwa.addToMemHierarchy(l1, l2);
-                hwa.addToMemHierarchy(sm, l1);
-                hwa.addToMemHierarchy(sm, sharedMem);
-                hwa.addInterconnectBidirectional(sm, l1, "CUDA_SM_L1");
-                hwa.addInterconnectBidirectional(sm, sharedMem, "CUDA_SM_L1");
-
-            }
-        }
-
 
         for(unsigned socket_i=0; socket_i<nSockets ; ++socket_i)
         {
             for(unsigned socket_j = socket_i+1; socket_j<nSockets ; ++socket_j)
             {
-                hwa.addInterconnectBidirectional(numaNodes[socket_i], numaNodes[socket_j], "QPI");
+                hwa->addInterconnectBidirectional(numaNodes[socket_i], numaNodes[socket_j], "QPI");
+            }
+
+            dodo::utility::TreeID numa = numaNodes[socket_i];
+            hwa->addInterconnectBidirectional(numa, machine, "PCI");
+            auto l3 = hwa->add(
+                "L3",
+                dodo::model::hardware::property::VertexType::CACHE,
+                numa
+            );
+            hwa->setCapacity(l3, 10240);
+            hwa->addInterconnectBidirectional(numa, l3, "FSB");
+            auto core = hwa->add(
+                "Intel(R) Xeon(R) CPU E5-2609 0 @ 2.40GHz",
+                dodo::model::hardware::property::VertexType::COMPUTE,
+                l3
+            );
+            hwa->setProperty("VertexSpeed", core, std::size_t(153) );
+            for(auto& numa_other : numaNodes)
+            {
+                hwa->addToMemHierarchy(l3, numa_other);
             }
         }
 
-
-        for(unsigned socket_i=0; socket_i<nSockets ; ++socket_i)
+        for(unsigned gpu_i=0; gpu_i<nGPUs ; ++gpu_i)
         {
-            dodo::utility::TreeID numa = numaNodes[socket_i];
-            hwa.addInterconnectBidirectional(numa, machine, "PCI");
-            auto package = hwa.add(
-                "Intel(R) Xeon(R) CPU E5-2609 0 @ 2.40GHz",
+            auto gpu = hwa->add(
+                "nVidia K20m",
                 dodo::model::hardware::property::VertexType::STRUCTURAL,
-                numa
+                machine
             );
-            auto l3 = hwa.add(
-                "L3",
-                dodo::model::hardware::property::VertexType::CACHE,
-                package
+            auto globalMem = hwa->add(
+                "globalMem",
+                dodo::model::hardware::property::VertexType::MEMORY,
+                gpu
             );
-            hwa.setCapacity(l3, 10240);
-            hwa.addInterconnectBidirectional(numa, l3, "FSB");
-            for(auto& numa_other : numaNodes)
-            {
-                hwa.addToMemHierarchy(l3, numa_other);
-            }
-
-            for(unsigned core_i=0; core_i<nCores; ++core_i)
-            {
-                auto l2 = hwa.add( "L2", dodo::model::hardware::property::VertexType::CACHE, l3 );
-                hwa.setCapacity(l2, 256);
-                auto l1 = hwa.add( "L1", dodo::model::hardware::property::VertexType::CACHE, l2 );
-                hwa.setCapacity(l1, 32);
-                const auto core = hwa.add( "Core", dodo::model::hardware::property::VertexType::COMPUTE, l1 );
-                hwa.setProperty("VertexSpeed", core, std::size_t(153) );
-                hwa.addToMemHierarchy(core, l1);
-                hwa.addToMemHierarchy(l1, l2);
-                hwa.addToMemHierarchy(l2, l3);
-                hwa.addInterconnectBidirectional(l3, l2, "L3L2");
-                hwa.addInterconnectBidirectional(l2, l1, "L2L1");
-                hwa.addInterconnectBidirectional(l1, core, "CoreL1");
-            }
+            hwa->addInterconnectBidirectional(globalMem, numaNodes[gpu_i%nSockets], "PCI");
+            hwa->setCapacity(globalMem, 5242880);
         }
     }
 //    std::vector<MyHWAbs::HardwareID>().swap(computeNodes);
@@ -244,27 +184,78 @@ int main(
         nameBandwidthMap["CUDA_SM_L1"] = 64u * 706u * 1000u * 1000u; // MBit/s
 
 
-        auto allCableIter = hwa.getAllInterconnects();
+        auto allCableIter = hwa->getAllInterconnects();
         for(auto i(allCableIter.first); i!=allCableIter.second; ++i)
         {
-            //const std::string cableName = hwa.cableNameMap[(*i)];
-            const std::string cableName = hwa.getProperty<std::string>("EdgeName", (*i));
+            //const std::string cableName = hwa->cableNameMap[(*i)];
+            const std::string cableName = hwa->getProperty<std::string>("EdgeName", (*i));
             for(auto possibleName : nameBandwidthMap)
             {
                 if(cableName == possibleName.first)
                 {
-                    //hwa.bandwidthMap.insert(std::make_pair(*i, dodo::hardware::Bandwidth(possibleName.second)));
-                    hwa.setProperty("InterconnectBandwidth", *i, possibleName.second);
+                    //hwa->bandwidthMap.insert(std::make_pair(*i, dodo::hardware::Bandwidth(possibleName.second)));
+                    hwa->setProperty("InterconnectBandwidth", *i, possibleName.second);
                 }
             }
         }
     }
+
+
+
+    using namespace dodo::model::hardware;
+
+    auto workerModel = std::make_shared<dodo::model::worker::Model>( );
+    dodo::mapping::worker2hardware::Interface<MyHWAbs> worker2hwMapping(workerModel, hwa);
+
+    worker2hwMapping.generateTrivialMapping(1, {"CompNode"});
+
+    assert(dodo::mapping::worker2hardware::checkMemoryLegality(worker2hwMapping));
+
+//    boost::range::for_each(
+//        dodo::mapping::worker2hardware::getMaxMemoryForWorker(worker2hwMapping),
+//        dodo::mapping::worker2hardware::getFairMemoryForWorker(worker2hwMapping),
+//        [ ](
+//            auto a,
+//            auto b
+//        )
+//        {
+//            std::cerr << "Worker: " << a.first <<
+//                      " MaxMem: " << a.second <<
+//                      " FairMem: " << b.second <<
+//                      std::endl;
+//        }
+//    );
+
+    auto physDom = dodo::model::data::WrappedGrid3D::generate(dim, dim, dim);
+    auto dataAbstraction = std::make_shared<dodo::model::data::Abstraction<dodo::model::data::WrappedGrid3D> >(physDom);
+    dodo::model::data::DataDomain livelinessStates;
+    for(auto v : boost::make_iterator_range(physDom.g.getVertices()))
+    {
+        auto d = livelinessStates.createDataAtPos(v);
+        livelinessStates.setProperty("sizeInKB", d, 48.0f);
+    }
+    dataAbstraction->addDataDomain(std::move(livelinessStates), "livelinessStates");
+    auto stateMap = dodo::mapping::data2worker::generateRoundRobin(livelinessStates, *workerModel);
+    std::map<std::string, decltype(stateMap)> finalMap;
+    finalMap["livelinessStates"] = stateMap;
+    dodo::mapping::data2worker::Interface<dodo::model::data::WrappedGrid3D> data2workerMapping(dataAbstraction, workerModel, finalMap);
+
+
+
+
+
+
+
+
+
+
+
     end = std::chrono::system_clock::now();
     std::chrono::duration<double> elapsed_seconds = end-start;
     std::string mem = getMemoryConsumption();
-    std::cout << dim <<  "    " << n << "    " <<  hwa.getAllChildren(rootNode).size() << "    " << hwa.countProperties() << "    " << mem << "    " << elapsed_seconds.count() << std::endl;
+    std::cout << dim <<  "    " << n << "    " <<  hwa->getAllChildren(rootNode).size() << "    " << hwa->countProperties() << "    " << mem << "    " << elapsed_seconds.count() << std::endl;
 
-    //hwa.writeAllGraphs("/tmp/");
+    //hwa->writeAllGraphs("/tmp/");
     return 0;
 }
 

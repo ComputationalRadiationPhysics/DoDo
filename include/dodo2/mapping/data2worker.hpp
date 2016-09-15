@@ -25,5 +25,6 @@
 #pragma once
 
 #include <dodo2/mapping/data2worker/checkMemoryBalance.hpp>
+#include <dodo2/mapping/data2worker/distributeRoundRobin.hpp>
 #include <dodo2/mapping/data2worker/getDataTransferTime.hpp>
 #include <dodo2/mapping/data2worker/Interface.hpp>

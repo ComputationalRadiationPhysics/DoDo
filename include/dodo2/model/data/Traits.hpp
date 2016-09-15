@@ -24,10 +24,4 @@
 
 #pragma once
 
-#include <dodo2/model/data/Abstraction.hpp>
-#include <dodo2/model/data/DataDomain.hpp>
-#include <dodo2/model/data/SimulationDomain.hpp>
-#include <dodo2/model/data/SimulationDomainMapInterface.hpp>
-#include <dodo2/model/data/Traits.hpp>
-#include <dodo2/model/data/WrappedGrid2D.hpp>
-#include <dodo2/model/data/WrappedGrid3D.hpp>
+#include <dodo2/model/data/Traits/Directions.hpp>

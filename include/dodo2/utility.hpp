@@ -25,6 +25,7 @@
 #pragma once
 
 #include <dodo2/utility/convert_tuple.hpp>
+#include <dodo2/utility/NToMMap.hpp>
 #include <dodo2/utility/OneToNMap.hpp>
 #include <dodo2/utility/PropertyManager.hpp>
 #include <dodo2/utility/tree_id.hpp>

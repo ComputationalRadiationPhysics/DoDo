@@ -13,15 +13,15 @@ namespace mapping
 namespace data2pos
 {
 
-    class Map
-    {
-        using MapType = utility::OneToNMap<
-            graph::CoordinateGraph,
-            graph::DataGraph
-        >;
-
-
-    };
+//    class Map
+//    {
+//        using MapType = utility::OneToNMap<
+//            graph::CoordinateGraph,
+//            graph::DataGraph
+//        >;
+//
+//
+//    };
 
 } /* data2pos */
 } /* mapping */

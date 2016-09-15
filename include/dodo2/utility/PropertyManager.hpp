@@ -70,7 +70,7 @@ namespace utility
         auto
         set(
             const std::string & propName,
-            const I & id,
+            const I id,
             T property
         ) -> void
         {

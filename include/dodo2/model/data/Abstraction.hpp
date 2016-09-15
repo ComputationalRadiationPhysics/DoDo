@@ -2,6 +2,7 @@
 
 
 #include <dodo2/graph/DataGraph.hpp>
+#include <dodo2/model/data/Traits/Directions.hpp>
 #include "SimulationDomain.hpp"
 #include "DataDomain.hpp"
 
@@ -26,19 +27,26 @@ namespace data
     class Abstraction
     {
     public:
-        T_SimDom simDom;
         using DataID = DataDomain::DataID;
         using PosID = graph::CoordinateGraph::VertexID;
-        using Directions = typename T_SimDom::Directions;
+        using Directions = typename traits::Directions<T_SimDom>::Values;
 
+        T_SimDom simDom;
         std::map<std::string, DataDomain> dataDomains;
 
         //TODO: add a property manager for domain-wide properties here (stuff like read-only could go there)
 
+        Abstraction(
+            T_SimDom psimDom
+        ) :
+            simDom{psimDom},
+            dataDomains{}
+        {}
 
-        void addDataDomain(DataDomain&& dom)
+
+        void addDataDomain(DataDomain&& dom, const std::string name)
         {
-            dataDomains.insert(std::make_pair(dom.name, dom));
+            dataDomains.insert(std::make_pair(name, dom));
         }
 
         template<typename T>
@@ -54,6 +62,19 @@ namespace data
                 propertyName,
                 id
             );
+        }
+
+        template<typename T>
+        auto
+        setProperty(
+            std::string const & domainName,
+            std::string const & propertyName,
+            DataID id,
+            T property
+        )
+        -> void
+        {
+            dataDomains.at( domainName ).setProperty(propertyName, id, property);
         }
 
         auto

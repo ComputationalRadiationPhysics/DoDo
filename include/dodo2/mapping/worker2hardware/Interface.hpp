@@ -280,7 +280,7 @@ namespace dodo
                     std::set< HardwareID > machineElements;
                     for( const auto& iname : boost::make_iterator_range( machineNames ) )
                     {
-                        for( const auto location :  hardwareModel->getHWElementsByName( iname ) )
+                        for( const auto & location :  hardwareModel->getHWElementsByName( iname ) )
                         {
                             machineElements.insert( location );
                             // define a new address space at each possible location

@@ -31,10 +31,7 @@ namespace data
         >;
         Graph g;
         Map map;
-        bool readOnly;
-//        SimulationDomain* simDom;
         utility::PropertyManager propertyManager;
-        std::string name;
 
         std::map<
             DataID,
@@ -42,14 +39,12 @@ namespace data
         > wMap;
         boost::associative_property_map< decltype(wMap) > weightMap;
 
-        DataDomain(const std::string& pname) :
+        DataDomain() :
             g{},
             map{},
-            readOnly{ false },
             propertyManager{},
-            name{pname},
             wMap{},
-            weightMap{}
+            weightMap{wMap}
         {
             propertyManager.registerProperty(
                 "sizeInKB",
@@ -68,6 +63,21 @@ namespace data
             return propertyManager.get< T >(
                 propertyName,
                 id
+            );
+        }
+
+        template< typename T >
+        auto
+        setProperty(
+            std::string const & propertyName,
+            DataID id,
+            T property
+        )
+        {
+            propertyManager.set(
+                propertyName,
+                id,
+                property
             );
         }
 
@@ -126,6 +136,11 @@ namespace data
         getAllDataPositions( ) const
         {
             return map.one2n;
+        }
+
+        auto getDataElements() const
+        {
+            return g.getVertices();
         }
 
 

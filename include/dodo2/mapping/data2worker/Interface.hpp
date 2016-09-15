@@ -11,6 +11,7 @@
 #include <dodo2/utility/OneToNMap.hpp>
 #include <dodo2/graph/DataGraph.hpp>
 #include <dodo2/model/data/Abstraction.hpp>
+#include <dodo2/utility/NToMMap.hpp>
 
 
 namespace dodo
@@ -24,14 +25,23 @@ namespace data2worker
     template<typename T_SimDom>
     class Interface
     {
-        using DataModel = model::data::Abstraction<T_SimDom>;
+        using DataModel = model::data::Abstraction< T_SimDom >;
         using DataID = model::data::DataDomain::DataID;
         using WorkerModel = model::worker::Model;
         using WorkerID = WorkerModel::WorkerID;
 
+//        std::map<
+//            std::string,
+//            utility::OneToNMap<
+//                WorkerID,
+//                DataID
+//            >
+//        > mapping;
+
+        // the string denotes the name of the data domain that is mapped
         std::map<
             std::string,
-            utility::OneToNMap<
+            utility::NToMMap<
                 WorkerID,
                 DataID
             >
@@ -126,6 +136,7 @@ namespace data2worker
         {
             return mapping[dataName].n2one.at(d);
         }
+
 
     };
 

@@ -30,12 +30,13 @@ namespace worker
 
         struct TypeFilter
         {
-            property::NodeType t;
             WorkerGraph* gInner;
+            property::NodeType t;
+            unsigned padding{0};
 
             TypeFilter( ) :
-                t( property::NodeType::WORKER ),
-                gInner( NULL )
+                gInner( NULL ),
+                t( property::NodeType::WORKER )
             { }
 
 
@@ -43,8 +44,8 @@ namespace worker
                 property::NodeType p,
                 WorkerGraph * pgInner
             ) :
-                t( p ),
-                gInner( pgInner )
+                gInner( pgInner ),
+                t( p )
             { }
 
             bool
