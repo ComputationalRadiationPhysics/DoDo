@@ -68,6 +68,7 @@ namespace traits{
                 //default:
                 //    throw std::runtime_error("unknown direction!");
             }
+            return "";
         }
 
         WrappedGrid3D() :
