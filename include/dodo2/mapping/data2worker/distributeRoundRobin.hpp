@@ -23,24 +23,22 @@ namespace data2worker
     generateRoundRobin(
         const model::data::DataDomain & pdataModel,
         model::worker::Model & pworkerModel
-    ) -> utility::NToMMap<
-        model::data::DataDomain::DataID,
-        model::worker::Model::WorkerID
-    >
+    )
     {
-        utility::NToMMap<model::data::DataDomain::DataID, model::worker::Model::WorkerID> result;
+//        utility::NToMMap<model::data::DataDomain::DataID, model::worker::Model::WorkerID> result;
+        utility::OneToNMap<model::worker::Model::WorkerID, model::data::DataDomain::DataID> result;
         auto allWorkers = pworkerModel.getAllWorkers();
         auto currentWorker = allWorkers.first;
-        auto allData = pdataModel.getDataElements();
+//        auto allData = pdataModel.getDataElements();
         for(auto data : boost::make_iterator_range(pdataModel.getDataElements()))
         {
-            result.insert({data, *currentWorker});
+            result.addMapping(*currentWorker, data);
             if(currentWorker == allWorkers.second)
                 currentWorker = allWorkers.first;
             else
                 ++currentWorker;
         }
-        return result;
+        return result.one2n;
     }
 
 } /* data2worker */

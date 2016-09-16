@@ -21,17 +21,19 @@ namespace data2worker
         Interface< T_SimDom > & data2workerMapping,
         worker2hardware::Interface< T_HW_Abs > & worker2hwMaping,
         std::string const & dataDomainName,
-        typename Interface< T_SimDom >::DataID const dataID,
+        model::data::DataDomain::DataID const dataID,
+//        typename Interface< T_SimDom >::DataID const dataID,
         typename Interface< T_SimDom >::WorkerID const toWorker
     )
     -> float
     {
+        using WorkerID = typename Interface< T_SimDom >::WorkerID;
         size_t dataSize = data2workerMapping.dataModel-> template getProperty<std::size_t>(
             dataDomainName,
-            "sizeKB",
+            "sizeInKB",
             dataID
         );
-        auto fromWorker = data2workerMapping.getWorkerHoldingData(
+        WorkerID fromWorker = data2workerMapping.getWorkerHoldingData(
             dataDomainName,
             dataID
         );
@@ -39,8 +41,8 @@ namespace data2worker
         auto toHW = worker2hwMaping.getHWOfWorker( toWorker );
 
         return worker2hwMaping.hardwareModel->getTransferTime(
-            fromWorker,
-            toWorker,
+            fromHW,
+            toHW,
             dataSize
         );
 

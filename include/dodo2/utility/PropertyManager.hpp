@@ -105,7 +105,7 @@ namespace utility
         get(
             const std::string & propName,
             const I & id
-        ) -> T
+        ) const -> T
         {
 
             return boost::lexical_cast<T>(boost::get(

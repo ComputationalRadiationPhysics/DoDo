@@ -142,6 +142,7 @@ int main(
                 dodo::model::hardware::property::VertexType::COMPUTE,
                 l3
             );
+            hwa->addInterconnectBidirectional(core, l3, "CoreL3");
             hwa->setProperty("VertexSpeed", core, std::size_t(153) );
             for(auto& numa_other : numaNodes)
             {
@@ -162,6 +163,7 @@ int main(
                 gpu
             );
             hwa->addInterconnectBidirectional(globalMem, numaNodes[gpu_i%nSockets], "PCI");
+            hwa->addInterconnectBidirectional(gpu, globalMem, "CUDA_L2_GLOBAL");
             hwa->setCapacity(globalMem, 5242880);
         }
     }
@@ -178,6 +180,7 @@ int main(
         nameBandwidthMap["L2L1"] = static_cast<size_t>(2400u * 1000 * 1000 * 64 * 8 / 2.3); //2.4 GHz, theoretical peak of 64bytes per 2.3 cycles
         nameBandwidthMap["L3L2"] = 2400u * 1000 * 1000 * 64 * 8 / 5 - nameBandwidthMap["L2L1"];
         nameBandwidthMap["CoreL1"] = 2400u * 1000 * 1000 * 64 * 8 *2;
+        nameBandwidthMap["CoreL3"] = 2400u * 1000 * 1000 * 64 * 8 *2 / 5;
         nameBandwidthMap["FSB"] = 14500u * 8; //MBit/s
         nameBandwidthMap["CUDA_L2_GLOBAL"] = 208 * 1024 * 8; // MBit/s
         nameBandwidthMap["CUDA_L2_L1"] = 100 * 1024 * 8; // MBit/s
@@ -240,22 +243,18 @@ int main(
     finalMap["livelinessStates"] = stateMap;
     dodo::mapping::data2worker::Interface<dodo::model::data::WrappedGrid3D> data2workerMapping(dataAbstraction, workerModel, finalMap);
 
-
-
-
-
-
-
-
-
-
+//    data2workerMapping.print();
+    auto key1 = (stateMap.begin())->first;
+    auto key2 = (--stateMap.end())->first;
 
     end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end-start;
+    std::chrono::duration<double> elapsed_seconds_setup = end-start;
+    start = std::chrono::system_clock::now();
+    dodo::mapping::data2worker::getDataTransferTime(data2workerMapping, worker2hwMapping, "livelinessStates", stateMap[key1][0], key2);
+    end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds_search = end-start;
     std::string mem = getMemoryConsumption();
-    std::cout << dim <<  "    " << n << "    " <<  hwa->getAllChildren(rootNode).size() << "    " << hwa->countProperties() << "    " << mem << "    " << elapsed_seconds.count() << std::endl;
-
-    //hwa->writeAllGraphs("/tmp/");
+    std::cout << dim <<  "    " << n << "    " <<  hwa->getAllChildren(rootNode).size() << "    " << hwa->countProperties() << "    " << mem << "    " << elapsed_seconds_search.count() << std::endl;
     return 0;
 }
 

@@ -22,26 +22,20 @@ namespace data2worker
 {
 
 
-    template<typename T_SimDom>
+    template< typename T_SimDom >
     class Interface
     {
+    public:
         using DataModel = model::data::Abstraction< T_SimDom >;
         using DataID = model::data::DataDomain::DataID;
         using WorkerModel = model::worker::Model;
         using WorkerID = WorkerModel::WorkerID;
 
-//        std::map<
-//            std::string,
-//            utility::OneToNMap<
-//                WorkerID,
-//                DataID
-//            >
-//        > mapping;
-
+    private:
         // the string denotes the name of the data domain that is mapped
         std::map<
             std::string,
-            utility::NToMMap<
+            utility::OneToNMap<
                 WorkerID,
                 DataID
             >
@@ -66,19 +60,24 @@ namespace data2worker
             const std::map<
                 std::string,
                 std::map<
-                    WorkerID,
-                    DataID
+                    DataID,
+                    WorkerID
                 >
             > & p_mapping
         ) :
             dataModel( pdataModel ),
             workerModel( pworkerModel )
         {
-            for(auto a : p_mapping)
+            for( auto a : p_mapping )
             {
-                mapping[a.first].n2one = a.second;
+                for( auto elem : a.second )
+                {
+                    mapping[a.first].addMapping(
+                        elem.second,
+                        elem.first
+                    );
+                }
             }
-
         }
 
         Interface(
@@ -87,31 +86,38 @@ namespace data2worker
             const std::map<
                 std::string,
                 std::map<
-                    DataID,
-                    std::vector< WorkerID >
+                    WorkerID,
+                    std::vector< DataID >
                 >
             > & p_mapping
         ) :
             dataModel( pdataModel ),
             workerModel( pworkerModel )
         {
-            for(auto a : p_mapping)
+            for( auto a : p_mapping )
             {
-                mapping[a.first].one2n = a.second;
+                for( auto elem : a.second )
+                {
+                    for( auto d : elem.second )
+                    {
+                        mapping[a.first].addMapping(
+                            elem.first,
+                            d
+                        );
+                    }
+                }
             }
-
         }
 
 
         auto
         moveDataToWorker(
-            const std::string& dataName,
+            const std::string & dataName,
             const DataID d,
             const WorkerID w
         )
         -> void
         {
-
             mapping[dataName].eraseMapping( d );
             mapping[dataName].addMapping(
                 w,
@@ -125,7 +131,7 @@ namespace data2worker
             const WorkerID w
         ) const -> std::vector< DataID >
         {
-            return mapping.at(dataName).one2n.at(w);
+            return mapping.at( dataName ).one2n.at( w );
         }
 
         auto
@@ -134,7 +140,24 @@ namespace data2worker
             const DataID d
         ) -> WorkerID
         {
-            return mapping[dataName].n2one.at(d);
+            return mapping[dataName].n2one.at( d );
+        }
+
+        auto
+        print( )
+        {
+            for(auto & a : mapping)
+            {
+                std::cout << "Map " << a.first << std::endl;
+                for(auto & elem : a.second.one2n)
+                {
+                    std::cout << elem.first << ":";
+                    for(auto & data : elem.second)
+                    {
+                        std::cout << " " << data << std::endl;
+                    }
+                }
+            }
         }
 
 

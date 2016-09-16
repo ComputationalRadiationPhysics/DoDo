@@ -67,29 +67,31 @@ namespace extension
         )
         {
 
-
             std::vector< float >distanceMem( ig.numVertices( ) );
             auto distanceMap = boost::make_iterator_property_map(
-                distanceMem.begin( ),
+                distanceMem.begin(),
                 boost::get(boost::vertex_index, *ig.graph)
             );
+
 
             std::map< InterconnectGraph::EdgeID, float > durationMem;
             for(auto eIt : id2inBW)
             {
                 InterconnectGraph::EdgeID e = eIt.first;
                 float time = id2inLat[e] + static_cast<float>(dataBytes) / eIt.second;
-                durationMem.insert(std::make_pair(e, time));
+                durationMem.insert(std::make_pair(e, time*1000));
+//                std::cout << e << ": " << time << std::endl;
             }
             boost::associative_property_map<decltype(durationMem)> transferDuration(durationMem);
-
 
             boost::dijkstra_shortest_paths(
                 *ig.graph,
                 ig.getSBGLID( from ),
-                boost::distance_map( distanceMap ).weight_map(transferDuration)
+                boost::distance_map( distanceMap ).weight_map( transferDuration )
             );
-
+            // TODO: the result of the djikstra algorithm may be cached
+//            std::cout << distanceMap[ig.getSBGLID( from )] << std::endl;
+//            std::cout << distanceMap[ig.getSBGLID( to )] << std::endl;
             return distanceMap[ig.getSBGLID( to )];
         }
 
