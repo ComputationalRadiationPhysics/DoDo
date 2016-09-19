@@ -17,6 +17,12 @@ namespace data
         using Graph = graph::CoordinateGraph;
         Graph g;
 
+        auto
+        getCells()
+        {
+            return g.getVertices();
+        }
+
     };
 
 } /* data */
