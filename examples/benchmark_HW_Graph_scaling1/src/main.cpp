@@ -1,6 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <chrono>
+#include <sys/resource.h>
+#include <stdlib.h>
 
 #include <boost/graph/graphml.hpp>
 #include <boost/program_options.hpp>
@@ -22,6 +25,13 @@ enum ThreadGraphNodeType{
     _count
 };
 
+std::string getMemoryConsumption();
+std::string getMemoryConsumption()
+{
+    struct rusage r_usage;
+    getrusage(RUSAGE_SELF,&r_usage);
+    return std::to_string( r_usage.ru_maxrss );
+}
 
 
 po::variables_map parseCommandLine(const int, char**);
@@ -35,14 +45,19 @@ po::variables_map parseCommandLine(const int argc, char** argv)
         po::value< size_t >( )->default_value( 4 ),
         "The number nodes to model"
     );
+    (
+        "help,h",
+            "print meaning of output and help"
+    );
     po::variables_map vm;
     po::store(po::parse_command_line( argc, argv, cmdline_options ), vm);
     po::notify(vm);
-    return vm;
 
-//    if(vm.count("help")){
-//        exit(0);
-//    }
+    if(vm.count("help")){
+        std::cout << "# extent   nodes   cogvertices   totalProperties    memory    time"<< std::endl;
+        exit(0);
+    }
+    return vm;
 }
 
 
@@ -52,6 +67,7 @@ int main(
 )
 {
     auto vm = parseCommandLine( argc, argv );
+    std::chrono::time_point<std::chrono::system_clock> start, end;
 
 
     dodo::model::hardware::HardwareAbstraction<
@@ -74,6 +90,7 @@ int main(
     constexpr unsigned nGPUs = 1;
     constexpr unsigned nSMs = 4;
 
+    start = std::chrono::system_clock::now();
     std::vector<dodo::utility::TreeID> k20Nodes(nMachines);
     for(size_t machine_i = 0; machine_i < nMachines; ++machine_i)
     {
@@ -190,7 +207,6 @@ int main(
                 hwa.setCapacity(l1, 32);
                 auto core = hwa.add( "Core", dodo::model::hardware::property::VertexType::COMPUTE, l1 );
                 hwa.setProperty("VertexSpeed", core, std::size_t(153) );
-                //hwa.gigaFLOPSMap.insert( std::make_pair( core, 153.6 ) );
                 hwa.addToMemHierarchy(core, l1);
                 hwa.addToMemHierarchy(l1, l2);
                 hwa.addToMemHierarchy(l2, l3);
@@ -219,96 +235,20 @@ int main(
     auto allCableIter = hwa.getAllInterconnects();
     for(auto i(allCableIter.first); i!=allCableIter.second; ++i)
     {
-        //const std::string cableName = hwa.cableNameMap[(*i)];
         const std::string cableName = hwa.getProperty<std::string>("EdgeName", (*i));
         for(auto possibleName : nameBandwidthMap)
         {
             if(cableName == possibleName.first)
             {
-                //hwa.bandwidthMap.insert(std::make_pair(*i, dodo::hardware::Bandwidth(possibleName.second)));
                 hwa.setProperty("InterconnectBandwidth", *i, possibleName.second);
             }
         }
     }
 
-    std::cout << nMachines << "    ";
-
-
-//    dodo::graph::TreeIDGraph threadGraph;
-//    std::map<dodo::graph::TreeIDGraph::VertexID, dodo::graph::TreeIDGraph::TreeID > threadMapping;
-//
-//    auto l3Caches = hwa.filterVertices(
-//        [ &hwa ]( auto i )
-//        {
-//            if( hwa.nameMap[i].find( "NUMA-Node" ) != std::string::npos )
-//            {
-//                return true;
-//            }
-//            return false;
-//        }
-//    );
-//
-//
-//    std::map<dodo::graph::TreeIDGraph::VertexID, ThreadGraphNodeType> threadGraphTypeMap;
-//
-//    for(unsigned i=0; i<nSockets*nMachines; ++i){
-//        auto processVertex = threadGraph.addVertex();
-//        threadGraphTypeMap[processVertex] = ThreadGraphNodeType::PROCESS;
-//        threadMapping[processVertex] = l3Caches[i];
-//        auto cores = hwa.getLeafChildren(l3Caches[i]);
-//        for(int j=0; j<4 ; ++j)
-//        {
-//            auto v = threadGraph.addVertex();
-//            threadGraphTypeMap[v] = ThreadGraphNodeType::THREAD;
-//            threadGraph.addEdge(processVertex, v);
-//            threadMapping[v] = cores.at(j);
-//        }
-//    }
-//
-//    for(auto t : threadMapping)
-//    {
-//        std::cout << "ThreadGraph ID " << t.first << "   -->   HardwareGraph ID " << t.second << std::endl;
-//        if(threadGraphTypeMap[t.first] == ThreadGraphNodeType::THREAD)
-//        {
-//            std::cout << "Speed: " << hwa.gigaFLOPSMap.at(t.second) << " GFLOPS" << std::endl;
-//            auto mems = hwa.getBackingMemories(t.second);
-//            std::cout << "Availabe Memories:";
-//            for(auto m : mems)
-//            {
-//                std::cout << " " << hwa.nameMap.at(m) << " (" << hwa.capacityMap.at(m).getFreeCapacity() << " KByte)";
-//            }
-//            std::cout << std::endl;
-//        }
-//    }
-//
-//    boost::dynamic_properties dp;
-//    dp.property( "id", get(boost::vertex_index, *threadGraph.graph));
-//
-//    std::ofstream ofs;
-//    ofs.open("/tmp/workergraph.graphml");
-//    write_graphml(ofs, *threadGraph.graph, dp);
-//    ofs.close();
-//
-//    ofs.open("/tmp/workerMapping.txt");
-//    for(auto i : threadMapping)
-//    {
-//        ofs << i.first << " --> " << i.second << std::endl;
-//    }
-//    ofs.close();
-//
-//    ofs.open("/tmp/workerGraphTypes.txt");
-//    for(auto i : threadGraphTypeMap)
-//    {
-//        ofs << i.first << " --> " << i.second << std::endl;
-//    }
-//    ofs.close();
-//
-//
-//
-//
-//
-    hwa.writeAllGraphs("/tmp/");
-//    hwa.writeAllMaps("/tmp/");
+    end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end-start;
+    std::string mem = getMemoryConsumption();
+    std::cout << nMachines <<  "    " << nMachines+1 << "    " <<  hwa.getAllChildren(rootNode).size() << "    " << hwa.countProperties() << "    " << mem << "    " << elapsed_seconds.count() << std::endl;
 
 
     return 0;

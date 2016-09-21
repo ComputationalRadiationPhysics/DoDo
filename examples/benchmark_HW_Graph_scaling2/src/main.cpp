@@ -225,7 +225,6 @@ int main(
             }
         }
     }
-//    std::vector<MyHWAbs::HardwareID>().swap(computeNodes);
     computeNodes.clear();
 
     {
@@ -253,7 +252,6 @@ int main(
             {
                 if(cableName == possibleName.first)
                 {
-                    //hwa.bandwidthMap.insert(std::make_pair(*i, dodo::hardware::Bandwidth(possibleName.second)));
                     hwa.setProperty("InterconnectBandwidth", *i, possibleName.second);
                 }
             }
@@ -263,8 +261,6 @@ int main(
     std::chrono::duration<double> elapsed_seconds = end-start;
     std::string mem = getMemoryConsumption();
     std::cout << dim <<  "    " << n << "    " <<  hwa.getAllChildren(rootNode).size() << "    " << hwa.countProperties() << "    " << mem << "    " << elapsed_seconds.count() << std::endl;
-
-    //hwa.writeAllGraphs("/tmp/");
     return 0;
 }
 
