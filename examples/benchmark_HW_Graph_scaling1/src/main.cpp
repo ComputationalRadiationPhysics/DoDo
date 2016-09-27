@@ -44,7 +44,7 @@ po::variables_map parseCommandLine(const int argc, char** argv)
         "nodes",
         po::value< size_t >( )->default_value( 4 ),
         "The number nodes to model"
-    );
+    )
     (
         "help,h",
             "print meaning of output and help"
