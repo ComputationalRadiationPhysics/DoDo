@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dodo2/model/hardware/HardwareAbstractionBase.hpp>
+#include <dodo2/model/hardware/extension/ExtensionInterface.hpp>
 
 
 namespace dodo{
@@ -17,7 +18,6 @@ namespace hardware{
     struct HardwareAbstraction :
         public virtual HardwareAbstractionBase,
         public T_Extensions...
-
     {
     private:
         template<
@@ -100,17 +100,39 @@ namespace hardware{
 
     public:
 
-        std::size_t
+        auto
         countProperties()
+        -> std::size_t
         {
             std::size_t s = countPropertiesBase( );
-            countOtherProperties< T_Extensions... >( s );
+//            countOtherProperties< T_Extensions... >( s );
+            boost::mpl::for_each< boost::mpl::vector<T_Extensions*...> >(
+                [&s, this]( auto i )
+                {
+                    s += this->std::decay< decltype( *i ) >::type::countPropertiesInternal( );
+                }
+            );
             return s;
         }
 
         HardwareAbstraction() :
             T_Extensions()...
-        {}
+        {
+            boost::mpl::for_each< boost::mpl::vector<T_Extensions*...> >(
+                []( auto i )
+                {
+                    static_assert(
+                        std::is_base_of<
+                            dodo::model::hardware::extension::ExtensionInterface,
+                            typename std::decay< decltype( *i ) >::type
+                        >::value,
+                        "Extension does not inherit from ExtensionInterface"
+                    );
+                }
+            );
+
+
+        }
 
         void
         writeAllGraphs( std::string path_base )
