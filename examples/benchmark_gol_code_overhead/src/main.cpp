@@ -183,20 +183,30 @@ int main(
         "Hypnos",//xx
         dodo::model::hardware::property::VertexType::STRUCTURAL//xx
     );//xx
-    std::vector<MyHWAbs::HardwareID> computeNodes(n);//xx
+    std::vector<MyHWAbs::HardwareID> computeNodes(4);//xx
     {//xx
         const boost::array< std::size_t, 2 > lengths = { { 2,2 } };//xx
         const boost::grid_graph< 2 > grid(//xx
             lengths,//xx
             { { true, true} }//xx
         );//xx
-        for( size_t i=0; i<n ; ++i)//xx
+        for( size_t i=0; i<computeNodes.size() ; ++i)//xx
         {//xx
             // each compute node gets 4 cores//xx
             computeNodes[i] = hwa->add(//xx
                 "CompNode",//xx
                 dodo::model::hardware::property::VertexType::MACHINE,//xx
                 rootNode//xx
+            );//xx
+            auto memory = hwa->add(//xx
+                "RAM",//xx
+                dodo::model::hardware::property::VertexType::MEMORY,//xx
+                computeNodes[i]//xx
+            );//xx
+            auto edge = hwa->addInterconnectBidirectional(//xx
+                memory,//xx
+                computeNodes[i],//xx
+                "PCIe"//xx
             );//xx
             for( int j = 0 ; j < 4 ; ++j )//xx
             {//xx
@@ -211,18 +221,19 @@ int main(
                     2400//xx
                 );//xx
                 auto edge = hwa->addInterconnectBidirectional(//xx
-                    computeNodes[i],//xx
+                    memory,//xx
                     core,//xx
-                    "PCI"//xx
+                    "FSB"//xx
                 );//xx
                 hwa->setProperty(//xx
                     "InterconnectBandwidth",//xx
                     edge,//xx
                     100000//xx
                 );//xx
+                hwa->addToMemHierarchy( core, memory );
             }//xx
         }//xx
-        for( decltype( n ) vid = 0 ; vid < n ; ++vid )//xx
+        for( unsigned vid = 0 ; vid < computeNodes.size() ; ++vid )//xx
         {//xx
             // compute nodes are connected through a 2D torus network//xx
             const auto treeID = computeNodes[vid];//xx
@@ -230,7 +241,7 @@ int main(
                 vid,//xx
                 grid//xx
             );//xx
-            for( auto & e : boost::make_iterator_range( out_edges(//xx
+            for( auto e : boost::make_iterator_range( out_edges(//xx
                             gridVertex,//xx
                             grid//xx
                         ) ) )//xx
@@ -330,10 +341,10 @@ int main(
         4//xx
     );//xx
     auto dataAbstraction = std::make_shared<//xx
-        dodo::model::data::Abstraction<dodo::model::data::WrappedGrid3D>//xx
+        dodo::model::data::Abstraction<dodo::model::data::WrappedGrid2D>//xx
     >( physDom );//xx
     dodo::model::data::DataDomain livelinessStates;//xx
-    for(auto & v : boost::make_iterator_range( physDom.g.getVertices( ) ) )//xx
+    for(auto v : boost::make_iterator_range( physDom.g.getVertices( ) ) )//xx
     {//xx
         auto d = livelinessStates.createDataAtPos(v);//xx
         livelinessStates.setProperty(//xx
