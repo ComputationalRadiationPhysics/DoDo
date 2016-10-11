@@ -230,7 +230,7 @@ int main(
                     edge,//xx
                     100000//xx
                 );//xx
-                hwa->addToMemHierarchy( core, memory );
+                hwa->addToMemHierarchy( core, memory );//xx
             }//xx
         }//xx
         for( unsigned vid = 0 ; vid < computeNodes.size() ; ++vid )//xx
@@ -251,7 +251,7 @@ int main(
                     grid,//xx
                     e.second//xx
                 );//xx
-                auto const toTreeID = computeNodes[ toVertexInGrid ];//xx
+                auto const toTreeID = computeNodes[toVertexInGrid];//xx
                 auto const edge = hwa->addInterconnect(//xx
                     treeID,//xx
                     toTreeID,//xx
