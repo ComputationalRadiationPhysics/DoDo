@@ -16,6 +16,8 @@ namespace routine{
         virtual
         float
         operator()() = 0;
+
+        virtual ~EffortFunction( );
     };
 
 

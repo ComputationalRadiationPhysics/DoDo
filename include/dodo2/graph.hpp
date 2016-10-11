@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <dodo2/graph/ComponentGraph.hpp>
 #include <dodo2/graph/CoordinateGraph.hpp>
 #include <dodo2/graph/DataGraph.hpp>
 #include <dodo2/graph/detail.hpp>

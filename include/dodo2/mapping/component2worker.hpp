@@ -24,3 +24,4 @@
 
 #pragma once
 
+#include <dodo2/mapping/component2worker/Interface.hpp>

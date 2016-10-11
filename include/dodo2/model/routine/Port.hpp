@@ -13,8 +13,9 @@ namespace routine{
     class Port
     {
     public:
-        T_Direction direction;
         std::string domain;
+        T_Direction direction;
+        unsigned padding;
     };
 
 

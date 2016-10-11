@@ -24,7 +24,10 @@
 
 #pragma once
 
-#include <dodo2/model/data.hpp>
-#include <dodo2/model/hardware.hpp>
-#include <dodo2/model/routine.hpp>
-#include <dodo2/model/worker.hpp>
+#include <dodo2/model/routine/Abstraction.hpp>
+#include <dodo2/model/routine/ComponentBase.hpp>
+#include <dodo2/model/routine/ComponentTemplate.hpp>
+#include <dodo2/model/routine/detail.hpp>
+#include <dodo2/model/routine/EffortFunction.hpp>
+#include <dodo2/model/routine/InData.hpp>
+#include <dodo2/model/routine/Port.hpp>

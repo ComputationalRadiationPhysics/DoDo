@@ -21,6 +21,8 @@ namespace routine{
         virtual
         float
         effort() = 0;
+
+        virtual ~ComponentBase( );
     };
 
 

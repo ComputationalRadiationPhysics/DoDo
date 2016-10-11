@@ -42,7 +42,7 @@ namespace component2worker
         > mapping;
 
     public:
-        std::shared_ptr< DataModel > ;
+        std::shared_ptr< DataModel > dataModel;
         std::shared_ptr< WorkerModel > workerModel;
 
 

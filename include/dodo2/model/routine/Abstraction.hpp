@@ -134,7 +134,7 @@ namespace routine{
             }
         }
 
-        void
+        auto
         addRemainingDependencies( )
         -> void
         {
