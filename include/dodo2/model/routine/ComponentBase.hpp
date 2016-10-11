@@ -12,13 +12,12 @@ namespace routine{
 
     class ComponentBase
     {
-    protected:
+    public:
         using PosID = data::SimulationDomain::Graph::VertexID;
         PosID id;
         std::vector< InData > inData;
         std::vector< InData > outData;
 
-    public:
         virtual
         float
         effort() = 0;

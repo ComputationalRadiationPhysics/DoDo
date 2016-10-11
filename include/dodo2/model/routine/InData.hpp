@@ -17,6 +17,8 @@ namespace routine{
         std::string domain;
     };
 
+    using OutData = InData;
+
 
 } /* routine */
 } /* model */

@@ -6,6 +6,8 @@
 
 #include "dodo2/graph/SimpleBGL.hpp"
 #include "dodo2/utility/tree_id.hpp"
+#include "CoordinateGraph.hpp"
+
 
 namespace dodo
 {
@@ -29,11 +31,42 @@ namespace graph
         >;
         using VertexID = SBGL::VertexID;
 
+        std::map<
+            std::pair<std::string, CoordinateGraph::VertexID>,
+            VertexID
+        > inverseInstanceMap;
+//        utility::PropertyManager::MapType < decltype( internal_inverseInstanceMap ) > inverseInstanceMap;
+
         ComponentGraph() = default;
 
         ComponentGraph( std::size_t nVertices ) :
-            SBGL( nVertices )
+            SBGL( nVertices ),
+            inverseInstanceMap{ }
         { }
+
+        VertexID
+        addVertex(
+            std::string name,
+            CoordinateGraph::VertexID position
+        )
+        {
+            VertexID v = SBGL::addVertex();
+            inverseInstanceMap[std::make_pair(name, position)]  = v;
+            return v;
+        }
+
+        auto
+        addDependency(
+            VertexID predecessor,
+            VertexID successor
+        )
+        -> void
+        {
+            SBGL::addEdge(
+                predecessor,
+                successor
+            );
+        }
 
     };
 

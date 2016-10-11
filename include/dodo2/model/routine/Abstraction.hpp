@@ -2,66 +2,187 @@
 
 #include <vector>
 
+#include <boost/container/flat_set.hpp>
+
 #include <dodo2/graph/CoordinateGraph.hpp>
 #include <dodo2/graph/ComponentGraph.hpp>
 #include <dodo2/model/data/Abstraction.hpp>
 #include "InData.hpp"
-#include "EffortFunction.hpp"
 #include "ComponentTemplate.hpp"
+#include "ComponentBase.hpp"
+#include "detail/DependencyInfo.hpp"
 
 
 namespace dodo{
 namespace model{
 namespace routine{
 
-    class ComponentBase
-    {
-    protected:
-        using PosID = data::SimulationDomain::Graph::VertexID;
-        PosID id;
-        std::vector< InData > inData;
-        std::vector< InData > outData;
-
-    public:
-        virtual
-        float
-        effort() = 0;
-    };
-
-
-
     template<typename T_SimDom>
     class Abstraction
     {
-        std::shared_ptr< data::Abstraction< T_SimDom> > dataAbstraction;
+        std::shared_ptr< data::Abstraction< T_SimDom > > dataAbstraction;
         graph::ComponentGraph g;
         std::map<
             graph::ComponentGraph::VertexID,
-            std::vector< InData >
-        > internal_inDataMap;
-        utility::PropertyManager::MapType < decltype( internal_inDataMap ) > inDataMap;
-        std::map<
-            graph::ComponentGraph::VertexID,
-            std::vector< InData >
-        > internal_outDataMap;
-        utility::PropertyManager::MapType < decltype( internal_outDataMap ) > outDataMap;
-        std::map<
-            graph::ComponentGraph::VertexID,
-            std::string
-        > internal_componentTypeMap;
-        utility::PropertyManager::MapType < decltype( internal_componentTypeMap ) > componentTypeMap;
-        std::map<
-            graph::ComponentGraph::VertexID,
-            std::string
-        > internal_instancePositionMap;
-        utility::PropertyManager::MapType < decltype( internal_instancePositionMap ) > instancePositionMap;
-
-        std::map<
-            std::string,
-            EffortFunction
-        > effortFunctions;
+            std::shared_ptr< ComponentBase >
+        > internal_componentMap;
+        utility::PropertyManager::MapType< decltype( internal_componentMap ) >
+            componentMap;
         utility::PropertyManager propertyManager;
+        boost::container::flat_set< std::string > instantiatedComponents;
+        std::vector< detail::DependencyInfo > remainingDependencies;
 
+
+        auto
+        addDependenciesForPredecessors(
+            const boost::container::flat_set<std::string> & predecessors,
+            const graph::CoordinateGraph::VertexID position,
+            const graph::ComponentGraph::VertexID successor
+        )
+        -> void
+        {
+            // for each instance , add dependencies to predecessor-vertices
+            for( const std::string & pred : predecessors )
+            {
+                const auto & predecessor = g.inverseInstanceMap.at(
+                    make_pair( pred, position )
+                );
+                g.addDependency( predecessor, successor );
+            }
+        }
+
+
+        using Directions = typename data::traits::Directions< T_SimDom >::Values;
+
+        void addDataToPorts(
+            std::vector< Port< Directions > > const & ports,
+            graph::CoordinateGraph::VertexID position,
+            std::vector< InData > & inElements
+        ) const
+        {
+            int i=0;
+            inElements.reserve( ports.size( ) );
+            for( auto & p : ports )
+            {
+                data::DataDomain::DataID d =
+                dataAbstraction->getNeighborData(
+                    p.domain,
+                    position,
+                    p.direction
+                );
+                inElements[i] = { d, p.domain };
+                ++i;
+            }
+        }
+
+
+        template<
+            typename T_ComponentBase,
+            bool T_Deps
+        >
+        auto
+        instantiateInternal(
+            ComponentTemplate<
+                T_SimDom,
+                T_ComponentBase
+            > const & comp
+        )
+        -> void
+        {
+            // type of c: coordinateGraph vertex descriptor
+            for( auto c : boost::make_iterator_range(
+                dataAbstraction->simDom->getCells( )
+            ) )
+            {
+                // create a vertex for each position in the physical domain
+                auto v = g.addVertex( comp.name, c );
+
+                // create a component that is associated with the vertex
+                std::shared_ptr< ComponentBase > component =
+                    std::make_shared< T_ComponentBase >( );
+                internal_componentMap[v] = component;
+
+                // add data elements for the ports
+                addDataToPorts( comp.inPorts, c, component->inData );
+                addDataToPorts( comp.outPorts, c, component->outData );
+
+                // Should dependencies be added directly or later?
+                // should be eliminated at compile-time, if false
+                if( T_Deps )
+                {
+                    addDependenciesForPredecessors(comp.predecessors , c, v);
+                }
+            }
+        }
+
+
+        auto
+        addDependencies(
+            const detail::DependencyInfo & info
+        )
+        -> void
+        {
+            // iterate over vertices that represent instances of the successor
+            for( auto pos : boost::make_iterator_range(
+                dataAbstraction->simDom->getCells( )
+            ) )
+            {
+                const auto v = g.inverseInstanceMap.at(
+                    std::make_pair( info.name, pos )
+                );
+                addDependenciesForPredecessors( info.predecessors, pos, v );
+            }
+        }
+
+        void
+        addRemainingDependencies( )
+        -> void
+        {
+            for( const detail::DependencyInfo & info : remainingDependencies )
+            {
+                addDependencies( info );
+            }
+        }
+
+        template< typename T_ComponentBase >
+        auto
+        instantiateComponent(
+            const ComponentTemplate<
+                T_SimDom,
+                T_ComponentBase
+            > comp
+        )
+        -> void
+        {
+            if( instantiatedComponents.count( comp.name ) != 0 )
+            {
+                std::cerr << "A component may not be instantiated twice!"
+                          << std::endl;
+            }
+
+            if( !comp.predecessors.empty( ) &&
+                std::includes(
+                    instantiatedComponents.begin( ),
+                    instantiatedComponents.end( ),
+                    comp.predecessors.begin( ),
+                    comp.predecessors.end( )
+                )
+            )
+            {
+                //it works, but needs dependency handling
+                instantiateInternal< T_ComponentBase, true >( comp );
+            }
+            else
+            {
+                // Either no dependency exists or the
+                // predecessor is required but does not exist.
+                // dependency handling must be completed at the end
+                // (is done by recursive call if instantiateComponents)
+                instantiateInternal< T_ComponentBase, false >( comp );
+                remainingDependencies.push_back( comp );
+            }
+            instantiatedComponents.insert( comp.name );
+        }
 
     public:
         Abstraction(
@@ -69,52 +190,40 @@ namespace routine{
         ) :
             dataAbstraction{ dataAbs },
             g{ },
-            internal_inDataMap{ },
-            inDataMap{ internal_inDataMap },
-            internal_outDataMap{ },
-            outDataMap{ internal_outDataMap },
-            internal_componentTypeMap{ },
-            componentTypeMap{ internal_componentTypeMap },
-            internal_instancePositionMap{ },
-            instancePositionMap{ internal_instancePositionMap },
-            effortFunctions{ },
-            propertyManager{ }
+            internal_componentMap{ },
+            componentMap{ internal_componentMap },
+            propertyManager{ },
+            instantiatedComponents{ },
+            remainingDependencies{ }
         {
-            propertyManager.registerProperty("inData", inDataMap);
-            propertyManager.registerProperty("outData", outDataMap);
-            propertyManager.registerProperty("componentType", componentTypeMap);
-            propertyManager.registerProperty("instancePosition", instancePositionMap);
+            propertyManager.registerProperty("component", componentMap);
         }
 
-        void
-        instantiateComponent(
-            const ComponentTemplate comp
+
+        // recursive function to instantiate all component templates
+        // and add the required dependencies
+        template<
+            typename T_ComponentTemplate,
+            typename... T_Rest
+        >
+        auto
+        instantiateComponents(
+            T_ComponentTemplate temp,
+            T_Rest... rest
         )
+        -> void
         {
-            for( auto c : boost::make_iterator_range( dataAbstraction->simDom->getCells( ) ) )
-            {
-                auto v = g.addVertex( );
-                internal_instancePositionMap[v] = c;
-                internal_componentTypeMap[v] = comp.name;
-                internal_inDataMap.emplace( { v, std::vector<InData> ( comp.inPorts.size( ) ) } );
-                std::vector<InData> & inElements = internal_inDataMap.at(v);
-                internal_outDataMap.emplace( { v, std::vector<InData> ( comp.outPorts.size( ) ) } );
-                std::vector<InData> & outElements = internal_outDataMap.at(v);
-                int i=0;
-                for( auto & p : comp.inPorts )
-                {
-                    data::DataDomain::DataID d = dataAbstraction->getNeighborData( p.domain, c, p.direction );
-                    inElements[i] = { d, p.domain };
-                    ++i;
-                }
-                i=0;
-                for( auto & p : comp.outPorts )
-                {
-                    data::DataDomain::DataID d = dataAbstraction->getNeighborData( p.domain, c, p.direction );
-                    outElements[i] = { d, p.domain };
-                    ++i;
-                }
-            }
+            instantiateComponent( temp );
+            instantiateComponents( rest... );
+        }
+
+
+        template< typename... Ts >
+        auto
+        instantiateComponents( Ts... )
+        -> typename std::enable_if< sizeof...( Ts ) == 0 >::type
+        {
+            addRemainingDependencies();
         }
 
     };
