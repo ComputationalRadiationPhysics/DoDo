@@ -3,7 +3,7 @@
 #include <dodo2.hpp>
 
 template< typename T_DataModel >
-class ComponentA : public dodo::model::routine::ComponentBase< T_DataModel >
+class ComponentB : public dodo::model::routine::ComponentBase< T_DataModel >
 {
 public:
 
@@ -13,7 +13,7 @@ public:
         std::shared_ptr<T_DataModel> dataModel
     ) override
     {
-        return 10 * dataModel->template getProperty<float>(
+        return 20 * dataModel->template getProperty<float>(
            this->inData[0],
            "sizeInKB"
        );

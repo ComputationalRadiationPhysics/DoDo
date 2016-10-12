@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <dodo2/mapping/data2worker/distributeRoundRobin.hpp>
 #include "ComponentA.hpp"
+#include "ComponentB.hpp"
 
 
 namespace po = boost::program_options;
@@ -233,7 +234,25 @@ int main(
 //    data2workerMapping.print();
 
     // TODO
-    dodo::model::routine::ComponentTemplate<decltype(physDom), ComponentA> template1;
+    dodo::model::routine::ComponentTemplate<
+        ComponentA< std::decay< decltype( *dataAbstraction ) >::type >
+    > template1;
+    template1.name = "CompA";
+//    template1.inPorts.push_back();
+
+    dodo::model::routine::ComponentTemplate<
+        ComponentB< std::decay< decltype( *dataAbstraction ) >::type >
+    > template2;
+    template2.name = "CompB";
+
+    auto routineAbstraction = std::make_shared<
+        dodo::model::routine::Abstraction<decltype( physDom )>
+    >(dataAbstraction);
+
+    routineAbstraction->instantiateComponents(
+        template1,
+        template2
+    );
 
     return 0;
 }

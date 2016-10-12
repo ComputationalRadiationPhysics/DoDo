@@ -20,11 +20,12 @@ namespace routine{
     template<typename T_SimDom>
     class Abstraction
     {
-        std::shared_ptr< data::Abstraction< T_SimDom > > dataAbstraction;
+        using DataAbstraction = data::Abstraction<T_SimDom>;
+        std::shared_ptr< DataAbstraction > dataAbstraction;
         graph::ComponentGraph g;
         std::map<
             graph::ComponentGraph::VertexID,
-            std::shared_ptr< ComponentBase >
+            std::shared_ptr< ComponentBase< DataAbstraction> >
         > internal_componentMap;
         utility::PropertyManager::MapType< decltype( internal_componentMap ) >
             componentMap;
@@ -60,7 +61,7 @@ namespace routine{
             std::vector< InData > & inElements
         ) const
         {
-            int i=0;
+            size_t i=0;
             inElements.reserve( ports.size( ) );
             for( auto & p : ports )
             {
@@ -83,7 +84,6 @@ namespace routine{
         auto
         instantiateInternal(
             ComponentTemplate<
-                T_SimDom,
                 T_ComponentBase
             > const & comp
         )
@@ -91,14 +91,14 @@ namespace routine{
         {
             // type of c: coordinateGraph vertex descriptor
             for( auto c : boost::make_iterator_range(
-                dataAbstraction->simDom->getCells( )
+                dataAbstraction->simDom.getCells( )
             ) )
             {
                 // create a vertex for each position in the physical domain
                 auto v = g.addVertex( comp.name, c );
 
                 // create a component that is associated with the vertex
-                std::shared_ptr< ComponentBase > component =
+                std::shared_ptr< ComponentBase< DataAbstraction > > component =
                     std::make_shared< T_ComponentBase >( );
                 internal_componentMap[v] = component;
 
@@ -124,7 +124,7 @@ namespace routine{
         {
             // iterate over vertices that represent instances of the successor
             for( auto pos : boost::make_iterator_range(
-                dataAbstraction->simDom->getCells( )
+                dataAbstraction->simDom.getCells( )
             ) )
             {
                 const auto v = g.inverseInstanceMap.at(
@@ -148,7 +148,6 @@ namespace routine{
         auto
         instantiateComponent(
             const ComponentTemplate<
-                T_SimDom,
                 T_ComponentBase
             > comp
         )

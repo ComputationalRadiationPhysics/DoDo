@@ -3,6 +3,7 @@
 
 #include <dodo2/graph/DataGraph.hpp>
 #include <dodo2/model/data/Traits/Directions.hpp>
+#include <dodo2/model/routine/InData.hpp>
 #include "SimulationDomain.hpp"
 #include "DataDomain.hpp"
 
@@ -61,6 +62,21 @@ namespace data
             return dataDomains.at( domainName ).propertyManager.template get<T>(
                 propertyName,
                 id
+            );
+        }
+
+        template<typename T>
+        auto
+        getProperty(
+            routine::InData const & dataElement,
+            std::string const & propertyName
+        ) const
+        -> T
+        {
+            return getProperty<T>(
+                dataElement.domain,
+                propertyName,
+                dataElement.id
             );
         }
 
