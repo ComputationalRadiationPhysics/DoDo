@@ -199,8 +199,8 @@ namespace routine{
         }
 
 
-        // recursive function to instantiate all component templates
-        // and add the required dependencies
+//         recursive function to instantiate all component templates
+//         and add the required dependencies
         template<
             typename T_ComponentTemplate,
             typename... T_Rest
@@ -213,7 +213,7 @@ namespace routine{
         -> void
         {
             instantiateComponent( temp );
-            instantiateComponents( rest... );
+            instantiateComponents<T_Rest...>( rest... );
         }
 
 
@@ -224,6 +224,24 @@ namespace routine{
         {
             addRemainingDependencies();
         }
+
+// Alternative implementation, using boost fusion (not so nice to read?)
+//        template< typename... T_ComponentStencils >
+//        auto
+//        instantiateComponents(
+//            T_ComponentStencils... stencils
+//        )
+//        -> void
+//        {
+//            boost::fusion::for_each(
+//                boost::fusion::vector< T_ComponentStencils... >(stencils...),
+//                [this](auto & i)
+//                {
+//                    instantiateComponent( i );
+//                }
+//            );
+//            addRemainingDependencies();
+//        }
 
     };
 

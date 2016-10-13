@@ -16,6 +16,14 @@ namespace model{
 namespace routine{
 
 
+    //TODO: define predecessor class that holds a direction.
+    //      With that class, it is possible to actually depend
+    //      on component instances that are located on a different
+    //      position in the simulation domain.
+    //      Of course, this has to be handled correctly in the
+    //      dependency generation step, but should be rather trivial.
+    using Predecessor = std::string;
+
     template<
         typename T_Instance
     >
@@ -34,7 +42,7 @@ namespace routine{
         std::vector< Port< Directions > > inPorts;
         std::vector< Port< Directions > > outPorts;
         std::string name = " ";
-        boost::container::flat_set< std::string > predecessors;
+        boost::container::flat_set< Predecessor > predecessors;
     };
 
 
