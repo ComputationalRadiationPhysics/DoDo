@@ -16,6 +16,16 @@ namespace routine{
         std::string domain;
         T_Direction direction;
         unsigned padding;
+
+        Port(
+            std::string pDomain,
+            T_Direction pDirection
+        ) :
+            domain{ pDomain },
+            direction{ pDirection },
+            padding{ 0u }
+        {}
+
     };
 
 

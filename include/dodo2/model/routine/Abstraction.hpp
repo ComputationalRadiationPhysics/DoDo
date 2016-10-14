@@ -20,7 +20,10 @@ namespace routine{
     template<typename T_SimDom>
     class Abstraction
     {
+    public:
         using DataAbstraction = data::Abstraction<T_SimDom>;
+        using ComponentID = graph::ComponentGraph::VertexID;
+    private:
         std::shared_ptr< DataAbstraction > dataAbstraction;
         graph::ComponentGraph g;
         std::map<
@@ -32,6 +35,7 @@ namespace routine{
         utility::PropertyManager propertyManager;
         boost::container::flat_set< std::string > instantiatedComponents;
         std::vector< detail::DependencyInfo > remainingDependencies;
+
 
 
         auto

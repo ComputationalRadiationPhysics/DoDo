@@ -25,7 +25,8 @@ namespace traits{
             NORTH,
             EAST,
             SOUTH,
-            WEST
+            WEST,
+            SELF
         };
     };
 }
@@ -57,6 +58,8 @@ namespace traits{
                     return "SOUTH";
                 case Directions::WEST:
                     return "WEST";
+                case Directions::SELF:
+                    return "SELF";
                 //default:
                 //    throw std::runtime_error("unknown direction!");
             }
@@ -162,9 +165,10 @@ namespace traits{
                         var = Directions::NORTH;
                     }
                     graph::CoordinateGraph::EdgeID edge = simGrid.addEdge(vid, vid2);
-
                     put(result.directionMap, edge, var);
                 }
+                graph::CoordinateGraph::EdgeID selfEdge = simGrid.addEdge(vid, vid);
+                put(result.directionMap, selfEdge, Directions::SELF);
             }
             result.g = simGrid;
             return result;

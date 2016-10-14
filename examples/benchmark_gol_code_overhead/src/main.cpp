@@ -6,6 +6,21 @@
 #include <dodo2.hpp>
 
 
+template< typename T_DataModel >//xx
+struct GOLRule ://xx
+    dodo::model::routine::ComponentBase< T_DataModel >//xx
+{//xx
+    virtual//xx
+    float//xx
+    effort(//xx
+        std::shared_ptr< T_DataModel > dataModel//xx
+    ) override//xx
+    {//xx
+        (void) dataModel;//xx
+        return 10;//xx
+    }//xx
+};//xx
+
 void print(
     int,
     int,
@@ -220,14 +235,14 @@ int main(
                     core,//xx
                     2400//xx
                 );//xx
-                auto edge = hwa->addInterconnectBidirectional(//xx
+                auto mEdge = hwa->addInterconnectBidirectional(//xx
                     memory,//xx
                     core,//xx
                     "FSB"//xx
                 );//xx
                 hwa->setProperty(//xx
                     "InterconnectBandwidth",//xx
-                    edge,//xx
+                    mEdge,//xx
                     100000//xx
                 );//xx
                 hwa->addToMemHierarchy( core, memory );//xx
@@ -336,13 +351,13 @@ int main(
     std::srand( static_cast< unsigned >( rank ) );
     alive = std::rand( ) % 2;
 
-    auto physDom = dodo::model::data::WrappedGrid2D::generate(//xx
+    using PhysicalDomain = dodo::model::data::WrappedGrid2D;//xx
+    auto physDom = PhysicalDomain::generate(//xx
         4,//xx
         4//xx
     );//xx
-    auto dataAbstraction = std::make_shared<//xx
-        dodo::model::data::Abstraction<dodo::model::data::WrappedGrid2D>//xx
-    >( physDom );//xx
+    using DataAbstraction = dodo::model::data::Abstraction< PhysicalDomain >;//xx
+    auto dataAbstraction = std::make_shared< DataAbstraction >( physDom );//xx
     dodo::model::data::DataDomain livelinessStates;//xx
     for(auto v : boost::make_iterator_range( physDom.g.getVertices( ) ) )//xx
     {//xx
@@ -363,13 +378,57 @@ int main(
     );//xx
     std::map< std::string, decltype(stateMap) > finalMap;//xx
     finalMap["livelinessStates"] = stateMap;//xx
-    dodo::mapping::data2worker::Interface<//xx
-        dodo::model::data::WrappedGrid2D//xx
-    > data2workerMapping(//xx
+    dodo::mapping::data2worker::Interface< PhysicalDomain > data2workerMapping(//xx
         dataAbstraction,//xx
         workerModel,//xx
         finalMap//xx
     );//xx
+
+    using Directions = dodo::model::data::traits::Directions<dodo::model::data::WrappedGrid2D>::Values;//xx
+    using PortType = dodo::model::routine::Port<Directions>;//xx
+    dodo::model::routine::ComponentTemplate<//xx
+        GOLRule< DataAbstraction > > golRuleStencil;//xx
+    golRuleStencil.name = "livelinessRule";//xx
+    golRuleStencil.outPorts.push_back( PortType(//xx
+        "livelinessStates",//xx
+        Directions::SELF//xx
+    ) );//xx
+
+    std::vector< Directions > otherDirs {//xx
+        Directions::NORTH,//xx
+        Directions::EAST,//xx
+        Directions::SOUTH,//xx
+        Directions::WEST//xx
+    };//xx
+    for( Directions d : otherDirs )//xx
+    {//xx
+        golRuleStencil.inPorts.push_back( PortType(//xx
+            "livelinessStates",//xx
+            d//xx
+        ) );//xx
+    }//xx
+
+    dodo::model::routine::ComponentTemplate<//xx
+        GOLRule< DataAbstraction > > golPrintStencil;//xx
+    golPrintStencil.name = "print";//xx
+    golPrintStencil.predecessors.insert(golRuleStencil.name);//xx
+    golPrintStencil.inPorts.push_back( PortType (//xx
+        "livelinessStates",//xx
+        Directions::SELF//xx
+    ) );//xx
+
+    using RoutineModel = dodo::model::routine::Abstraction< PhysicalDomain >;//xx
+    auto routineModel = std::make_shared<RoutineModel>( dataAbstraction );//xx
+    routineModel->instantiateComponents(//xx
+        golRuleStencil,//xx
+        golPrintStencil//xx
+    );//xx
+
+    dodo::mapping::component2worker::Interface< PhysicalDomain > componentMapping(//xx
+        routineModel,//xx
+        workerModel//xx
+    );//xx
+
 
     // Start simulation
     for( int timestep = 0 ; timestep < 10 ; ++timestep )
