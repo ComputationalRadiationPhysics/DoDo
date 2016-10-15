@@ -174,6 +174,25 @@ namespace dodo
                 }
 
 
+                template<
+                    typename T
+                >
+                void setProperty(
+                    const std::string & propName,
+                    const std::vector<InterconnectGraph::EdgeID> & ids,
+                    T property
+                )
+                {
+                    for( InterconnectGraph::EdgeID id : ids)
+                    {
+                        propertyManager.set(
+                            propName,
+                            id,
+                            property
+                        );
+                    }
+                }
+
                 HardwareID addRoot(
                     std::string childName,
                     property::VertexType type

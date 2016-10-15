@@ -17,7 +17,7 @@ namespace hardware{
     template<typename... T_Extensions>
     struct HardwareAbstraction :
         public virtual HardwareAbstractionBase,
-        public T_Extensions...
+        public virtual T_Extensions...
     {
     private:
         template<
@@ -178,6 +178,7 @@ namespace hardware{
             // TODO: implement
             for(std::string m : propertyManager.registeredNames)
             {
+                std::cout << m << std::endl;
             }
 
         }

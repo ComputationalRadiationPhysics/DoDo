@@ -5,7 +5,6 @@
 #include <dodo2/graph/DataGraph.hpp>
 #include <dodo2/utility/OneToNMap.hpp>
 #include <dodo2/utility/PropertyManager.hpp>
-#include <dodo2/mapping/data2pos/Map.hpp>
 #include "SimulationDomain.hpp"
 
 

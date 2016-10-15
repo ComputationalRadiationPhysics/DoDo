@@ -66,7 +66,7 @@ namespace routine{
         ) const
         {
             size_t i=0;
-            inElements.reserve( ports.size( ) );
+            inElements.resize( ports.size() );
             for( auto & p : ports )
             {
                 data::DataDomain::DataID d =
@@ -227,6 +227,16 @@ namespace routine{
         -> typename std::enable_if< sizeof...( Ts ) == 0 >::type
         {
             addRemainingDependencies();
+        }
+
+        auto
+        getAllComponents() const
+        -> std::pair<
+            graph::ComponentGraph::AllVertexIter,
+            graph::ComponentGraph::AllVertexIter
+        >
+        {
+            return g.getVertices();
         }
 
 // Alternative implementation, using boost fusion (not so nice to read?)

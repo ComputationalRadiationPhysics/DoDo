@@ -66,10 +66,10 @@ namespace traits{
         }
 
         WrappedGrid2D() :
-            edge2Direction{},
-            directionMap{},
-            vertex2Coordinate{},
-            coordinateMap{}
+            edge2Direction{ },
+            directionMap { edge2Direction },
+            vertex2Coordinate{ },
+            coordinateMap{ vertex2Coordinate }
         {}
 
     public:

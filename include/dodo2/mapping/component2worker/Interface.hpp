@@ -29,6 +29,9 @@ namespace component2worker
         using WorkerModel = model::worker::Model;
         using WorkerID = WorkerModel::WorkerID;
 
+        std::shared_ptr< RoutineModel > routineModel;
+        std::shared_ptr< WorkerModel > workerModel;
+
     private:
         // the string denotes the name of the data domain that is mapped
         utility::OneToNMap<
@@ -37,24 +40,21 @@ namespace component2worker
         > mapping;
 
     public:
-        std::shared_ptr< RoutineModel > routineModel;
-        std::shared_ptr< WorkerModel > workerModel;
-
-
         Interface(
             const std::shared_ptr< RoutineModel > & proutineModel,
             const std::shared_ptr< WorkerModel > & pworkerModel
         ) :
             routineModel( proutineModel ),
-            workerModel( pworkerModel )
+            workerModel( pworkerModel ),
+            mapping{}
         { }
 
         Interface(
             const std::shared_ptr< RoutineModel > & proutineModel,
             const std::shared_ptr< WorkerModel > & pworkerModel,
             const std::map<
-                ComponentID,
-                WorkerID
+                WorkerID,
+                std::vector< ComponentID >
             > & p_mapping
         ) :
             routineModel( proutineModel ),
