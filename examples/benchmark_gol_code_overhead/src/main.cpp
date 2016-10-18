@@ -217,25 +217,13 @@ int main(
     );//xx
     std::vector< MyHWAbs::HardwareID > computeNodes( 4 );//xx
     {//xx
-        const boost::array<
-            std::size_t,
-            2
-        >
-            lengths =
-            {
-                {
-                    2,
-                    2
-                }
-            };//xx
+        const boost::array<//xx
+            std::size_t,//xx
+            2//xx
+        > lengths = { { 2, 2 } };//xx
         const boost::grid_graph< 2 > grid(//xx
             lengths,//xx
-            {
-                {
-                    true,
-                    true
-                }
-            }//xx
+            { { true, true } }//xx
         );//xx
         for( size_t i = 0; i < computeNodes.size( ); ++i )//xx
         {//xx
@@ -277,9 +265,9 @@ int main(
                     mEdge,//xx
                     std::size_t( 100000 )//xx
                 );//xx
-                hwa->addToMemHierarchy(
-                    core,
-                    memory
+                hwa->addToMemHierarchy(//xx
+                    core,//xx
+                    memory//xx
                 );//xx
             }//xx
         }//xx
@@ -291,11 +279,11 @@ int main(
                 vid,//xx
                 grid//xx
             );//xx
-            for( auto e : boost::make_iterator_range(
+            for( auto e : boost::make_iterator_range(//xx
                 out_edges(//xx
                     gridVertex,//xx
                     grid//xx
-                )
+                )//xx
             ) )//xx
             {//xx
                 const auto toVertexInGrid = get(//xx
@@ -319,40 +307,10 @@ int main(
     }//xx
     int rank = -1;
     int nRanks = 0;
-    std::array<
-        int,
-        2
-    >
-        dim
-        (
-            {
-                {
-                    4,
-                    4
-                }
-            }
-        );
-    std::array<
-        int,
-        2
-    >
-        boundaryCondition
-        (
-            {
-                {
-                    1,
-                    1
-                }
-            }
-        );
-    std::array<
-        int,
-        2
-    > coord;
-    std::array<
-        int,
-        4
-    > neighborRanks;
+    std::array< int, 2 > dim ( { { 4, 4 } } );
+    std::array< int, 2 > boundaryCondition ( { { 1, 1 } } );
+    std::array< int, 2 > coord;
+    std::array< int, 4 > neighborRanks;
     int alive;
 
     // initialization
@@ -413,7 +371,7 @@ int main(
         coord,
         neighborRanks,
         comm
-    );
+    ) ;
 
     std::srand( static_cast< unsigned >( rank ) );
     alive = std::rand( ) % 2;
@@ -426,10 +384,7 @@ int main(
     using DataAbstraction = dodo::model::data::Abstraction< PhysicalDomain >;//xx
     auto dataAbstraction = std::make_shared< DataAbstraction >( physDom );//xx
     dodo::model::data::DataDomain livelinessStates;//xx
-    for( auto v : boost::make_iterator_range(
-        physDom.g
-            .getVertices( )
-    ) )//xx
+    for( auto v : boost::make_iterator_range( physDom.g.getVertices( ) ) )//xx
     {//xx
         auto d = livelinessStates.createDataAtPos( v );//xx
         livelinessStates.setProperty(//xx
@@ -446,12 +401,12 @@ int main(
         livelinessStates,//xx
         *workerModel//xx
     );//xx
-    std::map<
-        std::string,
-        decltype( stateMap )
+    std::map<//xx
+        std::string,//xx
+        decltype( stateMap )//xx
     > finalMap;//xx
     finalMap["livelinessStates"] = stateMap;//xx
-    dodo::mapping::data2worker::Interface< PhysicalDomain >
+    dodo::mapping::data2worker::Interface< PhysicalDomain >//xx
         data2workerMapping(//xx
         dataAbstraction,//xx
         workerModel,//xx
@@ -461,15 +416,15 @@ int main(
     using Directions = dodo::model::data::traits::Directions< dodo::model::data::WrappedGrid2D >::Values;//xx
     using PortType = dodo::model::routine::Port< Directions >;//xx
     dodo::model::routine::ComponentTemplate<//xx
-        GOLRule< DataAbstraction >
+        GOLRule< DataAbstraction >//xx
     > golRuleStencil;//xx
     golRuleStencil.name = "livelinessRule";//xx
-    golRuleStencil.outPorts
-        .push_back(
+    golRuleStencil.outPorts//xx
+        .push_back(//xx
             PortType(//xx
                 "livelinessStates",//xx
                 Directions::SELF//xx
-            )
+            )//xx
         );//xx
 
     std::vector< Directions > otherDirs {//xx
@@ -480,28 +435,26 @@ int main(
     };//xx
     for( Directions d : otherDirs )//xx
     {//xx
-        golRuleStencil.inPorts
-            .push_back(
+        golRuleStencil.inPorts//xx
+            .push_back(//xx
                 PortType(//xx
                     "livelinessStates",//xx
                     d//xx
-                )
+                )//xx
             );//xx
     }//xx
 
     dodo::model::routine::ComponentTemplate<//xx
-        GOLPrint< DataAbstraction >
+        GOLPrint< DataAbstraction >//xx
     > golPrintStencil;//xx
     golPrintStencil.name = "print";//xx
-    golPrintStencil.predecessors
-        .insert( golRuleStencil.name );//xx
-    golPrintStencil.inPorts
-        .push_back(
-            PortType(//xx
-                "livelinessStates",//xx
-                Directions::SELF//xx
-            )
-        );//xx
+    golPrintStencil.predecessors.insert( golRuleStencil.name );//xx
+    golPrintStencil.inPorts.push_back(//xx
+        PortType(//xx
+            "livelinessStates",//xx
+            Directions::SELF//xx
+        )//xx
+    );//xx
 
     using RoutineModel = dodo::model::routine::Abstraction< PhysicalDomain >;//xx
     auto routineModel = std::make_shared< RoutineModel >( dataAbstraction );//xx
