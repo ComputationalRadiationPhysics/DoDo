@@ -27,9 +27,7 @@ void print(int, int, MPI_Comm&);
 
 void updateAlive(int&, std::array<int, 4>&, MPI_Comm&);
 
-void findNeighbors(std::array<int, 2> const&,
-        std::array<int, 4>&,
-        MPI_Comm&);
+void findNeighbors(std::array<int, 2> const&,  std::array<int, 4>&,  MPI_Comm&);
 
 void
 print(int rank, int alive, MPI_Comm& comm)
@@ -55,12 +53,7 @@ print(int rank, int alive, MPI_Comm& comm)
     }
 }
 
-void
-updateAlive(
-        int& alive,
-        std::array<int, 4>& neighborRanks,
-        MPI_Comm& comm
-)
+void updateAlive(int& alive, std::array<int, 4>& neighborRanks, MPI_Comm& comm)
 {
     for (auto r : neighborRanks) {
         MPI_Send(&alive, 1, MPI_INT, r, 0, comm);
@@ -86,12 +79,8 @@ updateAlive(
     }
 }
 
-void
-findNeighbors(
-        std::array<int, 2> const& coord,
-        std::array<int, 4>& neighborRanks,
-        MPI_Comm& comm
-)
+void findNeighbors(std::array<int, 2> const& coord,
+        std::array<int, 4>& neighborRanks, MPI_Comm& comm)
 {// Find Neighbors
     int id;
     std::array<int, 2> neighborCoord; //North
@@ -120,14 +109,14 @@ int main(int argc, char* argv[])
 {
     //typedef//x1x
     namespace hwmodel = dodo::model::hardware;//x1x
+    namespace hwVertex = dodo::model::hardware::property::VertexType;//x1x
     using MyHWAbs = hwmodel::HardwareAbstraction<//x1x
             hwmodel::extension::VertexSpeed,//x1x
             hwmodel::extension::InterconnectBandwidth>;//x1x
     auto hwa = std::make_shared<MyHWAbs>();//x1x
 
     // Hardware architecture//x1x
-    auto rootNode = hwa->addRoot("Hypnos",//x1x
-            hwmodel::property::VertexType::STRUCTURAL);//x1x
+    auto rootNode = hwa->addRoot("Hypnos", hwVertex::STRUCTURAL);//x1x
     std::vector<MyHWAbs::HardwareID> computeNodes(4);//x1x
     {//x1x
         const boost::array<std::size_t, 2> lengths = {{2, 2}};//x1x
@@ -135,18 +124,13 @@ int main(int argc, char* argv[])
         for (size_t i = 0; i<computeNodes.size(); ++i)//x1x
         {//x1x
             // each compute node gets 4 cores//x1x
-            computeNodes[i] = hwa->add("CompNode",//x1x
-                    hwmodel::property::VertexType::MACHINE, rootNode);//x1x
-            auto memory = hwa->add("RAM",//x1x
-                    hwmodel::property::VertexType::MEMORY,//x1x
-                    computeNodes[i]);//x1x
+            computeNodes[i] = hwa->add("CompNode", hwVertex::MACHINE, rootNode);//x1x
+            auto memory = hwa->add("RAM", hwVertex::MEMORY, computeNodes[i]);//x1x
             auto edge = hwa->addInterconnectBidirectional(memory,//x1x
                     computeNodes[i], "PCIe");//x1x
             for (int j = 0; j<4; ++j)//x1x
             {//x1x
-                auto core = hwa->add("Core",//x1x
-                        hwmodel::property::VertexType::COMPUTE,//x1x
-                        computeNodes[i]);//x1x
+                auto core = hwa->add("Core", hwVertex::COMPUTE, computeNodes[i]);//x1x
                 hwa->setProperty("VertexSpeed", core, std::size_t(2400));//x1x
                 auto mEdge = hwa->addInterconnectBidirectional(memory, core,//x1x
                         "FSB");//x1x
