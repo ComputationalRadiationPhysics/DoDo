@@ -24,11 +24,9 @@
 
 #pragma once
 
-#include <dodo/components.hpp>
 #include <dodo/graph.hpp>
-#include <dodo/hardware.hpp>
 #include <dodo/mapping.hpp>
-#include <dodo/process.hpp>
+#include <dodo/model.hpp>
 #include <dodo/types.hpp>
 #include <dodo/utility.hpp>
 #include <dodo/version.hpp>

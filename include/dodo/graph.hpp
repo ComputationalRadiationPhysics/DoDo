@@ -24,10 +24,11 @@
 
 #pragma once
 
-#include <dodo/graph/AttributeGraph.hpp>
-#include <dodo/graph/AttributeMapStore.hpp>
+#include <dodo/graph/ComponentGraph.hpp>
+#include <dodo/graph/CoordinateGraph.hpp>
+#include <dodo/graph/DataGraph.hpp>
 #include <dodo/graph/detail.hpp>
-#include <dodo/graph/PairBGL.hpp>
+#include <dodo/graph/InterconnectGraph.hpp>
 #include <dodo/graph/SimpleBGL.hpp>
 #include <dodo/graph/SimpleBGLWriter.hpp>
 #include <dodo/graph/TreeIDGraph.hpp>

@@ -5,9 +5,9 @@
 #include <boost/property_map/property_map.hpp>
 #include <boost/property_map/dynamic_property_map.hpp>
 
-#include <dodo2/utility/tree_id.hpp>
-#include <dodo2/utility/PropertyManager.hpp>
-#include <dodo2/model/hardware/property/VertexType.hpp>
+#include <dodo/utility/tree_id.hpp>
+#include <dodo/utility/PropertyManager.hpp>
+#include <dodo/model/hardware/property/VertexType.hpp>
 
 
 

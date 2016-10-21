@@ -4,9 +4,9 @@
 #include <boost/range/algorithm.hpp>
 #include <boost/range/algorithm_ext.hpp>
 
-#include <dodo2.hpp>
-#include <dodo2/mapping/worker2hardware/getMemoryForWorker.hpp>
-#include <dodo2/mapping/worker2hardware/getFLOPSForWorker.hpp>
+#include <dodo.hpp>
+#include <dodo/mapping/worker2hardware/getMemoryForWorker.hpp>
+#include <dodo/mapping/worker2hardware/getFLOPSForWorker.hpp>
 
 
 int main( )

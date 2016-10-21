@@ -6,9 +6,9 @@
 #include <boost/graph/graphml.hpp>
 #include <boost/program_options.hpp>
 
-#include <dodo2.hpp>
+#include <dodo.hpp>
 #include <stdlib.h>
-#include <dodo2/mapping/data2worker/distributeRoundRobin.hpp>
+#include <dodo/mapping/data2worker/distributeRoundRobin.hpp>
 
 
 namespace po = boost::program_options;

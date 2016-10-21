@@ -4,7 +4,7 @@
 
 
 #include <boost/graph/graphml.hpp>
-#include <dodo2.hpp>
+#include <dodo.hpp>
 
 
 enum ThreadGraphNodeType{

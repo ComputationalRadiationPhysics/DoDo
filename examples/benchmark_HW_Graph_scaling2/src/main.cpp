@@ -6,7 +6,7 @@
 #include <boost/graph/graphml.hpp>
 #include <boost/program_options.hpp>
 
-#include <dodo2.hpp>
+#include <dodo.hpp>
 #include <stdlib.h>
 
 

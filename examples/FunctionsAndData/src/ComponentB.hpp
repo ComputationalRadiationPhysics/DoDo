@@ -1,6 +1,6 @@
 #pragma once
 
-#include <dodo2.hpp>
+#include <dodo.hpp>
 
 template< typename T_DataModel >
 class ComponentB : public dodo::model::routine::ComponentBase< T_DataModel >

@@ -1,8 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <boost/graph/graphml.hpp>
-#include <dodo2.hpp>
-#include <dodo2/model/hardware/HardwareAbstraction.hpp>
+#include <dodo.hpp>
+#include <dodo/model/hardware/HardwareAbstraction.hpp>
 
 
 

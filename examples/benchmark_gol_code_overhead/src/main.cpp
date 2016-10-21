@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdlib>
-#include <dodo2.hpp>
+#include <dodo.hpp>
 
 template<typename T_DataModel>//x4x
 struct GOLRule : dodo::model::routine::ComponentBase<T_DataModel> {//x4x

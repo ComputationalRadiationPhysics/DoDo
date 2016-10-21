@@ -2,17 +2,17 @@
 
 namespace dodo
 {
-    namespace graph
+namespace graph
+{
+namespace detail
+{
+
+    class SimpleBGLBase
     {
-        namespace detail
-        {
-
-            class SimpleBGLBase
-            {
-            };
+    };
 
 
-        }
-    } /* graph */
+} /* detail */
+} /* graph */
 } /* dodo */
 
