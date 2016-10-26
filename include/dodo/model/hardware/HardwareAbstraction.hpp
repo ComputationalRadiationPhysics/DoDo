@@ -55,6 +55,14 @@ namespace hardware{
             ofs.close();
         }
 
+        /**
+         *
+         * @param[in] name
+         * @param[in] localMap
+         * @param[in,out] dp
+         * @param[in,out] freeList
+         * @
+         */
         template<typename M>
         auto
         addLocalMap(

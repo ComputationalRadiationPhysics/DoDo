@@ -1,5 +1,5 @@
-Dodo
-====
+DoDo - Specification of HPC hardware and program components to enable further optimized mappings
+================================================================================================
 
 Introduction
 ------------
