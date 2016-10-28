@@ -36,12 +36,12 @@ SET_PROPERTY(CACHE DODO_DEBUG PROPERTY STRINGS "0;1;2")
 #-------------------------------------------------------------------------------
 # Find Boost.
 #-------------------------------------------------------------------------------
-#set(_DODO_BOOST_MIN_VER "1.58.0") # minimum version for basic features
+set(_DODO_BOOST_MIN_VER "1.58.0") # minimum version for basic features
 #if(${DODO_DEBUG} GREATER 1)
 #    set(Boost_DEBUG ON)
 #    set(Boost_DETAILED_FAILURE_MSG ON)
 #endif()
-#FIND_PACKAGE(Boost ${_DODO_BOOST_MIN_VER} QUIET)
+FIND_PACKAGE(Boost ${_DODO_BOOST_MIN_VER} REQUIRED)
 #
 #if(${DODO_DEBUG} GREATER 1)
 #    MESSAGE(STATUS "Boost in:")
@@ -96,27 +96,14 @@ SET_PROPERTY(CACHE DODO_DEBUG PROPERTY STRINGS "0;1;2")
 #    MESSAGE(STATUS "Boost_LIBRARY_DIR: ${Boost_LIBRARY_DIR}")
 #endif()
 #
-#if(NOT Boost_FOUND)
-#    MESSAGE(WARNING "Required Dodo dependency Boost (>=${_DODO_BOOST_MIN_VER}) could not be found!")
-#    set(_DODO_FOUND FALSE)
-#
-#else()
-#    LIST(APPEND _DODO_INCLUDE_DIRECTORIES_PUBLIC ${Boost_INCLUDE_DIRS})
-#    LIST(APPEND _DODO_LINK_LIBRARIES_PUBLIC ${Boost_LIBRARIES})
-#endif()
-#
-if(Boost_VERSION LESS 1.61)
-    FIND_PACKAGE(Hana REQUIRED)
-    LIST(APPEND _DODO_INCLUDE_DIRECTORIES_PUBLIC ${Hana_INCLUDE_DIRS})
-endif()
-#
-#FIND_PACKAGE(graybat REQUIRED QUIET)
-#    LIST(APPEND _DODO_INCLUDE_DIRECTORIES_PUBLIC ${graybat_INCLUDE_DIRS})
-#    LIST(APPEND _DODO_LINK_LIBRARIES_PUBLIC ${graybat_LIBRARIES})
 
-FIND_PACKAGE(dout)
-if(dout_FOUND)
-    LIST(APPEND _DODO_INCLUDE_DIRECTORIES_PUBLIC ${dout_INCLUDE_DIRS})
+if(NOT Boost_FOUND)
+    MESSAGE(WARNING "Required Dodo dependency Boost (>=${_DODO_BOOST_MIN_VER}) could not be found!")
+    set(_DODO_FOUND FALSE)
+
+else()
+    LIST(APPEND _DODO_INCLUDE_DIRECTORIES_PUBLIC ${Boost_INCLUDE_DIRS})
+    LIST(APPEND _DODO_LINK_LIBRARIES_PUBLIC ${Boost_LIBRARIES})
 endif()
 
 

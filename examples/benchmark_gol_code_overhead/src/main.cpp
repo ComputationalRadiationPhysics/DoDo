@@ -1,4 +1,4 @@
-#include<mpi.h>
+#include <mpi.h>
 
 #include <iostream>
 #include <vector>
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
 {
     //typedef//x1x
     namespace hwmodel = dodo::model::hardware;//x1x
-    namespace hwVertex = dodo::model::hardware::property::VertexType;//x1x
+    using hwVertex = dodo::model::hardware::property::VertexType;//x1x
     using MyHWAbs = hwmodel::HardwareAbstraction<//x1x
             hwmodel::extension::VertexSpeed,//x1x
             hwmodel::extension::InterconnectBandwidth>;//x1x

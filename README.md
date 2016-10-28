@@ -9,14 +9,16 @@ Installation/Compilation
 ------------------------
 
 ### Dependencies
- - C++14 compatible compiler
-   - `gcc` >= 5.3
-   - `clang` >= 3.6
- - `boost` >= 1.61
+ - C++14 compatible compiler (tested versions shown)
+   - `gcc` >= 4.9
+   - `clang` >= 3.5
+ - `boost` >= 1.58
    - compile time headers
-   - `boost::program_options`
+   - `boost::filesystem`
+   - `boost::program_options` (optional, for some examples)
  - `CMake` >= 3.3
- - `git` >= 1.7.9.5
+ - `git` >= 1.7.9.5 (optional)
+ - OpenMPI >= 1.8 (optional, for some examples)
 
 ### Examples
 This is an example how to compile DoDo and test the example code snippets

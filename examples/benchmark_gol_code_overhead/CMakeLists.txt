@@ -15,7 +15,7 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 set(Dodo_LIBRARIES ${Dodo_LIBRARIES} ${Boost_LIBRARIES})
 
 FIND_PACKAGE(MPI)
-include_directories(SYSTEM ${MPI_INCLUDE_DIRS})
+include_directories(SYSTEM ${MPI_INCLUDE_PATH})
 set(Dodo_LIBRARIES ${Dodo_LIBRARIES} ${MPI_LIBRARIES})
 
 
