@@ -4,7 +4,9 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.3)
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 ADD_SUBDIRECTORY("examples")
 
+###############################################################################
 # Doxygen
+###############################################################################
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doxygen.conf ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
@@ -15,3 +17,20 @@ if(DOXYGEN_FOUND)
     COMMENT "Generating API documentation with Doxygen." VERBATIM
     )
 endif(DOXYGEN_FOUND)
+
+###############################################################################
+# Installation
+###############################################################################
+set(CMAKE_SKIP_INSTALL_ALL_DEPENDENCY true)
+# copy include folder to install folder
+INSTALL(
+    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+    DESTINATION include
+    PATTERN ".git" EXCLUDE
+    )
+
+INSTALL(
+    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
+    DESTINATION include/dodo
+    PATTERN ".git" EXCLUDE
+    )

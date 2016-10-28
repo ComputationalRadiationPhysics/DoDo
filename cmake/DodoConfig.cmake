@@ -9,7 +9,7 @@ project(Dodo)
 set(_DODO_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 # Normalize the path (e.g. remove ../)
-GET_FILENAME_COMPONENT(_DODO_ROOT_DIR "${_DODO_ROOT_DIR}" ABSOLUTE)
+GET_FILENAME_COMPONENT(_DODO_ROOT_DIR "${_DODO_ROOT_DIR}/../" ABSOLUTE)
 
 #-------------------------------------------------------------------------------
 # Set found to true initially and set it on false if a required dependency is missing.
