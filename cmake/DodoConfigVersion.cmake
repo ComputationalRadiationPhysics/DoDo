@@ -1,6 +1,6 @@
-file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/include/dodo/version.hpp" Dodo_VERSION_MAJOR_HPP REGEX "#define DODO_VERSION_MAJOR ")
-file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/include/dodo/version.hpp"  Dodo_VERSION_MINOR_HPP REGEX "#define DODO_VERSION_MINOR ")
-file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/include/dodo/version.hpp"  Dodo_VERSION_PATCH_HPP REGEX "#define DODO_VERSION_PATCH ")
+file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/../include/dodo/version.hpp" Dodo_VERSION_MAJOR_HPP REGEX "#define DODO_VERSION_MAJOR ")
+file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/../include/dodo/version.hpp"  Dodo_VERSION_MINOR_HPP REGEX "#define DODO_VERSION_MINOR ")
+file(STRINGS "${CMAKE_CURRENT_LIST_DIR}/../include/dodo/version.hpp"  Dodo_VERSION_PATCH_HPP REGEX "#define DODO_VERSION_PATCH ")
 
 string(REGEX MATCH "([0-9]+)" Dodo_VERSION_MAJOR  ${Dodo_VERSION_MAJOR_HPP})
 string(REGEX MATCH "([0-9]+)" Dodo_VERSION_MINOR  ${Dodo_VERSION_MINOR_HPP})

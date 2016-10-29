@@ -9,23 +9,18 @@ PROJECT("Dodo_examples")
 # Find Dodo.
 #-------------------------------------------------------------------------------
 SET(DODO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../" CACHE STRING  "The location of the Dodo library")
-LIST(APPEND CMAKE_PREFIX_PATH "${DODO_ROOT}")
-LIST(APPEND CMAKE_MODULE_PATH "${DODO_ROOT}/cmake")
+LIST(APPEND CMAKE_PREFIX_PATH "${DODO_ROOT}/cmake")
 
 FIND_PACKAGE(Dodo REQUIRED)
 ADD_COMPILE_OPTIONS(${Dodo_COMPILE_OPTIONS})
 INCLUDE_DIRECTORIES(${Dodo_INCLUDE_DIRS})
 LINK_LIBRARIES(${Dodo_LIBRARIES})
 
-FIND_PACKAGE(Hana REQUIRED)
-INCLUDE_DIRECTORIES(${Hana_INCLUDE_DIRS})
-
-
-find_program(CCACHE_FOUND ccache)
-if(CCACHE_FOUND)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-endif(CCACHE_FOUND)
+#find_program(CCACHE_FOUND ccache)
+#if(CCACHE_FOUND)
+#    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+#    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+#endif(CCACHE_FOUND)
 
 ################################################################################
 # Compiler Flags

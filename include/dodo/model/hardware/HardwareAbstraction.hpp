@@ -55,6 +55,14 @@ namespace hardware{
             ofs.close();
         }
 
+        /**
+         *
+         * @param[in] name
+         * @param[in] localMap
+         * @param[in,out] dp
+         * @param[in,out] freeList
+         * @
+         */
         template<typename M>
         auto
         addLocalMap(
@@ -105,13 +113,22 @@ namespace hardware{
         -> std::size_t
         {
             std::size_t s = countPropertiesBase( );
-//            countOtherProperties< T_Extensions... >( s );
-            boost::mpl::for_each< boost::mpl::vector<T_Extensions*...> >(
-                [&s, this]( auto i )
-                {
-                    s += this->std::decay< decltype( *i ) >::type::countPropertiesInternal( );
-                }
-            );
+
+            // this requires ugly helper methods..
+            countOtherProperties< T_Extensions... >( s );
+
+            // This alternative is nice and readable, but does only work with gcc6.1 or clang 3.5 and higher
+            // Reason: We use a "free" instance of each extension, but countPropertiesInternal() is
+            //         protected and may only be accessed through the inheritance relationship (which we
+            //         do not do here)
+            // see http://stackoverflow.com/questions/16785069/why-cant-a-derived-class-call-protected-member-function-in-this-code
+            //
+            //boost::mpl::for_each< boost::mpl::vector<T_Extensions*...> >(
+            //    [&s, this]( auto i )
+            //    {
+            //        s += this->std::decay< decltype( *i ) >::type::countPropertiesInternal( );
+            //    }
+            //);
             return s;
         }
 
