@@ -5,6 +5,22 @@ Introduction
 ------------
 
 
+Documentation
+-------------
+
+Documentation is available at [here](https://ComputationalRadiationPhysics.github.io/DoDo)
+
+You can also build your own documentation through the `make doc` target.
+
+
+Literature
+----------
+
+- Diploma thesis [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.163329.svg)](http://dx.doi.org/10.5281/zenodo.163329) by Carlchristian Eckert (2016)
+
+
+************************************************************************
+
 Installation/Compilation
 ------------------------
 
@@ -20,20 +36,20 @@ Installation/Compilation
  - `git` >= 1.7.9.5 (optional)
  - OpenMPI >= 1.8 (optional, for some examples)
 
-### Installation
-This is an example how to compile DoDo to test the example code snippets and shows to install DoDo in a custom directory.
-If you want a system-wide installation, you can change the `CMAKE_INSTALL_PREFIX` to something like `/usr`, which will install DoDo in `/usr/include/dodo`
+### System Installation
+This is an example how to compile DoDo examples and perform system-wide installation, e.g. to `/usr/include/dodo`.
 
 1. **Download the source code:**
  -  `git clone https://github.com/ComputationalRadiationPhysics/DoDo.git`
 2. **Setup directories:**
- - `mkdir -p build`
+ - `cd DoDo`
+ - `mkdir build`
  - `cd build`
- - `cmake ../DoDo -DCMAKE_INSTALL_PREFIX=$HOME/libs`
+ - `cmake -DCMAKE_INSTALL_PREFIX=$HOME/libs` ..
 3. **Build Examples (optional)**
  - `make`
 4. **Install**
- - `make install`
+ - `sudo make install`
 
 
 Linking to your Project
@@ -50,21 +66,6 @@ find_package(Dodo REQUIRED)
 # where to find headers (-I includes for compiler)
 include_directories(SYSTEM ${Dodo_INCLUDE_DIRS})
 ```
-
-************************************************************************
-
-Documentation
--------------
-
-Documentation is available at **TODO: Github Pages**
-
-You can also build your own documentation through the `make doc` target.
-
-
-Literature
-----------
-
-- Diploma thesis [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.163329.svg)](http://dx.doi.org/10.5281/zenodo.163329) by Carlchristian Eckert (2016)
 
 
 Branches
